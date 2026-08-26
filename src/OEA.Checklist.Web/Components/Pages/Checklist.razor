@@ -5,6 +5,7 @@
 @inject IChecklistService ChecklistSvc
 @inject UserSessionState Session
 @inject NavigationManager Nav
+@inject LoginModalState LoginModal
 @implements IAsyncDisposable
 
 <PageTitle>Checklist OEA</PageTitle>
@@ -36,7 +37,7 @@
         <span>
             Estás en modo <strong>solo lectura</strong>. Puedes ver los datos y descargar reportes.
             Para editar o agregar actividades,
-            <a href="Account/Login" class="link link-primary">inicia sesión</a>.
+            <button type="button" @onclick="() => LoginModal.Open()" class="link link-primary">inicia sesión</button>.
         </span>
     </div>
 }

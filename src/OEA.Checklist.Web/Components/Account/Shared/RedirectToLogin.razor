@@ -1,8 +1,24 @@
-﻿@inject NavigationManager NavigationManager
+﻿@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject LoginModalState LoginModal
+@inject AuthenticationStateProvider AuthProvider
 
 @code {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        NavigationManager.NavigateTo($"Account/Login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            // Usuario autenticado pero sin permisos para esta ruta: llévalo al home.
+            // El modal no ayuda aquí porque el problema es de rol, no de credenciales.
+            NavigationManager.NavigateTo("/", forceLoad: false);
+            return;
+        }
+
+        // Anónimo: navega al home y luego abre el modal para iniciar sesión.
+        // Tras login exitoso, el endpoint redirige a returnUrl (la URL original).
+        var target = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.NavigateTo("/", forceLoad: false);
+        LoginModal.Open(target);
     }
 }

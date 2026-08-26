@@ -28,11 +28,11 @@
             @Body
         </main>
 
-        <footer class="footer footer-center p-2 text-xs text-base-content/60 border-t border-base-300 bg-base-100 shrink-0">
-            <aside>
-                <p>© @DateTime.Now.Year · Checklist OEA · Cumplimiento RGCE 7.1.1 · Perfil E3</p>
-            </aside>
-        </footer>
+        <div class="px-4 lg:px-6 pb-2 text-right text-[10px] leading-tight text-base-content/40 shrink-0 select-none pointer-events-none">
+            <span class="font-medium">Compliance Control Center</span>
+            <span class="mx-1">·</span>
+            <span>Hecho por Cristopher Freeman</span>
+        </div>
     </div>
 
     <!-- ── Sidebar ────────────────────────────────────────────────── -->
@@ -48,6 +48,9 @@
         <a href="" class="link">Recargar</a>
     </span>
 </div>
+
+@* Modal global de login: se abre vía LoginModalState.Open() desde cualquier componente. *@
+<LoginModal @rendermode="InteractiveServer" />
 
 @code {
     protected override void OnInitialized()

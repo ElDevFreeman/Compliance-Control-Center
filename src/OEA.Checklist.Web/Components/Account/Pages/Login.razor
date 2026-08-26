@@ -106,7 +106,7 @@
         var user = await UserManager.FindByNameAsync(Input.EmployeeNumber);
         if (user is null)
         {
-            errorMessage = "Número de empleado o contraseña incorrectos.";
+            HandleFailure();
             return;
         }
 
@@ -118,12 +118,6 @@
             Logger.LogInformation("Employee #{Emp} logged in.", Input.EmployeeNumber);
             RedirectManager.RedirectTo(ReturnUrl);
         }
-        else if (result.RequiresTwoFactor)
-        {
-            RedirectManager.RedirectTo(
-                "Account/LoginWith2fa",
-                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
-        }
         else if (result.IsLockedOut)
         {
             Logger.LogWarning("Employee #{Emp} account locked out.", Input.EmployeeNumber);
@@ -131,8 +125,22 @@
         }
         else
         {
-            errorMessage = "Número de empleado o contraseña incorrectos.";
+            HandleFailure();
         }
+    }
+
+    private void HandleFailure()
+    {
+        // Si el submit vino desde el LoginModal, regresa al ReturnUrl con ?loginError=1
+        // para que el modal se re-abra mostrando el mensaje de error, en vez de mostrar
+        // la página /Account/Login completa.
+        if (Input.FromModal && !string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            var separator = ReturnUrl.Contains('?') ? '&' : '?';
+            RedirectManager.RedirectTo($"{ReturnUrl}{separator}loginError=1");
+            return;
+        }
+        errorMessage = "Número de empleado o contraseña incorrectos.";
     }
 
     private sealed class InputModel
@@ -150,5 +158,8 @@
 
         [Display(Name = "Recordarme")]
         public bool RememberMe { get; set; }
+
+        /// <summary>Marca que el submit provino del <c>LoginModal</c>, no de la página completa.</summary>
+        public bool FromModal { get; set; }
     }
 }

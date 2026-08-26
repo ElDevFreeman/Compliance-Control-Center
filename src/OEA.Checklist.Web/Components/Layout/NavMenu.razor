@@ -9,6 +9,7 @@
 @inject IJSRuntime JS
 @inject ThemeState Theme
 @inject NavigationManager Nav
+@inject LoginModalState LoginModal
 
 <div class="bg-base-100 border-r border-base-300 flex flex-col min-h-full is-drawer-open:w-64 is-drawer-close:w-16 transition-[width] duration-200 ease-out">
     <!-- Marca + toggle colapsar -->
@@ -22,8 +23,7 @@
         </div>
         <label for="sidebar-drawer"
                class="btn btn-ghost btn-xs btn-square text-base-content/50 hover:text-base-content shrink-0 hidden lg:inline-flex"
-               title="Colapsar/expandir"
-               @onclick="PersistSidebarStateAsync">
+               title="Colapsar/expandir">
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="h-4 w-4 transition-transform is-drawer-close:rotate-180"
                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,9 +133,9 @@
                                     is-drawer-close:top-auto! is-drawer-close:bottom-0!
                                     overflow-hidden">
                             <div class="p-2">
-                                <form action="Account/Logout" method="post">
+                                <form action="Account/Logout" method="post" data-enhance="false">
                                     <AntiforgeryToken />
-                                    <input type="hidden" name="ReturnUrl" value="/" />
+                                    <input type="hidden" name="ReturnUrl" value="" />
                                     <button type="submit"
                                             class="btn btn-ghost btn-sm w-full justify-start gap-3 font-normal text-error hover:bg-error/10">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
@@ -152,15 +152,16 @@
                 </Authorized>
                 <NotAuthorized>
                     <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Iniciar sesión">
-                        <a href="Account/Login"
-                           class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
+                        <button type="button"
+                                @onclick="OpenLoginModal"
+                                class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
                                  viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                             <span class="is-drawer-close:hidden truncate">Iniciar sesión</span>
-                        </a>
+                        </button>
                     </li>
                 </NotAuthorized>
             </AuthorizeView>
@@ -177,6 +178,8 @@
 
     public void Dispose() => Theme.OnChange -= StateHasChanged;
 
+    private void OpenLoginModal() => LoginModal.Open();
+
     private async Task OnThemeToggleChanged(ChangeEventArgs e)
     {
         // El checkbox theme-controller ya aplicó el tema visualmente vía CSS.
@@ -188,17 +191,6 @@
             await JS.InvokeVoidAsync("oeaTheme.set", Theme.Current);
         }
         catch { /* JS no disponible; el CSS ya aplicó el tema */ }
-    }
-
-    private async Task PersistSidebarStateAsync()
-    {
-        // El <label> ya cambió el checkbox del drawer via el navegador.
-        // Aquí solo persistimos el nuevo estado en localStorage para futuras cargas.
-        try
-        {
-            await JS.InvokeVoidAsync("oeaSidebar.persist", "sidebar-drawer");
-        }
-        catch { }
     }
 
     private record NavItem(string Href, string Label, string IconPath);

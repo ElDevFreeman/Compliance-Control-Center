@@ -18,7 +18,7 @@
             try {
                 var m = document.cookie.match(/(?:^|;\s*)oea_theme=([^;]+)/);
                 var t = m ? decodeURIComponent(m[1]) : (localStorage.getItem("oea_theme") || "emerald");
-                if (t !== "emerald" && t !== "night") t = "emerald";
+                if (t !== "emerald" && t !== "dark") t = "emerald";
                 document.documentElement.setAttribute("data-theme", t);
             } catch (e) { }
         })();

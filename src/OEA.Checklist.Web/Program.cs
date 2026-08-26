@@ -84,8 +84,6 @@ builder.Services.AddScoped<
     IUserClaimsPrincipalFactory<ApplicationUser>,
     AppUserClaimsPrincipalFactory>();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
 // ────────────────────────────────────────────────────────────────
 // Application services
 // ────────────────────────────────────────────────────────────────
@@ -98,6 +96,7 @@ builder.Services.AddScoped<IChecklistNotifier, ChecklistNotifier>();
 // State (scoped porque Blazor Server tiene un scope por circuit)
 builder.Services.AddScoped<ThemeState>();
 builder.Services.AddScoped<UserSessionState>();
+builder.Services.AddScoped<LoginModalState>();
 
 // Blazor-ApexCharts
 builder.Services.AddApexCharts();
@@ -120,6 +119,8 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 // Razor + SignalR

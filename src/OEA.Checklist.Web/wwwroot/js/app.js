@@ -3,9 +3,9 @@
 
 window.oeaTheme = {
     LIGHT: "emerald",
-    DARK: "night",
+    DARK: "dark",
     _normalize: function (t) {
-        return (t === "emerald" || t === "night") ? t : "emerald";
+        return (t === "emerald" || t === "dark") ? t : "emerald";
     },
     _readCookie: function () {
         var m = document.cookie.match(/(?:^|;\s*)oea_theme=([^;]+)/);
@@ -60,6 +60,7 @@ window.oeaDetails = {
 // - collapsed=false => checkbox marcado    => is-drawer-open:*
 window.oeaSidebar = {
     STORAGE_KEY: "oea_sidebar_collapsed",
+    _wired: false,
 
     applyInitial: function (checkboxId) {
         try {
@@ -67,17 +68,20 @@ window.oeaSidebar = {
             if (!cb) return;
             var collapsed = localStorage.getItem(this.STORAGE_KEY) === "true";
             cb.checked = !collapsed;
-        } catch (e) { }
-    },
 
-    persist: function (checkboxId) {
-        try {
-            var cb = document.getElementById(checkboxId);
-            if (!cb) return;
-            // El evento click en el <label> alterna el checkbox DESPUÉS de este handler,
-            // así que invertimos su estado actual para reflejar el estado post-click.
-            var willBeCollapsed = cb.checked; // estará "close" tras el toggle
-            localStorage.setItem(this.STORAGE_KEY, willBeCollapsed ? "true" : "false");
+            // Registra un listener 'change' UNA sola vez para persistir cualquier
+            // cambio del checkbox, sin importar qué <label> o script lo dispare.
+            if (!this._wired) {
+                var self = this;
+                cb.addEventListener("change", function () {
+                    try {
+                        // checked=true  => drawer abierto  => collapsed=false
+                        // checked=false => drawer cerrado  => collapsed=true
+                        localStorage.setItem(self.STORAGE_KEY, cb.checked ? "false" : "true");
+                    } catch (e) { }
+                });
+                this._wired = true;
+            }
         } catch (e) { }
     }
 };

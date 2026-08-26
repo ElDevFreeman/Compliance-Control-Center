@@ -4,6 +4,7 @@
 @inject ICommentService CommentSvc
 @inject UserSessionState Session
 @inject NavigationManager Nav
+@inject LoginModalState LoginModal
 
 <PageTitle>@(_activity?.Item ?? "Actividad")</PageTitle>
 
@@ -192,7 +193,7 @@ else
                     {
                         <div class="alert alert-info alert-soft text-sm">
                             <span>
-                                <a href="Account/Login" class="link link-primary">Inicia sesión</a>
+                                <button type="button" @onclick="() => LoginModal.Open()" class="link link-primary">Inicia sesión</button>
                                 para publicar comentarios.
                             </span>
                         </div>

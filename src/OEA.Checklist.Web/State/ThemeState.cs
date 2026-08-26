@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 namespace OEA.Checklist.Web.State;
 
 /// <summary>
-/// Estado del tema daisyUI ("emerald" claro / "night" oscuro).
+/// Estado del tema daisyUI ("emerald" claro / "dark" oscuro).
 ///
 /// El tema se persiste en <b>dos lados</b> para evitar el flash y para que el
 /// servidor sepa qué tema pintar en el atributo <c>data-theme</c> del <c>&lt;html&gt;</c>:
@@ -15,7 +15,7 @@ namespace OEA.Checklist.Web.State;
 public class ThemeState
 {
     public const string LightTheme = "emerald";
-    public const string DarkTheme = "night";
+    public const string DarkTheme = "dark";
     public const string CookieName = "oea_theme";
 
     private string _theme = LightTheme;
