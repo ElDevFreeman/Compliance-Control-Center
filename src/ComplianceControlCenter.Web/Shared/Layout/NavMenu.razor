@@ -35,19 +35,90 @@
 
     <!-- Navegación -->
     <ul class="menu w-full grow px-2 gap-1">
-        @foreach (var item in PublicNavItems)
+        <!-- Inicio: link directo (no es grupo) -->
+        <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Inicio">
+            <NavLink href=""
+                     Match="NavLinkMatch.All"
+                     ActiveClass="menu-active"
+                     class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span class="is-drawer-close:hidden truncate">Inicio</span>
+            </NavLink>
+        </li>
+
+        <!-- Módulos con sub-items -->
+        @foreach (var module in Modules)
         {
-            <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="@item.Label">
-                <NavLink href="@item.Href"
-                         Match="@(item.Href == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)"
-                         ActiveClass="menu-active"
-                         class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@item.IconPath" />
-                    </svg>
-                    <span class="is-drawer-close:hidden truncate">@item.Label</span>
-                </NavLink>
+            <li class="menu-none is-drawer-open:block is-drawer-close:hidden">
+                @* MODO EXPANDIDO: grupo desplegable con <details>/<summary>.
+                   El atributo 'open' se controla vía _openGroups (todos abiertos por default). *@
+                <details open="@_openGroups.Contains(module.Key)">
+                    <summary class="rounded-lg font-medium"
+                             @onclick:preventDefault="false"
+                             @onclick="() => ToggleGroup(module.Key)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@module.IconPath" />
+                        </svg>
+                        <span class="truncate">@module.Label</span>
+                    </summary>
+                    <ul>
+                        @foreach (var item in module.Items)
+                        {
+                            <li>
+                                <NavLink href="@item.Href"
+                                         Match="NavLinkMatch.All"
+                                         ActiveClass="menu-active"
+                                         class="rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@item.IconPath" />
+                                    </svg>
+                                    <span class="truncate">@item.Label</span>
+                                </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </details>
+            </li>
+
+            @* MODO COLAPSADO: dropdown flyout hacia la derecha con las sub-opciones. *@
+            <li class="is-drawer-open:hidden is-drawer-close:block">
+                <div class="dropdown dropdown-right">
+                    <div tabindex="0" role="button"
+                         class="rounded-lg justify-center px-0 tooltip tooltip-right"
+                         data-tip="@module.Label">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@module.IconPath" />
+                        </svg>
+                    </div>
+                    <ul tabindex="0"
+                        class="dropdown-content menu bg-base-100 rounded-box border border-base-300 shadow-lg w-56 ml-2 z-50 p-2">
+                        <li class="menu-title">
+                            <span>@module.Label</span>
+                        </li>
+                        @foreach (var item in module.Items)
+                        {
+                            <li>
+                                <NavLink href="@item.Href"
+                                         Match="NavLinkMatch.All"
+                                         ActiveClass="menu-active"
+                                         class="rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@item.IconPath" />
+                                    </svg>
+                                    <span class="truncate">@item.Label</span>
+                                </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </li>
         }
 
@@ -193,13 +264,42 @@
         catch { /* JS no disponible; el CSS ya aplicó el tema */ }
     }
 
+    // ────────────────────────────────────────────────────────────────
+    // Modelo de navegación agrupada por módulo
+    // ────────────────────────────────────────────────────────────────
     private record NavItem(string Href, string Label, string IconPath);
+    private record NavModule(string Key, string Label, string IconPath, NavItem[] Items);
 
-    private static readonly NavItem[] PublicNavItems =
+    /// <summary>Estado de expansión de cada grupo. Por defecto todos abiertos.</summary>
+    private HashSet<string> _openGroups = new(new[] { "oea", "ctpat" }, StringComparer.Ordinal);
+
+    private void ToggleGroup(string key)
     {
-        new("",            "Inicio",              "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"),
-        new("oea",         "OEA — Checklist",     "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"),
-        new("oea/matrix",  "OEA — Matriz",        "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"),
-        new("ctpat",       "CTPAT — Revisión",    "M12 15v2m0 0h.01M12 15l-2-2m4 2l2-2m-6 6h8a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v10a2 2 0 002 2z"),
+        if (!_openGroups.Add(key)) _openGroups.Remove(key);
+    }
+
+    /// <summary>Módulos y sus sub-páginas. Extender aquí para agregar nuevos módulos.</summary>
+    private static readonly NavModule[] Modules =
+    {
+        new NavModule(
+            Key: "oea",
+            Label: "OEA",
+            IconPath: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+            Items: new[]
+            {
+                new NavItem("oea",         "Checklist mensual", "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"),
+                new NavItem("oea/matrix",  "Matriz",            "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"),
+                new NavItem("oea/history", "Historial",         "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"),
+            }
+        ),
+        new NavModule(
+            Key: "ctpat",
+            Label: "CTPAT",
+            IconPath: "M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+            Items: new[]
+            {
+                new NavItem("ctpat", "Revisión anual", "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"),
+            }
+        ),
     };
 }
