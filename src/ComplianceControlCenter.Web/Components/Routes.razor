@@ -1,10 +1,11 @@
 @using ComplianceControlCenter.Web.Components.Account.Shared
+@using ComplianceControlCenter.Web.Shared.Layout
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         @* Se usa RouteView por defecto para permitir acceso anónimo.
            Las páginas que requieran login usan [Authorize] y son manejadas
            por AuthorizeRouteView solo cuando aplique. *@
-        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
             <NotAuthorized>
                 <RedirectToLogin />
             </NotAuthorized>

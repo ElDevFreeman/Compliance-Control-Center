@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ApexCharts;
 using ComplianceControlCenter.Web.Components;
-using ComplianceControlCenter.Web.Components.Account;
-using ComplianceControlCenter.Web.Data;
-using ComplianceControlCenter.Web.Export;
-using ComplianceControlCenter.Web.Hubs;
-using ComplianceControlCenter.Web.Services;
-using ComplianceControlCenter.Web.State;
+using ComplianceControlCenter.Web.Core.Identity;
+using ComplianceControlCenter.Web.Core.Data;
+using ComplianceControlCenter.Web.Modules.Oea.Export;
+using ComplianceControlCenter.Web.Modules.Oea.Hubs;
+using ComplianceControlCenter.Web.Core.Services;
+using ComplianceControlCenter.Web.Modules.Oea.Services;
+using ComplianceControlCenter.Web.Core.State;
 
 var builder = WebApplication.CreateBuilder(args);
 

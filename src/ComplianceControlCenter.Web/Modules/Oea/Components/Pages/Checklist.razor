@@ -1,0 +1,552 @@
+@page "/oea"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.SignalR.Client
+@using ComplianceControlCenter.Web.Modules.Oea.Hubs
+@inject IChecklistService ChecklistSvc
+@inject UserSessionState Session
+@inject NavigationManager Nav
+@inject LoginModalState LoginModal
+@implements IAsyncDisposable
+
+<PageTitle>Checklist OEA</PageTitle>
+
+<div class="flex flex-col h-full min-h-0 gap-3">
+
+<!-- ── Encabezado ────────────────────────────────────────────── -->
+<div class="flex flex-wrap items-end justify-between gap-3 shrink-0">
+    <div>
+        <h1 class="text-2xl font-bold text-base-content">Checklist OEA · Auditoría mensual</h1>
+        <p class="text-sm text-base-content/60">
+            Operador Económico Autorizado · Cumplimiento RGCE 7.1.1, Perfil E3
+        </p>
+    </div>
+    <fieldset class="fieldset">
+        <legend class="fieldset-legend">Mes</legend>
+        <MonthPicker Value="@MonthValue" ValueChanged="OnMonthChangedAsync" Align="end" />
+    </fieldset>
+</div>
+
+@if (!_canEdit)
+{
+    <div class="alert alert-info alert-soft shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>
+            Estás en modo <strong>solo lectura</strong>. Puedes ver los datos y descargar reportes.
+            Para editar o agregar actividades,
+            <button type="button" @onclick="() => LoginModal.Open()" class="link link-primary">inicia sesión</button>.
+        </span>
+    </div>
+}
+
+<!-- ── KPIs estilo Southbound ─────────────────────────────────── -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 shrink-0">
+    <KpiCard Label="Total" Value="@Total.ToString()" Variant="neutral"
+             IconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <KpiCard Label="Completadas" Value="@($"{Completed} ({Pct}%)")" Variant="success"
+             IconPath="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <KpiCard Label="En progreso" Value="@InProgress.ToString()" Variant="info"
+             IconPath="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <KpiCard Label="Pendientes" Value="@Pending.ToString()" Variant="warning"
+             IconPath="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-2.5L13.73 4c-.77-.83-1.96-.83-2.73 0L4.08 16.5c-.77.83.19 2.5 1.73 2.5z" />
+    <KpiCard Label="Vencidas" Value="@Overdue.ToString()" Variant="error"
+             IconPath="M6 18L18 6M6 6l12 12" />
+</div>
+
+<!-- ── Toolbar / filtros ──────────────────────────────────────── -->
+<div class="card card-border bg-base-100 border-base-300 shrink-0 fade-in">
+    <div class="card-body p-3">
+        <div class="flex flex-wrap gap-2 items-end">
+            <label class="input input-bordered input-sm flex-1 min-w-[220px] gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text"
+                       class="grow"
+                       placeholder="Buscar item, actividad, descripción..."
+                       @bind="_search"
+                       @bind:event="oninput"
+                       @bind:after="() => _page = 1" />
+            </label>
+
+            <select class="select select-bordered select-sm" @bind="_filterStatus" @bind:after="() => _page = 1">
+                <option value="">Todos los estados</option>
+                @foreach (var s in Enum.GetValues<ComplianceStatus>())
+                {
+                    <option value="@s">@LabelFor(s)</option>
+                }
+            </select>
+
+            <select class="select select-bordered select-sm" @bind="_filterOwner" @bind:after="() => _page = 1">
+                <option value="">Todos los responsables</option>
+                @foreach (var o in AvailableOwners)
+                {
+                    <option value="@o">@o</option>
+                }
+            </select>
+
+            <select class="select select-bordered select-sm" @bind="_filterFreq" @bind:after="() => _page = 1">
+                <option value="">Todas las frecuencias</option>
+                @foreach (var f in AvailableFrequencies)
+                {
+                    <option value="@f">@f</option>
+                }
+            </select>
+
+            <button class="btn btn-sm btn-ghost" @onclick="ClearFilters">Limpiar</button>
+
+            <div class="flex-1"></div>
+
+            <div class="join">
+                <a href="@($"/api/export/checklist.csv?year={_month.Year}&month={_month.Month}")"
+                   class="btn btn-sm btn-outline join-item"
+                   target="_blank"
+                   title="Exportar CSV">
+                    CSV
+                </a>
+                <a href="@($"/api/export/checklist.xlsx?year={_month.Year}&month={_month.Month}")"
+                   class="btn btn-sm btn-outline join-item"
+                   target="_blank"
+                   title="Exportar Excel">
+                    XLSX
+                </a>
+            </div>
+
+            <button class="btn btn-sm btn-primary"
+                    @onclick="() => _addModal!.Show()"
+                    disabled="@(!_canEdit)"
+                    title="@(!_canEdit ? "Inicia sesión para agregar actividades" : "Agregar nueva actividad")">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Fila
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Tabla ──────────────────────────────────────────────────── -->
+<div class="rounded-box border border-base-content/5 bg-base-100 flex-1 min-h-0 flex flex-col overflow-hidden">
+    @if (_loading)
+    {
+        <TableSkeleton Rows="8" Columns="10" />
+    }
+    else if (FilteredActivities.Count == 0)
+    {
+        <div class="text-center py-16 text-base-content/60 flex-1 flex items-center justify-center">
+            @if (_activities.Count == 0)
+            {
+                <span>Sin actividades. Haz click en "＋ Fila" para agregar la primera.</span>
+            }
+            else
+            {
+                <span>Sin resultados con esos filtros.</span>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="flex-1 min-h-0 overflow-auto">
+            <table class="table table-sm table-zebra table-pin-rows">
+                <thead>
+                    <tr class="bg-base-200 text-base-content/70">
+                        <th class="w-32">Item</th>
+                        <th class="w-48">Fundamento</th>
+                        <th class="w-56">Actividad</th>
+                        <th class="w-64">Descripción</th>
+                        <th class="w-40">Documentos</th>
+                        <th class="w-32">Responsable</th>
+                        <th class="w-32">Frecuencia</th>
+                        <th class="w-32">Estado</th>
+                        <th class="w-44">Vencimiento</th>
+                        <th class="w-56">Acción correctiva</th>
+                        <th class="w-12 text-center">Coment.</th>
+                        <th class="w-12"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in PagedActivities)
+                    {
+                        var st = a.MonthlyStatuses.FirstOrDefault();
+                        var isOverdue = st?.Status == ComplianceStatus.Vencido;
+                        <tr class="@(isOverdue ? "bg-error/5" : "") hover:bg-base-200/50">
+                            <td class="font-mono text-xs text-primary font-semibold">@a.Item</td>
+                            <td><EditableCell Value="@a.Legal" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Legal), v)" /></td>
+                            <td><EditableCell Value="@a.Name" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Name), v)" /></td>
+                            <td><EditableCell Value="@a.Description" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Description), v)" /></td>
+                            <td><EditableCell Value="@a.Documents" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Documents), v)" /></td>
+                            <td><EditableCell Value="@a.Owner" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Owner), v)" /></td>
+                            <td><EditableCell Value="@a.Frequency" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Frequency), v)" /></td>
+                            <td>
+                                <StatusMenu Current="@(st?.Status ?? ComplianceStatus.Pendiente)"
+                                            Disabled="!_canEdit"
+                                            OnChange="s => UpdateStatusAsync(a, s)" />
+                            </td>
+                            <td>
+                                <DatePicker SizeClass="input-xs"
+                                            Extra="w-full"
+                                            Value="@(st?.DueDate?.ToString("yyyy-MM-dd"))"
+                                            Disabled="!_canEdit"
+                                            ValueChanged="v => UpdateDueDateAsync(a, v)" />
+                            </td>
+                            <td>
+                                <EditableCell Value="@(st?.CorrectiveActions)"
+                                              Disabled="!_canEdit"
+                                              OnSave="v => UpdateCorrectiveAsync(a, v)" />
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-ghost btn-xs"
+                                        @onclick="() => OpenDrawer(a)"
+                                        title="Comentarios y detalles">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                         viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                    @if (a.Comments.Count > 0)
+                                    {
+                                        <span class="badge badge-xs badge-primary badge-soft">@a.Comments.Count</span>
+                                    }
+                                </button>
+                            </td>
+                            <td>
+                                @if (_canEdit)
+                                {
+                                    <button class="btn btn-ghost btn-xs text-error"
+                                            @onclick="() => ConfirmDeleteAsync(a)"
+                                            title="Eliminar fila">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                        </svg>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <Pager TotalItems="FilteredActivities.Count"
+               CurrentPage="_page"
+               PageSize="_pageSize"
+               CurrentPageChanged="p => _page = p" />
+    }
+</div>
+
+</div>
+
+<AddActivityModal @ref="_addModal" OnCreate="CreateActivityAsync" />
+<ConfirmDialog @ref="_confirmDialog" />
+<Toast @ref="_toast" />
+
+@code {
+    private DateTime _month = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private List<Activity> _activities = new();
+    private bool _loading = true;
+
+    // Filtros
+    private string _search = "";
+    private string _filterStatus = "";
+    private string _filterOwner = "";
+    private string _filterFreq = "";
+
+    // Paginación
+    private int _page = 1;
+    private int _pageSize = 25;
+
+    private AddActivityModal? _addModal;
+    private ConfirmDialog? _confirmDialog;
+    private Toast? _toast;
+    private HubConnection? _hub;
+
+    private string MonthValue => _month.ToString("yyyy-MM");
+    private string CurrentUserName = "";
+    private bool _canEdit;
+
+    // ── KPIs
+    private int Total => _activities.Count;
+    private int Completed => _activities.Count(a => StatusOf(a) == ComplianceStatus.Completado);
+    private int InProgress => _activities.Count(a => StatusOf(a) == ComplianceStatus.EnProgreso);
+    private int Pending => _activities.Count(a => StatusOf(a) == ComplianceStatus.Pendiente);
+    private int Overdue => _activities.Count(a => StatusOf(a) == ComplianceStatus.Vencido);
+    private int Pct
+    {
+        get
+        {
+            var rated = _activities.Count(a => StatusOf(a) != ComplianceStatus.NA);
+            return rated == 0 ? 0 : (int)Math.Round(100.0 * Completed / rated);
+        }
+    }
+
+    private IEnumerable<string> AvailableOwners =>
+        _activities.Select(a => a.Owner).Where(o => !string.IsNullOrWhiteSpace(o)).Distinct().OrderBy(o => o);
+
+    private IEnumerable<string> AvailableFrequencies =>
+        _activities.Select(a => a.Frequency).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(f => f);
+
+    private List<Activity> FilteredActivities
+    {
+        get
+        {
+            IEnumerable<Activity> q = _activities;
+            if (!string.IsNullOrWhiteSpace(_search))
+            {
+                var s = _search.ToLowerInvariant();
+                q = q.Where(a =>
+                    a.Item.ToLower().Contains(s) ||
+                    a.Name.ToLower().Contains(s) ||
+                    a.Description.ToLower().Contains(s) ||
+                    a.Legal.ToLower().Contains(s) ||
+                    a.Documents.ToLower().Contains(s));
+            }
+            if (!string.IsNullOrEmpty(_filterStatus) && Enum.TryParse<ComplianceStatus>(_filterStatus, out var st))
+                q = q.Where(a => StatusOf(a) == st);
+            if (!string.IsNullOrEmpty(_filterOwner))
+                q = q.Where(a => a.Owner == _filterOwner);
+            if (!string.IsNullOrEmpty(_filterFreq))
+                q = q.Where(a => a.Frequency == _filterFreq);
+            return q.ToList();
+        }
+    }
+
+    private IEnumerable<Activity> PagedActivities
+    {
+        get
+        {
+            var list = FilteredActivities;
+            var totalPages = _pageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling((double)list.Count / _pageSize));
+            if (_page > totalPages) _page = totalPages;
+            if (_page < 1) _page = 1;
+            return list.Skip((_page - 1) * _pageSize).Take(_pageSize);
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await Session.GetCurrentAsync();
+        CurrentUserName = user.DisplayName;
+        _canEdit = user.CanEdit;
+        await LoadAsync();
+        await ConnectHubAsync();
+    }
+
+    private async Task ConnectHubAsync()
+    {
+        _hub = new HubConnectionBuilder()
+            .WithUrl(Nav.ToAbsoluteUri(ChecklistHub.HubPath))
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hub.On<HubPayload>(ChecklistHub.ActivityChanged, async payload =>
+        {
+            if (payload.User == CurrentUserName) return;
+            await InvokeAsync(async () =>
+            {
+                await LoadAsync();
+                await _toast!.ShowAsync($"Actividad actualizada por {payload.User}", "info", 2000);
+            });
+        });
+
+        _hub.On<HubPayload>(ChecklistHub.MonthlyStatusChanged, async payload =>
+        {
+            if (payload.User == CurrentUserName) return;
+            if (payload.Year != _month.Year || payload.Month != _month.Month) return;
+            await InvokeAsync(async () =>
+            {
+                var target = _activities.FirstOrDefault(a => a.Id == payload.ActivityId);
+                if (target is not null)
+                {
+                    await ReloadRowAsync(target);
+                    await _toast!.ShowAsync($"Cambio de {payload.User}", "info", 1500);
+                }
+            });
+        });
+
+        try
+        {
+            await _hub.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"SignalR connection failed: {ex.Message}");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hub is not null)
+        {
+            await _hub.DisposeAsync();
+        }
+    }
+
+    private record HubPayload(int ActivityId, string? Action, string User, int Year, int Month);
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _activities = (await ChecklistSvc.GetActivitiesForMonthAsync(_month.Year, _month.Month)).ToList();
+        _loading = false;
+        StateHasChanged();
+    }
+
+    private async Task OnMonthChangedAsync(string? value)
+    {
+        if (!string.IsNullOrEmpty(value) && DateTime.TryParse(value + "-01", out var d))
+        {
+            _month = d;
+            _page = 1;
+            await LoadAsync();
+        }
+    }
+
+    private void ClearFilters()
+    {
+        _search = _filterStatus = _filterOwner = _filterFreq = "";
+        _page = 1;
+    }
+
+    private async Task UpdateFieldAsync(Activity a, string fieldName, string? value)
+    {
+        try
+        {
+            await ChecklistSvc.UpdateActivityFieldAsync(a.Id, fieldName, value, CurrentUserName);
+            var prop = typeof(Activity).GetProperty(fieldName);
+            prop?.SetValue(a, value ?? "");
+            await _toast!.ShowAsync("Guardado", "success", 1200);
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
+
+    private async Task UpdateStatusAsync(Activity a, ComplianceStatus status)
+    {
+        try
+        {
+            await ChecklistSvc.UpdateStatusAsync(a.Id, _month.Year, _month.Month, status, CurrentUserName);
+            EnsureMonthly(a).Status = status;
+            await _toast!.ShowAsync("Estado actualizado", "success", 1200);
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
+
+    private async Task UpdateDueDateAsync(Activity a, string? value)
+    {
+        DateOnly? d = string.IsNullOrEmpty(value) ? null
+                    : DateOnly.TryParse(value, out var parsed) ? parsed : null;
+        try
+        {
+            await ChecklistSvc.UpdateDueDateAsync(a.Id, _month.Year, _month.Month, d, CurrentUserName);
+            var m = EnsureMonthly(a);
+            m.DueDate = d;
+            await ReloadRowAsync(a);
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
+
+    private async Task UpdateCorrectiveAsync(Activity a, string? value)
+    {
+        try
+        {
+            await ChecklistSvc.UpdateCorrectiveAsync(a.Id, _month.Year, _month.Month, value, CurrentUserName);
+            EnsureMonthly(a).CorrectiveActions = value;
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
+
+    private async Task CreateActivityAsync(Activity a)
+    {
+        try
+        {
+            var created = await ChecklistSvc.CreateActivityAsync(a, CurrentUserName);
+            _activities.Add(created);
+            await _toast!.ShowAsync($"Actividad '{created.Item}' creada", "success");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
+
+    private async Task ConfirmDeleteAsync(Activity a)
+    {
+        var ok = await _confirmDialog!.ShowAsync(
+            "Eliminar actividad",
+            $"¿Eliminar la actividad \"{a.Item} · {a.Name}\"? Se marcará como inactiva y desaparecerá del checklist, pero se preservará el historial.",
+            "Eliminar",
+            "btn-error"
+        );
+        if (!ok) return;
+
+        try
+        {
+            await ChecklistSvc.DeleteActivityAsync(a.Id, CurrentUserName);
+            _activities.Remove(a);
+            await _toast!.ShowAsync("Actividad eliminada", "success");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
+
+    private void OpenDrawer(Activity a) => Nav.NavigateTo($"/activity/{a.Id}");
+
+    private ComplianceStatus StatusOf(Activity a) =>
+        a.MonthlyStatuses.FirstOrDefault()?.Status ?? ComplianceStatus.Pendiente;
+
+    private MonthlyStatus EnsureMonthly(Activity a)
+    {
+        var m = a.MonthlyStatuses.FirstOrDefault();
+        if (m is null)
+        {
+            m = new MonthlyStatus
+            {
+                ActivityId = a.Id,
+                Year = _month.Year,
+                Month = _month.Month,
+                Status = ComplianceStatus.Pendiente
+            };
+            a.MonthlyStatuses = new List<MonthlyStatus> { m };
+        }
+        return m;
+    }
+
+    private async Task ReloadRowAsync(Activity a)
+    {
+        var updated = await ChecklistSvc.GetOrCreateMonthlyStatusAsync(a.Id, _month.Year, _month.Month);
+        a.MonthlyStatuses = new List<MonthlyStatus> { updated };
+        StateHasChanged();
+    }
+
+    private static string LabelFor(ComplianceStatus s) => s switch
+    {
+        ComplianceStatus.EnProgreso => "En progreso",
+        ComplianceStatus.NA => "N/A",
+        _ => s.ToString()
+    };
+}
