@@ -55,7 +55,7 @@ yarn-debug.log*
 yarn-error.log*
 
 ## Generated CSS (opcional: coméntalo si prefieres commitear site.css)
-# src/OEA.Checklist.Web/wwwroot/css/site.css
+# src/ComplianceControlCenter.Web/wwwroot/css/site.css
 
 ## SQLite (por si se usa localmente)
 *.db

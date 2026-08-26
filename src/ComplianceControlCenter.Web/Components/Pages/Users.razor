@@ -1,0 +1,419 @@
+@page "/users"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using ComplianceControlCenter.Web.Data
+@inject UserManager<ApplicationUser> UserMgr
+@inject RoleManager<IdentityRole> RoleMgr
+@inject UserSessionState Session
+
+<PageTitle>Usuarios</PageTitle>
+
+<div class="flex flex-wrap items-end justify-between gap-3 mb-4">
+    <div>
+        <h1 class="text-2xl font-bold text-base-content">Usuarios</h1>
+        <p class="text-sm text-base-content/60">Gestión de números de empleado y roles</p>
+    </div>
+    <button class="btn btn-primary btn-sm" @onclick="ShowCreateModal">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Nuevo usuario
+    </button>
+</div>
+
+<div class="rounded-box border border-base-content/5 bg-base-100 overflow-hidden">
+    @if (_loading)
+    {
+        <TableSkeleton Rows="8" Columns="5" />
+    }
+    else if (_users.Count == 0)
+    {
+        <div class="text-center py-16 text-base-content/60">Sin usuarios.</div>
+    }
+    else
+    {
+        <div class="overflow-auto max-h-[70vh]">
+            <table class="table table-sm table-zebra table-pin-rows">
+                <thead>
+                    <tr class="bg-base-200 text-base-content/70">
+                        <th># Empleado</th>
+                        <th>Nombre visible</th>
+                        <th>Rol</th>
+                        <th>Creado</th>
+                        <th class="w-40">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in PagedUsers)
+                    {
+                        <tr class="hover:bg-base-200/50">
+                            <td class="font-mono text-xs text-primary font-semibold">@row.User.UserName</td>
+                            <td>
+                                <EditableCell Value="@row.User.DisplayName"
+                                              OnSave="v => UpdateDisplayNameAsync(row, v)" />
+                            </td>
+                            <td>
+                                <select class="select select-bordered select-xs"
+                                        value="@row.Role"
+                                        @onchange="e => ChangeRoleAsync(row, e.Value?.ToString())">
+                                    <option value="Admin">Admin</option>
+                                    <option value="User">User</option>
+                                </select>
+                            </td>
+                            <td class="text-xs text-base-content/60">
+                                @row.User.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")
+                            </td>
+                            <td>
+                                <div class="flex gap-1">
+                                    <button class="btn btn-ghost btn-xs"
+                                            @onclick="() => ShowResetPasswordModal(row)"
+                                            title="Nueva contraseña">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                        </svg>
+                                    </button>
+                                    @if (row.User.Id != _currentUserId)
+                                    {
+                                        <button class="btn btn-ghost btn-xs text-error"
+                                                @onclick="() => ConfirmDeleteAsync(row)"
+                                                title="Eliminar usuario">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                 viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                            </svg>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <Pager TotalItems="_users.Count"
+               CurrentPage="_page"
+               PageSize="_pageSize"
+               CurrentPageChanged="p => _page = p"
+               PageSizeChanged="s => _pageSize = s" />
+    }
+</div>
+
+<!-- ── Modal crear usuario ────────────────────────────────────── -->
+@if (_createVisible)
+{
+    <div class="modal modal-open" role="dialog" aria-modal="true">
+        <div class="modal-box border border-base-300">
+            <h3 class="font-bold text-lg mb-4">Nuevo usuario</h3>
+            <EditForm Model="_newUser" OnValidSubmit="CreateUserAsync">
+                <DataAnnotationsValidator />
+                <div class="grid grid-cols-1 gap-3">
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">
+                            Número de empleado <span class="text-error">*</span>
+                        </legend>
+                        <InputText @bind-Value="_newUser.EmployeeNumber"
+                                   class="input input-bordered input-sm w-full"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   placeholder="Ej: 12345" />
+                        <ValidationMessage For="() => _newUser.EmployeeNumber" class="fieldset-label text-error" />
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Nombre visible</legend>
+                        <InputText @bind-Value="_newUser.DisplayName"
+                                   class="input input-bordered input-sm w-full"
+                                   placeholder="Nombre del empleado" />
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">
+                            Contraseña <span class="text-error">*</span>
+                        </legend>
+                        <InputText @bind-Value="_newUser.Password"
+                                   class="input input-bordered input-sm w-full"
+                                   type="password"
+                                   placeholder="6 a 20 caracteres" />
+                        <ValidationMessage For="() => _newUser.Password" class="fieldset-label text-error" />
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Rol</legend>
+                        <InputSelect @bind-Value="_newUser.Role" class="select select-bordered select-sm w-full">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                        </InputSelect>
+                    </fieldset>
+                </div>
+                @if (!string.IsNullOrEmpty(_createError))
+                {
+                    <div class="alert alert-error alert-soft mt-3 text-sm">@_createError</div>
+                }
+                <div class="modal-action">
+                    <button type="button" class="btn btn-ghost" @onclick="() => _createVisible = false">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" disabled="@_saving">
+                        @if (_saving) { <span class="loading loading-spinner loading-xs"></span> }
+                        Crear
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+        <div class="modal-backdrop bg-black/40" @onclick="() => _createVisible = false"></div>
+    </div>
+}
+
+<!-- ── Modal cambiar contraseña ───────────────────────────────── -->
+@if (_resetVisible && _resetTarget is not null)
+{
+    <div class="modal modal-open" role="dialog" aria-modal="true">
+        <div class="modal-box border border-base-300">
+            <h3 class="font-bold text-lg mb-4">
+                Nueva contraseña para
+                <span class="font-mono text-sm text-primary">#@_resetTarget.User.UserName</span>
+            </h3>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Contraseña</legend>
+                <input type="password"
+                       class="input input-bordered w-full"
+                       placeholder="6 a 20 caracteres"
+                       @bind="_resetPassword" />
+            </fieldset>
+            @if (!string.IsNullOrEmpty(_resetError))
+            {
+                <div class="alert alert-error alert-soft mt-3 text-sm">@_resetError</div>
+            }
+            <div class="modal-action">
+                <button class="btn btn-ghost" @onclick="() => _resetVisible = false">Cancelar</button>
+                <button class="btn btn-primary" @onclick="ExecuteResetAsync" disabled="@_saving">
+                    @if (_saving) { <span class="loading loading-spinner loading-xs"></span> }
+                    Cambiar
+                </button>
+            </div>
+        </div>
+        <div class="modal-backdrop bg-black/40" @onclick="() => _resetVisible = false"></div>
+    </div>
+}
+
+<ConfirmDialog @ref="_confirmDialog" />
+<Toast @ref="_toast" />
+
+@code {
+    private List<UserRow> _users = new();
+    private bool _loading = true;
+    private string _currentUserId = "";
+
+    // Paginación
+    private int _page = 1;
+    private int _pageSize = 25;
+
+    private IEnumerable<UserRow> PagedUsers
+    {
+        get
+        {
+            var totalPages = _pageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling((double)_users.Count / _pageSize));
+            if (_page > totalPages) _page = totalPages;
+            if (_page < 1) _page = 1;
+            return _users.Skip((_page - 1) * _pageSize).Take(_pageSize);
+        }
+    }
+
+    private ConfirmDialog? _confirmDialog;
+    private Toast? _toast;
+
+    // Crear
+    private bool _createVisible;
+    private bool _saving;
+    private string _createError = "";
+    private NewUserForm _newUser = new();
+
+    // Reset password
+    private bool _resetVisible;
+    private UserRow? _resetTarget;
+    private string _resetPassword = "";
+    private string _resetError = "";
+
+    private void ShowCreateModal()
+    {
+        _newUser = new NewUserForm();
+        _createError = "";
+        _createVisible = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser = await Session.GetCurrentAsync();
+        _currentUserId = currentUser.UserId;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        var list = UserMgr.Users.OrderBy(u => u.UserName).ToList();
+        _users = new List<UserRow>();
+        foreach (var u in list)
+        {
+            var roles = await UserMgr.GetRolesAsync(u);
+            _users.Add(new UserRow(u, roles.FirstOrDefault() ?? "User"));
+        }
+        _loading = false;
+        StateHasChanged();
+    }
+
+    private async Task UpdateDisplayNameAsync(UserRow row, string? value)
+    {
+        row.User.DisplayName = value?.Trim() ?? "";
+        var r = await UserMgr.UpdateAsync(row.User);
+        if (r.Succeeded)
+            await _toast!.ShowAsync("Nombre actualizado", "success", 1200);
+        else
+            await _toast!.ShowAsync(string.Join("; ", r.Errors.Select(e => e.Description)), "error", 4000);
+    }
+
+    private async Task ChangeRoleAsync(UserRow row, string? newRole)
+    {
+        if (string.IsNullOrEmpty(newRole) || newRole == row.Role) return;
+        if (row.User.Id == _currentUserId && newRole != "Admin")
+        {
+            await _toast!.ShowAsync("No puedes quitarte a ti mismo el rol Admin", "warning", 3500);
+            await LoadAsync();
+            return;
+        }
+        var currentRoles = await UserMgr.GetRolesAsync(row.User);
+        var removeResult = await UserMgr.RemoveFromRolesAsync(row.User, currentRoles);
+        if (!removeResult.Succeeded)
+        {
+            await _toast!.ShowAsync("Error al quitar roles previos", "error", 4000);
+            return;
+        }
+        var addResult = await UserMgr.AddToRoleAsync(row.User, newRole);
+        if (addResult.Succeeded)
+        {
+            row.Role = newRole;
+            await _toast!.ShowAsync($"Rol actualizado a {newRole}", "success");
+        }
+        else
+        {
+            await _toast!.ShowAsync(string.Join("; ", addResult.Errors.Select(e => e.Description)), "error");
+        }
+    }
+
+    private void ShowResetPasswordModal(UserRow row)
+    {
+        _resetTarget = row;
+        _resetPassword = "";
+        _resetError = "";
+        _resetVisible = true;
+    }
+
+    private async Task ExecuteResetAsync()
+    {
+        if (_resetTarget is null || string.IsNullOrEmpty(_resetPassword)) return;
+        if (_resetPassword.Length < 6 || _resetPassword.Length > 20)
+        {
+            _resetError = "La contraseña debe tener entre 6 y 20 caracteres";
+            return;
+        }
+        _saving = true;
+        try
+        {
+            var token = await UserMgr.GeneratePasswordResetTokenAsync(_resetTarget.User);
+            var r = await UserMgr.ResetPasswordAsync(_resetTarget.User, token, _resetPassword);
+            if (r.Succeeded)
+            {
+                _resetVisible = false;
+                await _toast!.ShowAsync("Contraseña actualizada", "success");
+            }
+            else
+            {
+                _resetError = string.Join("; ", r.Errors.Select(e => e.Description));
+            }
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task ConfirmDeleteAsync(UserRow row)
+    {
+        var ok = await _confirmDialog!.ShowAsync(
+            "Eliminar usuario",
+            $"¿Eliminar permanentemente al empleado #{row.User.UserName}? Los comentarios y auditoría que hizo se conservarán.",
+            "Eliminar",
+            "btn-error"
+        );
+        if (!ok) return;
+
+        var r = await UserMgr.DeleteAsync(row.User);
+        if (r.Succeeded)
+        {
+            _users.Remove(row);
+            await _toast!.ShowAsync("Usuario eliminado", "success");
+            StateHasChanged();
+        }
+        else
+        {
+            await _toast!.ShowAsync(string.Join("; ", r.Errors.Select(e => e.Description)), "error", 4000);
+        }
+    }
+
+    private async Task CreateUserAsync()
+    {
+        _createError = "";
+        _saving = true;
+        try
+        {
+            var user = new ApplicationUser
+            {
+                UserName = _newUser.EmployeeNumber.Trim(),
+                EmailConfirmed = true,
+                DisplayName = string.IsNullOrWhiteSpace(_newUser.DisplayName)
+                    ? _newUser.EmployeeNumber.Trim()
+                    : _newUser.DisplayName.Trim()
+            };
+            var r = await UserMgr.CreateAsync(user, _newUser.Password);
+            if (!r.Succeeded)
+            {
+                _createError = string.Join("; ", r.Errors.Select(e => e.Description));
+                return;
+            }
+            await UserMgr.AddToRoleAsync(user, _newUser.Role);
+            _createVisible = false;
+            await _toast!.ShowAsync($"Usuario #{user.UserName} creado", "success");
+            await LoadAsync();
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    public class UserRow
+    {
+        public ApplicationUser User { get; set; }
+        public string Role { get; set; }
+        public UserRow(ApplicationUser u, string role) { User = u; Role = role; }
+    }
+
+    public class NewUserForm
+    {
+        [Required(ErrorMessage = "El número de empleado es requerido")]
+        [RegularExpression("^[0-9]+$", ErrorMessage = "Solo se permiten dígitos")]
+        [StringLength(20, MinimumLength = 1, ErrorMessage = "Máximo 20 dígitos")]
+        public string EmployeeNumber { get; set; } = "";
+
+        [Required(ErrorMessage = "La contraseña es requerida")]
+        [StringLength(20, MinimumLength = 6, ErrorMessage = "Debe tener entre 6 y 20 caracteres")]
+        public string Password { get; set; } = "";
+
+        public string DisplayName { get; set; } = "";
+        public string Role { get; set; } = "User";
+    }
+}

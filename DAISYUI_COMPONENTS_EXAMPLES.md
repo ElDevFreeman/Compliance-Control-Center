@@ -1,6 +1,6 @@
 # Componentes DaisyUI - Ejemplos Prácticos
 
-Referencia rápida de componentes DaisyUI con ejemplos de código listos para copiar/pegar en OEA.Checklist.
+Referencia rápida de componentes DaisyUI con ejemplos de código listos para copiar/pegar en ComplianceControlCenter.
 
 ---
 
@@ -842,4 +842,4 @@ Opacity modifiers: /10, /20, /30, /40, /50, /60, /70, /80, /90
 
 ---
 
-**Estos ejemplos están listos para copiar directamente en OEA.Checklist**
+**Estos ejemplos están listos para copiar directamente en ComplianceControlCenter**

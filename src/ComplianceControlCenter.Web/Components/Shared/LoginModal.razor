@@ -1,0 +1,128 @@
+@* Modal global de inicio de sesión.
+   Se abre por cualquier componente vía LoginModalState.Open().
+   Vive en MainLayout, escucha el evento y renderiza el diálogo.
+
+   El submit hace POST HTTP nativo a /Account/Login (la página SSR de Identity),
+   que procesa las credenciales, setea la cookie, y redirige a ReturnUrl.
+   data-enhance="false" evita que Blazor intercepte el submit vía fetch, así
+   la cookie de auth se aplica con recarga completa y AuthorizeView se refresca. *@
+
+@implements IDisposable
+@inject LoginModalState State
+@inject NavigationManager Nav
+
+@if (_visible)
+{
+    <div class="modal modal-open" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+        <div class="modal-box w-11/12 max-w-md border border-base-300">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+                    <span class="text-primary-content font-bold text-sm">CC</span>
+                </div>
+                <div>
+                    <h3 id="login-modal-title" class="font-bold text-lg leading-tight">Iniciar sesión</h3>
+                    <p class="text-xs text-base-content/60 leading-tight">
+                        Requerido para editar o agregar actividades.
+                    </p>
+                </div>
+            </div>
+
+            @if (_showError)
+            {
+                <div class="alert alert-error alert-soft text-sm mb-2">
+                    Número de empleado o contraseña incorrectos.
+                </div>
+            }
+
+            <form method="post" action="Account/Login" data-enhance="false" class="space-y-2">
+                <AntiforgeryToken />
+                <input type="hidden" name="_handler" value="login" />
+                <input type="hidden" name="ReturnUrl" value="@_returnUrl" />
+                <input type="hidden" name="Input.FromModal" value="true" />
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Número de empleado</legend>
+                    <input type="text"
+                           name="Input.EmployeeNumber"
+                           class="input input-bordered w-full"
+                           autocomplete="username"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           maxlength="20"
+                           required
+                           autofocus
+                           placeholder="Ej: 12345" />
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Contraseña</legend>
+                    <input type="password"
+                           name="Input.Password"
+                           class="input input-bordered w-full"
+                           autocomplete="current-password"
+                           minlength="6"
+                           maxlength="20"
+                           required
+                           placeholder="••••••••" />
+                </fieldset>
+
+                <label class="label cursor-pointer justify-start gap-2 mt-1">
+                    <input type="checkbox"
+                           name="Input.RememberMe"
+                           value="true"
+                           class="checkbox checkbox-sm checkbox-primary" />
+                    <span class="label-text">Recordarme</span>
+                </label>
+
+                <div class="modal-action mt-3">
+                    <button type="button" class="btn btn-ghost btn-sm" @onclick="Close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Iniciar sesión</button>
+                </div>
+            </form>
+        </div>
+        <div class="modal-backdrop bg-black/40" @onclick="Close"></div>
+    </div>
+}
+
+@code {
+    private bool _visible;
+    private bool _showError;
+    private string _returnUrl = "";
+
+    protected override void OnInitialized()
+    {
+        State.OnOpenRequested += HandleOpenRequested;
+
+        // Si venimos de un intento fallido de login vía modal, re-abrir con error.
+        var uri = new Uri(Nav.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        if (query.TryGetValue("loginError", out var val) && val == "1")
+        {
+            _showError = true;
+            _returnUrl = Nav.ToBaseRelativePath(Nav.Uri.Split('?')[0]);
+            _visible = true;
+        }
+    }
+
+    private void HandleOpenRequested(string? returnUrl)
+    {
+        // Si no se pasó returnUrl, usa la URL actual (relativa) para que tras login
+        // el usuario regrese exactamente donde estaba.
+        _returnUrl = returnUrl ?? Nav.ToBaseRelativePath(Nav.Uri);
+        _showError = false;
+        _visible = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void Close()
+    {
+        _visible = false;
+        _showError = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        State.OnOpenRequested -= HandleOpenRequested;
+    }
+}

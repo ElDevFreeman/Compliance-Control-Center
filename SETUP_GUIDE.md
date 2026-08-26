@@ -1,6 +1,6 @@
-# Guía de Setup - Implementar DaisyUI en OEA.Checklist
+# Guía de Setup - Implementar DaisyUI en ComplianceControlCenter
 
-Pasos para configurar Tailwind CSS 4 + DaisyUI 5 en el proyecto OEA.Checklist basado en Southbound.Client.
+Pasos para configurar Tailwind CSS 4 + DaisyUI 5 en el proyecto ComplianceControlCenter basado en Southbound.Client.
 
 ---
 
@@ -8,7 +8,7 @@ Pasos para configurar Tailwind CSS 4 + DaisyUI 5 en el proyecto OEA.Checklist ba
 
 ### 1.1 Crear o actualizar package.json
 
-En la raíz del proyecto `OEA.Checklist`:
+En la raíz del proyecto `ComplianceControlCenter`:
 
 ```json
 {
@@ -44,7 +44,7 @@ npm install
 Si no existen, crear:
 
 ```
-OEA.Checklist/
+ComplianceControlCenter/
 ├── Styles/
 │   └── app.css                 # Nuevo archivo
 ├── wwwroot/
@@ -57,7 +57,7 @@ OEA.Checklist/
 
 ## Paso 3: Crear app.css
 
-Ubicación: `OEA.Checklist/Styles/app.css`
+Ubicación: `ComplianceControlCenter/Styles/app.css`
 
 ```css
 @import "tailwindcss";
@@ -94,7 +94,7 @@ Ubicación: `OEA.Checklist/Styles/app.css`
 
 ## Paso 4: Crear tailwind.extension.json
 
-Ubicación: `OEA.Checklist/tailwind.extension.json`
+Ubicación: `ComplianceControlCenter/tailwind.extension.json`
 
 Para que Visual Studio detecte Tailwind:
 
@@ -155,7 +155,7 @@ Asegurarse de que el CSS compilado se carga:
 
 ## Paso 6: Crear Scripts JavaScript
 
-Ubicación: `OEA.Checklist/wwwroot/js/theme.js` (nuevo archivo)
+Ubicación: `ComplianceControlCenter/wwwroot/js/theme.js` (nuevo archivo)
 
 ```javascript
 window.sbTheme = {
@@ -206,7 +206,7 @@ Incluir en `index.html`:
 
 ### 7.1 ThemeState.cs
 
-Ubicación: `OEA.Checklist/State/ThemeState.cs`
+Ubicación: `ComplianceControlCenter/State/ThemeState.cs`
 
 ```csharp
 namespace OeaChecklist.State;
@@ -241,7 +241,7 @@ public class ThemeState
 
 ### 7.2 LocalizationState.cs
 
-Ubicación: `OEA.Checklist/State/LocalizationState.cs`
+Ubicación: `ComplianceControlCenter/State/LocalizationState.cs`
 
 ```csharp
 namespace OeaChecklist.State;
@@ -331,7 +331,7 @@ await builder.Build().RunAsync();
 
 ## Paso 9: Crear MainLayout.razor
 
-Ubicación: `OEA.Checklist/Layout/MainLayout.razor`
+Ubicación: `ComplianceControlCenter/Layout/MainLayout.razor`
 
 ```razor
 @inherits LayoutComponentBase
@@ -378,7 +378,7 @@ Ubicación: `OEA.Checklist/Layout/MainLayout.razor`
 
 ## Paso 10: Crear NavMenu.razor
 
-Ubicación: `OEA.Checklist/Layout/NavMenu.razor`
+Ubicación: `ComplianceControlCenter/Layout/NavMenu.razor`
 
 ```razor
 @inject ThemeState Theme
@@ -554,7 +554,7 @@ npx tailwindcss -i ./Styles/app.css -o ./wwwroot/css/site.css
 ## Estructura Final de Carpetas
 
 ```
-OEA.Checklist/
+ComplianceControlCenter/
 ├── App.razor
 ├── Program.cs
 ├── _Imports.razor

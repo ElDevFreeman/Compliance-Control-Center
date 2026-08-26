@@ -40,11 +40,11 @@ generadas por ASP.NET Identity.
 ## Estructura de la solución
 
 ```
-OEA.Checklist/
-├── OEA.Checklist.sln
+ComplianceControlCenter/
+├── ComplianceControlCenter.sln
 ├── SQL/                                 (scripts SQL opcionales)
 └── src/
-    └── OEA.Checklist.Web/               (proyecto único, monolítico)
+    └── ComplianceControlCenter.Web/               (proyecto único, monolítico)
         ├── Components/
         │   ├── Account/                 (páginas de Identity generadas)
         │   ├── Layout/                  (MainLayout, NavMenu, ThemeToggle)
@@ -79,10 +79,10 @@ OEA.Checklist/
 ### 2. Restaurar dependencias
 
 ```powershell
-cd C:\Users\freemanc6\Desktop\Projects\Warehouse\MicroProjects\OEA.Checklist
+cd C:\Users\freemanc6\Desktop\Projects\Warehouse\MicroProjects\ComplianceControlCenter
 dotnet restore
 
-cd src\OEA.Checklist.Web
+cd src\ComplianceControlCenter.Web
 pnpm install                # o: npm install
 ```
 
@@ -101,7 +101,7 @@ pnpm run css:watch
 La migración inicial se creó con el proyecto. Para aplicarla:
 
 ```powershell
-cd src\OEA.Checklist.Web
+cd src\ComplianceControlCenter.Web
 dotnet ef database update
 ```
 
@@ -130,7 +130,7 @@ Login inicial: `admin@oea.local` / `Admin!2025`.
 Cuando modifiques entidades:
 
 ```powershell
-cd src\OEA.Checklist.Web
+cd src\ComplianceControlCenter.Web
 dotnet ef migrations add NombreDescriptivo
 dotnet ef database update
 ```

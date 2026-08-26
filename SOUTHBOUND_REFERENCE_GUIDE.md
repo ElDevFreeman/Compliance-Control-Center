@@ -1,6 +1,6 @@
 # Southbound.Client - DaisyUI Reference Guide
 
-Documento de referencia del proyecto **Southbound.Client** que utiliza **Tailwind CSS v4**, **DaisyUI v5** y **Blazor WebAssembly**. Este proyecto es la base para rediseñar OEA.Checklist.
+Documento de referencia del proyecto **Southbound.Client** que utiliza **Tailwind CSS v4**, **DaisyUI v5** y **Blazor WebAssembly**. Este proyecto es la base para rediseñar ComplianceControlCenter.
 
 ---
 
@@ -1123,4 +1123,4 @@ Animación de carga personalizada que se renderiza antes de que Blazor cargue:
 
 ---
 
-**Documento preparado para servir como referencia de rediseño de OEA.Checklist**
+**Documento preparado para servir como referencia de rediseño de ComplianceControlCenter**

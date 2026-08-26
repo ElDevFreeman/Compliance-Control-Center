@@ -1,0 +1,204 @@
+@* NavMenu - Sidebar colapsable con el patrón oficial daisyUI:
+   `is-drawer-open:` y `is-drawer-close:` reaccionan automáticamente al
+   estado del checkbox <input class="drawer-toggle">.
+
+   Requiere InteractiveServer para que el toggle de tema y otros @onclick
+   del sidebar respondan al usuario (el layout por defecto es SSR estático). *@
+@rendermode InteractiveServer
+@implements IDisposable
+@inject IJSRuntime JS
+@inject ThemeState Theme
+@inject NavigationManager Nav
+@inject LoginModalState LoginModal
+
+<div class="bg-base-100 border-r border-base-300 flex flex-col min-h-full is-drawer-open:w-64 is-drawer-close:w-16 transition-[width] duration-200 ease-out">
+    <!-- Marca + toggle colapsar -->
+    <div class="flex items-center gap-3 p-3 is-drawer-close:flex-col is-drawer-close:gap-2">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <span class="text-primary-content font-bold text-sm">CC</span>
+        </div>
+        <div class="min-w-0 flex-1 is-drawer-close:hidden">
+            <h2 class="font-semibold text-base-content text-sm truncate">Compliance Control Center</h2>
+            <p class="text-xs text-base-content/50 truncate">Auditoría mensual</p>
+        </div>
+        <label for="sidebar-drawer"
+               class="btn btn-ghost btn-xs btn-square text-base-content/50 hover:text-base-content shrink-0 hidden lg:inline-flex"
+               title="Colapsar/expandir">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-4 w-4 transition-transform is-drawer-close:rotate-180"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+        </label>
+    </div>
+
+    <!-- Navegación -->
+    <ul class="menu w-full grow px-2 gap-1">
+        @foreach (var item in PublicNavItems)
+        {
+            <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="@item.Label">
+                <NavLink href="@item.Href"
+                         Match="@(item.Href == "" ? NavLinkMatch.All : NavLinkMatch.Prefix)"
+                         ActiveClass="menu-active"
+                         class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@item.IconPath" />
+                    </svg>
+                    <span class="is-drawer-close:hidden truncate">@item.Label</span>
+                </NavLink>
+            </li>
+        }
+
+        <AuthorizeView Roles="Admin">
+            <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Usuarios">
+                <NavLink href="users"
+                         Match="NavLinkMatch.Prefix"
+                         ActiveClass="menu-active"
+                         class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 3a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="is-drawer-close:hidden truncate">Usuarios</span>
+                </NavLink>
+            </li>
+        </AuthorizeView>
+    </ul>
+
+    <!-- Pie: theme toggle + sesión -->
+    <div class="px-2 pb-3">
+        <div class="border-t border-base-300 my-2"></div>
+
+        <ul class="menu w-full gap-1">
+            <!-- Theme toggle: usa daisyUI theme-controller (CSS puro).
+                 El checkbox nativo aplica el tema por CSS sin depender de JS.
+                 El @onchange sólo persiste el valor y sincroniza el estado C#. -->
+            <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                data-tip="@(Theme.IsDark ? "Modo claro" : "Modo oscuro")">
+                <label class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0 cursor-pointer">
+                    <input type="checkbox"
+                           value="@ThemeState.DarkTheme"
+                           class="theme-controller swap swap-rotate hidden"
+                           checked="@Theme.IsDark"
+                           @onchange="OnThemeToggleChanged" />
+                    @if (Theme.IsDark)
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    }
+                    <span class="is-drawer-close:hidden truncate">
+                        @(Theme.IsDark ? "Modo claro" : "Modo oscuro")
+                    </span>
+                </label>
+            </li>
+
+            <!-- Sesión -->
+            <AuthorizeView>
+                <Authorized>
+                    @{
+                        var displayName = context.User.FindFirst("DisplayName")?.Value
+                                        ?? context.User.Identity?.Name
+                                        ?? "";
+                        var initial = string.IsNullOrEmpty(displayName)
+                            ? "?"
+                            : displayName[0].ToString().ToUpper();
+                    }
+                    <li class="dropdown is-drawer-open:dropdown-top is-drawer-open:dropdown-end is-drawer-close:dropdown-right w-full">
+                        <div tabindex="0"
+                             role="button"
+                             class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0"
+                             aria-label="Menú de usuario">
+                            <span class="inline-flex items-center justify-center h-4 w-4 shrink-0 rounded-full bg-primary text-primary-content text-[9px] font-semibold leading-none">
+                                @initial
+                            </span>
+                            <span class="is-drawer-close:hidden truncate">@displayName</span>
+                        </div>
+                        <div tabindex="0"
+                             class="dropdown-content bg-base-100 text-base-content rounded-box border border-base-300 shadow-lg w-56 z-50
+                                    is-drawer-open:mb-2 is-drawer-close:ml-2
+                                    is-drawer-close:top-auto! is-drawer-close:bottom-0!
+                                    overflow-hidden">
+                            <div class="p-2">
+                                <form action="Account/Logout" method="post" data-enhance="false">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="ReturnUrl" value="" />
+                                    <button type="submit"
+                                            class="btn btn-ghost btn-sm w-full justify-start gap-3 font-normal text-error hover:bg-error/10">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        </svg>
+                                        <span>Cerrar sesión</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                </Authorized>
+                <NotAuthorized>
+                    <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Iniciar sesión">
+                        <button type="button"
+                                @onclick="OpenLoginModal"
+                                class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span class="is-drawer-close:hidden truncate">Iniciar sesión</span>
+                        </button>
+                    </li>
+                </NotAuthorized>
+            </AuthorizeView>
+        </ul>
+
+        <div class="px-3 py-2 is-drawer-close:hidden">
+            <p class="text-xs text-base-content/40">v1.0.0</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized() => Theme.OnChange += StateHasChanged;
+
+    public void Dispose() => Theme.OnChange -= StateHasChanged;
+
+    private void OpenLoginModal() => LoginModal.Open();
+
+    private async Task OnThemeToggleChanged(ChangeEventArgs e)
+    {
+        // El checkbox theme-controller ya aplicó el tema visualmente vía CSS.
+        // Aquí sincronizamos el estado C# y persistimos la elección.
+        var isChecked = e.Value is bool b && b;
+        Theme.Set(isChecked ? ThemeState.DarkTheme : ThemeState.LightTheme);
+        try
+        {
+            await JS.InvokeVoidAsync("cccTheme.set", Theme.Current);
+        }
+        catch { /* JS no disponible; el CSS ya aplicó el tema */ }
+    }
+
+    private record NavItem(string Href, string Label, string IconPath);
+
+    private static readonly NavItem[] PublicNavItems =
+    {
+        new("",        "Checklist", "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"),
+        new("matrix",  "Matriz y Auditoria",    "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"),
+        
+    };
+}

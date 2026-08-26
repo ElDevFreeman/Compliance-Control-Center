@@ -49,7 +49,7 @@ appsettings.Development.Local.json
 
 Ya está creado en el repositorio:
 
-**Archivo:** `src/OEA.Checklist.Web/appsettings.Development.Local.json`
+**Archivo:** `src/ComplianceControlCenter.Web/appsettings.Development.Local.json`
 
 ```json
 {
@@ -85,7 +85,7 @@ Ya está creado en el repositorio:
 
 ```powershell
 # Ejemplo (en Windows)
-cd src\OEA.Checklist.Web
+cd src\ComplianceControlCenter.Web
 copy appsettings.example.json appsettings.Development.Local.json
 # Editar appsettings.Development.Local.json con credenciales reales
 dotnet run

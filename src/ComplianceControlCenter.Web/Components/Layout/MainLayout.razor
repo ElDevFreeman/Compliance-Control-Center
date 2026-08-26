@@ -1,0 +1,74 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject ThemeState Theme
+@inject IJSRuntime JS
+
+<div class="drawer lg:drawer-open">
+    <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" checked />
+
+    <!-- ── Contenido principal ────────────────────────────────────── -->
+    <div class="drawer-content flex flex-col h-screen bg-base-200 min-w-0 overflow-hidden">
+        <!-- Topbar móvil (solo se muestra en < lg) -->
+        <div class="navbar bg-base-100 border-b border-base-300 lg:hidden shadow-sm sticky top-0 z-30 shrink-0">
+            <div class="flex-none">
+                <label for="sidebar-drawer" class="btn btn-square btn-ghost" aria-label="Abrir menú">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         class="inline-block w-5 h-5 stroke-current">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </label>
+            </div>
+            <div class="flex-1">
+                <span class="text-lg font-semibold text-base-content">Compliance Control Center</span>
+            </div>
+        </div>
+
+        <main class="flex-1 min-h-0 flex flex-col p-4 lg:p-6 fade-in min-w-0 overflow-hidden">
+            @Body
+        </main>
+
+        <div class="px-4 lg:px-6 pb-2 text-right text-[10px] leading-tight text-base-content/40 shrink-0 select-none pointer-events-none">
+            <span class="font-medium">Compliance Control Center</span>
+            <span class="mx-1">·</span>
+            <span>Hecho por Cristopher Freeman</span>
+        </div>
+    </div>
+
+    <!-- ── Sidebar ────────────────────────────────────────────────── -->
+    <div class="drawer-side z-40 overflow-visible">
+        <label for="sidebar-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
+        <NavMenu />
+    </div>
+</div>
+
+<div id="blazor-error-ui" class="hidden">
+    <span class="alert alert-error">
+        Ha ocurrido un error no controlado.
+        <a href="" class="link">Recargar</a>
+    </span>
+</div>
+
+@* Modal global de login: se abre vía LoginModalState.Open() desde cualquier componente. *@
+<LoginModal @rendermode="InteractiveServer" />
+
+@code {
+    protected override void OnInitialized()
+    {
+        Theme.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            // Aplica el estado guardado del sidebar (colapsado o no) al checkbox del drawer.
+            await JS.InvokeVoidAsync("cccSidebar.applyInitial", "sidebar-drawer");
+        }
+        catch { /* prerender u otro; ignorar */ }
+    }
+
+    public void Dispose() => Theme.OnChange -= StateHasChanged;
+}

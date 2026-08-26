@@ -1,6 +1,6 @@
 # Índice de Documentación - Southbound.Client Reference
 
-**Guía de navegación para rediseñar OEA.Checklist usando Southbound.Client como referencia**
+**Guía de navegación para rediseñar ComplianceControlCenter usando Southbound.Client como referencia**
 
 ---
 
@@ -52,7 +52,7 @@
 ---
 
 ### 3. 🚀 SETUP_GUIDE.md (Lo Práctico - Instalación)
-**Contenido:** Guía paso a paso para configurar OEA.Checklist
+**Contenido:** Guía paso a paso para configurar ComplianceControlCenter
 
 **Secciones:**
 1. Instalar dependencias NPM
@@ -71,7 +71,7 @@
 14. Verificación
 15. Troubleshooting
 
-**Lee esto si:** Necesitas implementar DaisyUI en OEA.Checklist desde cero
+**Lee esto si:** Necesitas implementar DaisyUI en ComplianceControlCenter desde cero
 
 **Tiempo de lectura:** 5-10 minutos (12-16 horas de implementación)
 
@@ -210,7 +210,7 @@ dotnet run
 ## 📁 Estructura de Carpetas
 
 ```
-OEA.Checklist/
+ComplianceControlCenter/
 ├── SOUTHBOUND_REFERENCE_GUIDE.md      ← Lee aquí primero
 ├── DAISYUI_COMPONENTS_EXAMPLES.md     ← Copia código de aquí
 ├── SETUP_GUIDE.md                     ← Sigue pasos de aquí
@@ -319,7 +319,7 @@ Si algo no funciona:
 - [ ] Leí ANALYSIS_SUMMARY.md
 - [ ] Tengo Node.js/npm/pnpm instalado
 - [ ] Tengo Visual Studio o VS Code
-- [ ] Tengo el proyecto OEA.Checklist abierto
+- [ ] Tengo el proyecto ComplianceControlCenter abierto
 - [ ] Tengo acceso a Southbound.Client para referencia
 - [ ] Archivos .md están en la carpeta correcta
 - [ ] Estoy listo para empezar
@@ -330,7 +330,7 @@ Si algo no funciona:
 
 **Autor**: Análisis automático de Southbound.Client
 
-**Estado**: Listo para implementación en OEA.Checklist
+**Estado**: Listo para implementación en ComplianceControlCenter
 
 ---
 
