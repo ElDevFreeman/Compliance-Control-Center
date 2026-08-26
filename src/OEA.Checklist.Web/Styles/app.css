@@ -1,0 +1,136 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: emerald --default, night --prefersdark;
+}
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@source "../Components/**/*.razor";
+
+/* ─────────────────────────────────────────────
+   Utilidades custom
+   ───────────────────────────────────────────── */
+@utility fade-in {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@utility fade-in-fast {
+  animation: fadeSlideIn 0.18s ease-out;
+}
+
+@utility slide-in-right {
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility slide-in-left {
+  animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility scale-in {
+  animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility pop-in {
+  animation: popIn 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Aplica una transición suave estándar a un elemento. */
+@utility smooth {
+  transition: background-color 200ms ease, color 200ms ease,
+              border-color 200ms ease, transform 200ms ease,
+              box-shadow 200ms ease, opacity 200ms ease;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Respeta la preferencia del sistema de reducir movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .fade-in-fast,
+  .slide-in-right,
+  .slide-in-left,
+  .scale-in,
+  .pop-in {
+    animation: none !important;
+  }
+}
+
+/* Blazor error UI (defecto del template) */
+#blazor-error-ui {
+    color-scheme: light only;
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

@@ -1,0 +1,63 @@
+@* Menú desplegable de estado usando daisyUI details/summary + dropdown.
+   Se cierra automáticamente al seleccionar una opción via JS interop
+   (details.open = false), ya que el atributo open no se controla desde
+   Razor de forma reactiva por sí solo. *@
+@inject IJSRuntime JS
+
+<details class="dropdown" @ref="_details" @onfocusout="OnFocusOutAsync">
+    <summary class="list-none cursor-pointer">
+        <StatusBadge Status="@Current" />
+    </summary>
+    <ul class="dropdown-content menu bg-base-100 rounded-box z-20 w-44 p-2 shadow border border-base-300">
+        @foreach (var status in AllStatuses)
+        {
+            <li>
+                <button type="button"
+                        @onclick="() => SelectAsync(status)"
+                        class="justify-between rounded-md">
+                    <StatusBadge Status="@status" />
+                    @if (status == Current)
+                    {
+                        <span class="text-primary">✓</span>
+                    }
+                </button>
+            </li>
+        }
+    </ul>
+</details>
+
+@code {
+    [Parameter, EditorRequired] public ComplianceStatus Current { get; set; }
+    [Parameter, EditorRequired] public EventCallback<ComplianceStatus> OnChange { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    private ElementReference _details;
+
+    private static readonly ComplianceStatus[] AllStatuses = new[]
+    {
+        ComplianceStatus.Pendiente,
+        ComplianceStatus.EnProgreso,
+        ComplianceStatus.Completado,
+        ComplianceStatus.Vencido,
+        ComplianceStatus.NA
+    };
+
+    private async Task SelectAsync(ComplianceStatus s)
+    {
+        await CloseAsync();
+        if (Disabled || s == Current) return;
+        await OnChange.InvokeAsync(s);
+    }
+
+    private async Task OnFocusOutAsync() => await CloseAsync();
+
+    private async Task CloseAsync()
+    {
+        try
+        {
+            // Quita el atributo `open` del <details> para colapsar el dropdown.
+            await JS.InvokeVoidAsync("oeaDetails.close", _details);
+        }
+        catch { /* JS aún no disponible durante prerender; ignorar */ }
+    }
+}

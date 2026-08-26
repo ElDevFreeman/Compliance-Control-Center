@@ -1,0 +1,68 @@
+@* Pager reutilizable con daisyUI (join). Muestra:
+   - Rango visible ("11-25 de 138").
+   - Botones anterior/siguiente y saltos rápidos.
+   Tamaño de página fijo (25). *@
+
+@if (TotalItems > 0)
+{
+    <div class="flex flex-wrap items-center justify-between gap-2 p-2 border-t border-base-300 text-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-base-content/60">
+                @RangeText de <span class="font-semibold text-base-content">@TotalItems</span>
+            </span>
+        </div>
+
+        <div class="join">
+            <button class="join-item btn btn-xs"
+                    @onclick="() => GoToPageAsync(1)"
+                    disabled="@(CurrentPage <= 1)"
+                    title="Primera página">«</button>
+            <button class="join-item btn btn-xs"
+                    @onclick="() => GoToPageAsync(CurrentPage - 1)"
+                    disabled="@(CurrentPage <= 1)"
+                    title="Anterior">‹</button>
+            <button class="join-item btn btn-xs btn-active pointer-events-none">
+                @CurrentPage / @TotalPages
+            </button>
+            <button class="join-item btn btn-xs"
+                    @onclick="() => GoToPageAsync(CurrentPage + 1)"
+                    disabled="@(CurrentPage >= TotalPages)"
+                    title="Siguiente">›</button>
+            <button class="join-item btn btn-xs"
+                    @onclick="() => GoToPageAsync(TotalPages)"
+                    disabled="@(CurrentPage >= TotalPages)"
+                    title="Última página">»</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public int TotalItems { get; set; }
+    [Parameter, EditorRequired] public int CurrentPage { get; set; } = 1;
+    [Parameter] public int PageSize { get; set; } = 25;
+
+    [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
+    // Conservado por compatibilidad; el tamaño de página ahora es fijo.
+    [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
+
+    private int TotalPages => PageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling((double)TotalItems / PageSize));
+
+    private string RangeText
+    {
+        get
+        {
+            if (TotalItems == 0) return "0";
+            var from = (CurrentPage - 1) * PageSize + 1;
+            var to = Math.Min(CurrentPage * PageSize, TotalItems);
+            return $"{from}-{to}";
+        }
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (page < 1) page = 1;
+        if (page > TotalPages) page = TotalPages;
+        if (page == CurrentPage) return;
+        await CurrentPageChanged.InvokeAsync(page);
+    }
+}

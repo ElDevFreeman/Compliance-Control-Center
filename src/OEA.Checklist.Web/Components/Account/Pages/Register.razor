@@ -1,0 +1,29 @@
+﻿@page "/Account/Register"
+@inject NavigationManager Nav
+
+<PageTitle>Registro deshabilitado</PageTitle>
+
+<div class="hero min-h-[60vh]">
+    <div class="hero-content max-w-md text-center">
+        <div class="card card-border bg-base-100 border-base-300 w-full">
+            <div class="card-body">
+                <div class="mx-auto text-warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 15v2m0 4h.01M4.938 19h14.124c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <h1 class="card-title justify-center text-lg mt-2">Registro no disponible</h1>
+                <p class="text-sm text-base-content/70">
+                    El auto-registro está deshabilitado. Los administradores dan de alta los
+                    números de empleado desde la sección de <strong>Usuarios</strong>.
+                </p>
+                <div class="card-actions justify-center mt-4 flex-col gap-2">
+                    <a href="Account/Login" class="btn btn-primary btn-sm w-full">Ir a iniciar sesión</a>
+                    <a href="/" class="btn btn-ghost btn-sm w-full">Volver al checklist</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

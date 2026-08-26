@@ -1,0 +1,53 @@
+@* Tarjeta KPI estilo Southbound: fondo saturado con color de contenido + icono.
+   Variante "neutral" usa card estándar con card-border. *@
+
+@{
+    var (bgCls, textCls) = Variant switch
+    {
+        "success" => ("bg-success",  "text-success-content"),
+        "warning" => ("bg-warning",  "text-warning-content"),
+        "error"   => ("bg-error",    "text-error-content"),
+        "info"    => ("bg-info",     "text-info-content"),
+        "primary" => ("bg-primary",  "text-primary-content"),
+        _         => ("bg-base-100", "text-base-content")
+    };
+
+    var isNeutral = Variant == "neutral";
+    var wrapperCls = isNeutral
+        ? "card card-border bg-base-100 border-base-300 scale-in smooth hover:-translate-y-0.5 hover:shadow-md"
+        : $"{bgCls} {textCls} rounded-box shadow-sm scale-in smooth hover:-translate-y-0.5 hover:shadow-md";
+    var innerCls = isNeutral ? "card-body p-5 gap-2" : "p-5";
+}
+
+<div class="@wrapperCls">
+    <div class="@innerCls">
+        <div class="flex items-center justify-between">
+            <span class="text-sm font-medium @(isNeutral ? "text-base-content/60 uppercase tracking-wider text-xs" : "opacity-90")">
+                @Label
+            </span>
+            @if (!string.IsNullOrEmpty(IconPath))
+            {
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-6 w-6 shrink-0 @(isNeutral ? "text-base-content/40" : "opacity-80")"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="@IconPath" />
+                </svg>
+            }
+        </div>
+        <div class="mt-2 text-3xl font-bold tabular-nums leading-tight">@Value</div>
+        @if (!string.IsNullOrEmpty(SubText))
+        {
+            <div class="mt-1 text-xs @(isNeutral ? "text-base-content/50" : "opacity-80")">@SubText</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter, EditorRequired] public string Value { get; set; } = "";
+    [Parameter] public string? SubText { get; set; }
+    /// <summary>primary | success | warning | error | info | neutral</summary>
+    [Parameter] public string Variant { get; set; } = "primary";
+    /// <summary>Path SVG opcional para el icono en la esquina superior derecha.</summary>
+    [Parameter] public string? IconPath { get; set; }
+}

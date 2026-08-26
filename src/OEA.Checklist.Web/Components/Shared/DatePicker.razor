@@ -1,0 +1,273 @@
+@* Selector de fecha con calendario custom (patrón FDS adaptado a daisyUI).
+   Muestra un trigger tipo input y despliega un popover con calendario mensual.
+   La firma pública (Value como string yyyy-MM-dd, ValueChanged<string?>, SizeClass, Extra, Min, Max, Disabled)
+   se mantiene para preservar compatibilidad con las llamadas existentes. *@
+
+@using System.Globalization
+
+<div class="relative inline-block @Extra @(Disabled ? "opacity-60 pointer-events-none" : "")">
+    <!-- Trigger -->
+    <button type="button"
+            class="input input-bordered @SizeClass flex items-center gap-2 w-full text-left cursor-pointer"
+            disabled="@Disabled"
+            @onclick="Toggle"
+            @onclick:stopPropagation="true"
+            @onkeydown="HandleTriggerKeyDown">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60 shrink-0" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="grow truncate @(_selected is null ? "opacity-50" : "")">
+            @(_selected is null ? Placeholder : _selected.Value.ToString(Format, CultureInfo.CurrentCulture))
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="h-3 w-3 opacity-60 shrink-0 transition-transform @(_isOpen ? "rotate-180" : "")"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    @if (_isOpen)
+    {
+        <!-- Backdrop invisible para cerrar al hacer click fuera -->
+        <div class="fixed inset-0 z-40" @onclick="Close"></div>
+
+        <!-- Popover del calendario -->
+        <div class="absolute z-50 mt-1 w-72 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none @PopoverAlignClass"
+             @onclick:stopPropagation="true"
+             @onkeydown="HandleCalendarKeyDown">
+
+            <!-- Header con navegación de mes -->
+            <div class="flex items-center justify-between mb-2">
+                <button type="button"
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Mes anterior"
+                        @onclick="PrevMonth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <span class="text-sm font-semibold text-base-content capitalize">
+                    @_displayMonth.ToString("MMMM yyyy", CultureInfo.CurrentCulture)
+                </span>
+
+                <button type="button"
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Mes siguiente"
+                        @onclick="NextMonth">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Etiquetas de días de la semana (Lu-Do ISO) -->
+            <div class="grid grid-cols-7 gap-0 mb-1">
+                @foreach (var d in _weekDays)
+                {
+                    <span class="text-[11px] font-semibold text-base-content/60 text-center py-1">@d</span>
+                }
+            </div>
+
+            <!-- Grid de días -->
+            <div class="grid grid-cols-7 gap-0.5">
+                @foreach (var cell in _cells)
+                {
+                    if (cell is null)
+                    {
+                        <span class="aspect-square"></span>
+                    }
+                    else
+                    {
+                        var date = cell.Value;
+                        var isSelected = _selected.HasValue && date == _selected.Value;
+                        var isToday = date == DateTime.Today;
+                        var isDisabled = IsOutOfRange(date);
+
+                        var cls = "aspect-square flex items-center justify-center text-sm rounded-field transition-colors";
+                        if (isSelected)
+                            cls += " bg-primary text-primary-content font-semibold hover:bg-primary/90";
+                        else if (isToday)
+                            cls += " text-primary font-bold ring-1 ring-primary/40 hover:bg-primary/10";
+                        else
+                            cls += " hover:bg-base-200 text-base-content";
+                        if (isDisabled)
+                            cls += " opacity-40 cursor-not-allowed pointer-events-none";
+
+                        <button type="button"
+                                class="@cls"
+                                disabled="@isDisabled"
+                                @onclick="() => SelectDate(date)">
+                            @date.Day
+                        </button>
+                    }
+                }
+            </div>
+
+            <!-- Footer con atajos -->
+            <div class="flex justify-between items-center pt-2 mt-2 border-t border-base-content/10">
+                <button type="button"
+                        class="btn btn-ghost btn-xs text-primary"
+                        @onclick="GoToday">
+                    Hoy
+                </button>
+                @if (_selected.HasValue && AllowClear)
+                {
+                    <button type="button"
+                            class="btn btn-ghost btn-xs text-base-content/60"
+                            @onclick="ClearValue">
+                        Limpiar
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string? Min { get; set; }
+    [Parameter] public string? Max { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    /// <summary>Extra classes on the wrapper (e.g. "w-full", "flex-1").</summary>
+    [Parameter] public string? Extra { get; set; }
+    /// <summary>Size class: "input-xs", "input-sm" (default), "input-md", "input-lg".</summary>
+    [Parameter] public string SizeClass { get; set; } = "input-sm";
+    [Parameter] public string Placeholder { get; set; } = "Seleccionar fecha…";
+    /// <summary>Formato mostrado en el trigger. Default dd/MM/yyyy.</summary>
+    [Parameter] public string Format { get; set; } = "dd/MM/yyyy";
+    /// <summary>Muestra botón "Limpiar" en el footer cuando hay valor seleccionado.</summary>
+    [Parameter] public bool AllowClear { get; set; } = true;
+    /// <summary>
+    /// Alineación del popover respecto al trigger: "start" (por defecto, alinea al borde
+    /// izquierdo del trigger, popover crece hacia la derecha) o "end" (alinea al borde
+    /// derecho del trigger, popover crece hacia la izquierda). Usa "end" cuando el trigger
+    /// esté cerca del borde derecho del viewport para evitar overflow.
+    /// </summary>
+    [Parameter] public string Align { get; set; } = "start";
+
+    private string PopoverAlignClass => Align?.ToLowerInvariant() == "end" ? "right-0" : "left-0";
+
+    private bool _isOpen;
+    private DateTime? _selected;
+    private DateTime _displayMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private DateTime? _minDate;
+    private DateTime? _maxDate;
+    private List<DateTime?> _cells = new();
+
+    private static readonly string[] _weekDays = { "Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do" };
+
+    protected override void OnParametersSet()
+    {
+        _selected = ParseIso(Value);
+        _minDate = ParseIso(Min);
+        _maxDate = ParseIso(Max);
+
+        if (!_isOpen)
+        {
+            var anchor = _selected ?? DateTime.Today;
+            _displayMonth = new DateTime(anchor.Year, anchor.Month, 1);
+        }
+        BuildCells();
+    }
+
+    private static DateTime? ParseIso(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return null;
+        // Formato esperado del binding externo: yyyy-MM-dd
+        return DateTime.TryParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d)
+            ? d.Date
+            : (DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out d) ? d.Date : null);
+    }
+
+    private bool IsOutOfRange(DateTime date) =>
+        (_minDate.HasValue && date < _minDate.Value) ||
+        (_maxDate.HasValue && date > _maxDate.Value);
+
+    private void Toggle()
+    {
+        if (Disabled) return;
+        _isOpen = !_isOpen;
+        if (_isOpen)
+        {
+            var anchor = _selected ?? DateTime.Today;
+            _displayMonth = new DateTime(anchor.Year, anchor.Month, 1);
+            BuildCells();
+        }
+    }
+
+    private void Close() => _isOpen = false;
+
+    private void PrevMonth()
+    {
+        _displayMonth = _displayMonth.AddMonths(-1);
+        BuildCells();
+    }
+
+    private void NextMonth()
+    {
+        _displayMonth = _displayMonth.AddMonths(1);
+        BuildCells();
+    }
+
+    private async Task SelectDate(DateTime date)
+    {
+        if (IsOutOfRange(date)) return;
+        _selected = date;
+        _isOpen = false;
+        var iso = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        Value = iso;
+        await ValueChanged.InvokeAsync(iso);
+    }
+
+    private async Task GoToday()
+    {
+        var today = DateTime.Today;
+        if (IsOutOfRange(today))
+        {
+            // Igual navegamos a la vista del mes actual
+            _displayMonth = new DateTime(today.Year, today.Month, 1);
+            BuildCells();
+            return;
+        }
+        await SelectDate(today);
+    }
+
+    private async Task ClearValue()
+    {
+        _selected = null;
+        _isOpen = false;
+        Value = null;
+        await ValueChanged.InvokeAsync(null);
+    }
+
+    private void BuildCells()
+    {
+        _cells.Clear();
+        var firstDay = _displayMonth;
+        // Offset ISO: lunes = 0
+        int startOffset = ((int)firstDay.DayOfWeek + 6) % 7;
+        for (int i = 0; i < startOffset; i++)
+            _cells.Add(null);
+
+        int daysInMonth = DateTime.DaysInMonth(_displayMonth.Year, _displayMonth.Month);
+        for (int d = 1; d <= daysInMonth; d++)
+            _cells.Add(new DateTime(_displayMonth.Year, _displayMonth.Month, d));
+    }
+
+    private void HandleTriggerKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape") _isOpen = false;
+        else if (e.Key is "Enter" or " ") Toggle();
+    }
+
+    private void HandleCalendarKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape") _isOpen = false;
+    }
+}

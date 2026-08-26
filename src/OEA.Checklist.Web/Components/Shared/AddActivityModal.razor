@@ -1,0 +1,144 @@
+@* Modal para crear una nueva actividad con daisyUI fieldset + input + textarea. *@
+
+@if (_visible)
+{
+    <div class="modal modal-open" role="dialog" aria-modal="true">
+        <div class="modal-box w-11/12 max-w-2xl border border-base-300">
+            <h3 class="font-bold text-lg mb-4">Nueva actividad</h3>
+
+            <EditForm Model="_model" OnValidSubmit="SaveAsync">
+                <DataAnnotationsValidator />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">
+                            Item <span class="text-error">*</span>
+                        </legend>
+                        <InputText @bind-Value="_model.Item"
+                                   class="input input-bordered input-sm w-full"
+                                   placeholder="Ej: RGCE 7.1.1-XXI" />
+                        <ValidationMessage For="() => _model.Item" class="fieldset-label text-error" />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Frecuencia</legend>
+                        <InputText @bind-Value="_model.Frequency"
+                                   class="input input-bordered input-sm w-full"
+                                   placeholder="Ej: Mensual"
+                                   list="freq-options" />
+                        <datalist id="freq-options">
+                            <option value="Diaria" />
+                            <option value="Semanal" />
+                            <option value="Mensual" />
+                            <option value="Trimestral" />
+                            <option value="Semestral" />
+                            <option value="Anual" />
+                            <option value="Cuando cambie" />
+                            <option value="Cuando ocurra" />
+                            <option value="Por embarque" />
+                        </datalist>
+                    </fieldset>
+
+                    <fieldset class="fieldset md:col-span-2">
+                        <legend class="fieldset-legend">
+                            Actividad <span class="text-error">*</span>
+                        </legend>
+                        <InputText @bind-Value="_model.Name"
+                                   class="input input-bordered input-sm w-full"
+                                   placeholder="Descripción corta" />
+                        <ValidationMessage For="() => _model.Name" class="fieldset-label text-error" />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Responsable</legend>
+                        <InputText @bind-Value="_model.Owner"
+                                   class="input input-bordered input-sm w-full"
+                                   placeholder="Ej: Compliance" />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Fundamento legal</legend>
+                        <InputText @bind-Value="_model.Legal"
+                                   class="input input-bordered input-sm w-full"
+                                   placeholder="Opcional" />
+                    </fieldset>
+
+                    <fieldset class="fieldset md:col-span-2">
+                        <legend class="fieldset-legend">Descripción</legend>
+                        <InputTextArea @bind-Value="_model.Description"
+                                       class="textarea textarea-bordered textarea-sm w-full"
+                                       rows="2"
+                                       placeholder="Opcional" />
+                    </fieldset>
+                </div>
+
+                <div class="modal-action">
+                    <button type="button" class="btn btn-ghost" @onclick="Cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" disabled="@_saving">
+                        @if (_saving)
+                        {
+                            <span class="loading loading-spinner loading-xs"></span>
+                        }
+                        Guardar
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+        <div class="modal-backdrop bg-black/40" @onclick="Cancel"></div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public EventCallback<Activity> OnCreate { get; set; }
+
+    private bool _visible;
+    private bool _saving;
+    private ActivityForm _model = new();
+
+    public void Show()
+    {
+        _model = new ActivityForm();
+        _visible = true;
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        _visible = false;
+        StateHasChanged();
+    }
+
+    private async Task SaveAsync()
+    {
+        _saving = true;
+        var activity = new Activity
+        {
+            Item = _model.Item.Trim(),
+            Name = _model.Name.Trim(),
+            Owner = _model.Owner?.Trim() ?? "",
+            Frequency = _model.Frequency?.Trim() ?? "",
+            Legal = _model.Legal?.Trim() ?? "",
+            Description = _model.Description?.Trim() ?? "",
+        };
+        await OnCreate.InvokeAsync(activity);
+        _saving = false;
+        _visible = false;
+        StateHasChanged();
+    }
+
+    public class ActivityForm
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Item es obligatorio")]
+        [System.ComponentModel.DataAnnotations.StringLength(64)]
+        public string Item { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Actividad es obligatoria")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string Name { get; set; } = "";
+
+        public string? Owner { get; set; }
+        public string? Frequency { get; set; }
+        public string? Legal { get; set; }
+        public string? Description { get; set; }
+    }
+}

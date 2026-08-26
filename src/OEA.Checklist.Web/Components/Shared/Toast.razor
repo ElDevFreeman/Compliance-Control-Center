@@ -1,0 +1,47 @@
+@* Toast reutilizable con daisyUI. Se auto-oculta después de N ms. *@
+@implements IDisposable
+
+@if (_visible)
+{
+    <div class="toast toast-end toast-bottom z-50">
+        <div class="alert @AlertClass alert-soft shadow-lg fade-in">
+            <span>@_message</span>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _visible;
+    private string _message = "";
+    private string _variant = "info";
+    private CancellationTokenSource? _cts;
+
+    private string AlertClass => _variant switch
+    {
+        "success" => "alert-success",
+        "error"   => "alert-error",
+        "warning" => "alert-warning",
+        _         => "alert-info"
+    };
+
+    /// <summary>Muestra un toast. variant: info | success | error | warning.</summary>
+    public async Task ShowAsync(string message, string variant = "info", int durationMs = 2500)
+    {
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        _message = message;
+        _variant = variant;
+        _visible = true;
+        StateHasChanged();
+
+        try
+        {
+            await Task.Delay(durationMs, _cts.Token);
+            _visible = false;
+            StateHasChanged();
+        }
+        catch (TaskCanceledException) { /* nuevo toast reemplazó este */ }
+    }
+
+    public void Dispose() => _cts?.Cancel();
+}

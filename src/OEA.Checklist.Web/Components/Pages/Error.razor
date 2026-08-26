@@ -1,0 +1,61 @@
+﻿@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Error</PageTitle>
+
+<div class="hero min-h-[60vh]">
+    <div class="hero-content text-center max-w-2xl">
+        <div>
+            <div class="text-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-error">Error</h1>
+            <h2 class="text-lg mt-2 text-base-content/70">
+                Ha ocurrido un error mientras se procesaba tu solicitud.
+            </h2>
+
+            @if (ShowRequestId)
+            {
+                <div class="alert alert-warning alert-soft mt-6 text-left">
+                    <div>
+                        <strong>Request ID:</strong>
+                        <code class="font-mono text-xs">@RequestId</code>
+                    </div>
+                </div>
+            }
+
+            <div class="card card-border bg-base-100 border-base-300 mt-6 text-left">
+                <div class="card-body">
+                    <h3 class="card-title text-base">Modo de desarrollo</h3>
+                    <p class="text-sm text-base-content/70">
+                        Cambiar al entorno <strong>Development</strong> mostrará información más
+                        detallada sobre el error ocurrido.
+                    </p>
+                    <p class="text-sm text-base-content/70">
+                        <strong>El entorno Development no debe habilitarse en aplicaciones desplegadas.</strong>
+                        Puede exponer información sensible a los usuarios finales. Para depuración local,
+                        configura la variable <code class="text-primary">ASPNETCORE_ENVIRONMENT</code>
+                        a <code class="text-primary">Development</code> y reinicia la aplicación.
+                    </p>
+                </div>
+            </div>
+
+            <a href="/" class="btn btn-primary mt-6">Volver al inicio</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

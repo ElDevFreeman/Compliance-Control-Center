@@ -1,0 +1,22 @@
+@* Badge de estado usando daisyUI badge-soft para mejor contraste con temas emerald/night.
+   Ancho fijo para que todos los estados ocupen el mismo espacio en la tabla
+   (evita que "En progreso" empuje la columna respecto a "N/A" o "Vencido"). *@
+
+@{
+    var (label, cls) = Status switch
+    {
+        ComplianceStatus.Completado  => ("Completado",  "badge-soft badge-success"),
+        ComplianceStatus.EnProgreso  => ("En progreso", "badge-soft badge-info"),
+        ComplianceStatus.Pendiente   => ("Pendiente",   "badge-soft badge-warning"),
+        ComplianceStatus.Vencido     => ("Vencido",     "badge-soft badge-error"),
+        ComplianceStatus.NA          => ("N/A",         "badge-ghost"),
+        _                            => ("—",           "badge-ghost")
+    };
+}
+
+<span class="badge @cls @Extra justify-center whitespace-nowrap min-w-[6.5rem]">@label</span>
+
+@code {
+    [Parameter, EditorRequired] public ComplianceStatus Status { get; set; }
+    [Parameter] public string? Extra { get; set; }
+}

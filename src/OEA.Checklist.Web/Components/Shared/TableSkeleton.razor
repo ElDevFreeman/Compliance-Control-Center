@@ -1,0 +1,38 @@
+@* Skeleton placeholder para tablas mientras cargan datos.
+   Renderiza filas fantasmas usando `.skeleton` de daisyUI. Cada "celda"
+   es una barra ancha con opacidad para simular contenido.
+
+   Uso:
+     <TableSkeleton Rows="8" Columns="6" />
+
+   Parámetros:
+     - Rows: número de filas fantasma a renderizar (default 6).
+     - Columns: número de columnas por fila (default 5).
+     - ShowHeader: si true dibuja una fila de encabezado más tenue (default true). *@
+
+<div class="p-4 space-y-3">
+    @if (ShowHeader)
+    {
+        <div class="flex gap-3 pb-2 border-b border-base-300/60">
+            @for (var c = 0; c < Columns; c++)
+            {
+                <div class="skeleton h-3 flex-1 opacity-60"></div>
+            }
+        </div>
+    }
+    @for (var r = 0; r < Rows; r++)
+    {
+        <div class="flex gap-3 items-center">
+            @for (var c = 0; c < Columns; c++)
+            {
+                <div class="skeleton h-4 flex-1"></div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Rows { get; set; } = 6;
+    [Parameter] public int Columns { get; set; } = 5;
+    [Parameter] public bool ShowHeader { get; set; } = true;
+}

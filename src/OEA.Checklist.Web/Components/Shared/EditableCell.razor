@@ -1,0 +1,74 @@
+@*
+   Celda editable inline con daisyUI input.
+   - Doble-click activa modo edición.
+   - Enter (sin shift) o blur guarda; Escape cancela.
+*@
+
+@if (_editing)
+{
+    <input @ref="_input"
+           class="input input-bordered input-xs w-full"
+           value="@_draft"
+           @oninput="e => _draft = e.Value?.ToString() ?? string.Empty"
+           @onblur="CommitAsync"
+           @onkeydown="HandleKeyAsync" />
+}
+else
+{
+    <div class="min-h-[1.5rem] cursor-text hover:bg-base-200 rounded px-1 py-0.5 whitespace-pre-wrap transition-colors"
+         @ondblclick="StartEditing"
+         title="Doble click para editar">
+        @if (string.IsNullOrWhiteSpace(Value))
+        {
+            <span class="text-base-content/30 italic">—</span>
+        }
+        else
+        {
+            @Value
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public string? Value { get; set; }
+    [Parameter, EditorRequired] public EventCallback<string?> OnSave { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    private bool _editing;
+    private string _draft = "";
+    private ElementReference _input;
+
+    private async Task StartEditing()
+    {
+        if (Disabled) return;
+        _draft = Value ?? "";
+        _editing = true;
+        StateHasChanged();
+        await Task.Yield();
+        try { await _input.FocusAsync(); } catch { }
+    }
+
+    private async Task CommitAsync()
+    {
+        if (!_editing) return;
+        _editing = false;
+        var newValue = _draft?.Trim();
+        if (newValue != (Value?.Trim() ?? ""))
+        {
+            await OnSave.InvokeAsync(newValue);
+        }
+    }
+
+    private async Task HandleKeyAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await CommitAsync();
+        }
+        else if (e.Key == "Escape")
+        {
+            _editing = false;
+            _draft = Value ?? "";
+        }
+    }
+}

@@ -1,0 +1,234 @@
+@* Selector de mes/año custom (patrón FDS adaptado a daisyUI).
+   Muestra un trigger tipo input y despliega un popover con un grid de 12 meses
+   y navegación de año. La firma pública (Value como string yyyy-MM,
+   ValueChanged<string?>, SizeClass, Extra, Min, Max, Disabled) se mantiene. *@
+
+@using System.Globalization
+
+<div class="relative inline-block @Extra @(Disabled ? "opacity-60 pointer-events-none" : "")">
+    <!-- Trigger -->
+    <button type="button"
+            class="input input-bordered @SizeClass flex items-center gap-2 w-full text-left cursor-pointer"
+            disabled="@Disabled"
+            @onclick="Toggle"
+            @onclick:stopPropagation="true"
+            @onkeydown="HandleTriggerKeyDown">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60 shrink-0" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="grow truncate @(_selected is null ? "opacity-50" : "")">
+            @(_selected is null ? Placeholder : FormatSelected(_selected.Value))
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="h-3 w-3 opacity-60 shrink-0 transition-transform @(_isOpen ? "rotate-180" : "")"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    @if (_isOpen)
+    {
+        <!-- Backdrop invisible para cerrar al hacer click fuera -->
+        <div class="fixed inset-0 z-40" @onclick="Close"></div>
+
+        <!-- Popover -->
+        <div class="absolute z-50 mt-1 w-64 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none @PopoverAlignClass"
+             @onclick:stopPropagation="true"
+             @onkeydown="HandlePopoverKeyDown">
+
+            <!-- Header con navegación de año -->
+            <div class="flex items-center justify-between mb-3">
+                <button type="button"
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Año anterior"
+                        @onclick="PrevYear">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <span class="text-sm font-semibold text-base-content">
+                    @_displayYear
+                </span>
+
+                <button type="button"
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Año siguiente"
+                        @onclick="NextYear">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Grid de 12 meses -->
+            <div class="grid grid-cols-3 gap-1.5">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var month = m;
+                    var candidate = new DateTime(_displayYear, month, 1);
+                    var isSelected = _selected.HasValue &&
+                                     _selected.Value.Year == _displayYear &&
+                                     _selected.Value.Month == month;
+                    var isCurrent = DateTime.Today.Year == _displayYear && DateTime.Today.Month == month;
+                    var isDisabled = IsOutOfRange(candidate);
+
+                    var cls = "py-2 text-sm rounded-field transition-colors capitalize";
+                    if (isSelected)
+                        cls += " bg-primary text-primary-content font-semibold hover:bg-primary/90";
+                    else if (isCurrent)
+                        cls += " text-primary font-bold ring-1 ring-primary/40 hover:bg-primary/10";
+                    else
+                        cls += " hover:bg-base-200 text-base-content";
+                    if (isDisabled)
+                        cls += " opacity-40 cursor-not-allowed pointer-events-none";
+
+                    <button type="button"
+                            class="@cls"
+                            disabled="@isDisabled"
+                            @onclick="() => SelectMonth(month)">
+                        @MonthLabel(month)
+                    </button>
+                }
+            </div>
+
+            <!-- Footer con atajos -->
+            <div class="flex justify-between items-center pt-3 mt-3 border-t border-base-content/10">
+                <button type="button"
+                        class="btn btn-ghost btn-xs text-primary"
+                        @onclick="GoCurrent">
+                    Actual
+                </button>
+                @if (_selected.HasValue && AllowClear)
+                {
+                    <button type="button"
+                            class="btn btn-ghost btn-xs text-base-content/60"
+                            @onclick="ClearValue">
+                        Limpiar
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    /// <summary>Cota mínima en formato yyyy-MM.</summary>
+    [Parameter] public string? Min { get; set; }
+    /// <summary>Cota máxima en formato yyyy-MM.</summary>
+    [Parameter] public string? Max { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Extra { get; set; }
+    [Parameter] public string SizeClass { get; set; } = "input-sm";
+    [Parameter] public string Placeholder { get; set; } = "Seleccionar mes…";
+    [Parameter] public bool AllowClear { get; set; } = false;
+    /// <summary>
+    /// Alineación del popover respecto al trigger: "start" (por defecto, alinea al borde
+    /// izquierdo del trigger, popover crece hacia la derecha) o "end" (alinea al borde
+    /// derecho del trigger, popover crece hacia la izquierda). Usa "end" cuando el trigger
+    /// esté cerca del borde derecho del viewport para evitar overflow.
+    /// </summary>
+    [Parameter] public string Align { get; set; } = "start";
+
+    private string PopoverAlignClass => Align?.ToLowerInvariant() == "end" ? "right-0" : "left-0";
+
+    private bool _isOpen;
+    private DateTime? _selected;
+    private int _displayYear = DateTime.Today.Year;
+    private DateTime? _minMonth;
+    private DateTime? _maxMonth;
+
+    protected override void OnParametersSet()
+    {
+        _selected = ParseYearMonth(Value);
+        _minMonth = ParseYearMonth(Min);
+        _maxMonth = ParseYearMonth(Max);
+
+        if (!_isOpen)
+        {
+            _displayYear = (_selected ?? DateTime.Today).Year;
+        }
+    }
+
+    private static DateTime? ParseYearMonth(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return null;
+        // Aceptamos yyyy-MM o yyyy-MM-dd
+        if (DateTime.TryParseExact(s, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d))
+            return new DateTime(d.Year, d.Month, 1);
+        if (DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out d))
+            return new DateTime(d.Year, d.Month, 1);
+        return null;
+    }
+
+    private bool IsOutOfRange(DateTime monthStart) =>
+        (_minMonth.HasValue && monthStart < _minMonth.Value) ||
+        (_maxMonth.HasValue && monthStart > _maxMonth.Value);
+
+    private static string MonthLabel(int m) =>
+        CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(m).TrimEnd('.');
+
+    private static string FormatSelected(DateTime d) =>
+        d.ToString("MMMM yyyy", CultureInfo.CurrentCulture);
+
+    private void Toggle()
+    {
+        if (Disabled) return;
+        _isOpen = !_isOpen;
+        if (_isOpen)
+            _displayYear = (_selected ?? DateTime.Today).Year;
+    }
+
+    private void Close() => _isOpen = false;
+
+    private void PrevYear() => _displayYear--;
+    private void NextYear() => _displayYear++;
+
+    private async Task SelectMonth(int month)
+    {
+        var picked = new DateTime(_displayYear, month, 1);
+        if (IsOutOfRange(picked)) return;
+        _selected = picked;
+        _isOpen = false;
+        var iso = picked.ToString("yyyy-MM", CultureInfo.InvariantCulture);
+        Value = iso;
+        await ValueChanged.InvokeAsync(iso);
+    }
+
+    private async Task GoCurrent()
+    {
+        var today = DateTime.Today;
+        var picked = new DateTime(today.Year, today.Month, 1);
+        if (IsOutOfRange(picked))
+        {
+            _displayYear = today.Year;
+            return;
+        }
+        await SelectMonth(today.Month);
+    }
+
+    private async Task ClearValue()
+    {
+        _selected = null;
+        _isOpen = false;
+        Value = null;
+        await ValueChanged.InvokeAsync(null);
+    }
+
+    private void HandleTriggerKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape") _isOpen = false;
+        else if (e.Key is "Enter" or " ") Toggle();
+    }
+
+    private void HandlePopoverKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape") _isOpen = false;
+    }
+}
