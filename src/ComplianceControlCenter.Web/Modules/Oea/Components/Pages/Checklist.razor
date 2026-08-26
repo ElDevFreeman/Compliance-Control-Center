@@ -514,7 +514,7 @@
         }
     }
 
-    private void OpenDrawer(Activity a) => Nav.NavigateTo($"/activity/{a.Id}");
+    private void OpenDrawer(Activity a) => Nav.NavigateTo($"/oea/activity/{a.Id}");
 
     private ComplianceStatus StatusOf(Activity a) =>
         a.MonthlyStatuses.FirstOrDefault()?.Status ?? ComplianceStatus.Pendiente;
