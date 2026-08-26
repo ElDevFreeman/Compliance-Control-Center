@@ -1,0 +1,364 @@
+@page "/ctpat"
+@rendermode InteractiveServer
+
+@inject ICtpatCatalogService Catalog
+@inject ICtpatReviewService Reviews
+@inject IJSRuntime JS
+@inject LoginModalState LoginModal
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>CTPAT · Revisión anual</PageTitle>
+
+<div class="p-4 lg:p-6 max-w-7xl mx-auto space-y-4">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-base-content">CTPAT — Revisión anual del perfil</h1>
+            <p class="text-sm text-base-content/60">
+                @if (_questions is null)
+                {
+                    <span>Cargando catálogo…</span>
+                }
+                else
+                {
+                    <span>@_questions.Count preguntas · Ciclo <strong>@_year</strong></span>
+                }
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="input input-bordered input-sm flex items-center gap-2">
+                <span class="text-base-content/60 text-xs">Año</span>
+                <input type="number" class="w-20" min="2020" max="2100" value="@_year" @onchange="OnYearChanged" />
+            </label>
+        </div>
+    </div>
+
+    @if (_questions is null)
+    {
+        <TableSkeleton Rows="6" />
+    }
+    else
+    {
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="stat bg-base-100 border border-base-300 rounded-box px-4 py-3">
+                <div class="stat-title text-xs">Total</div>
+                <div class="stat-value text-xl">@_questions.Count</div>
+                <div class="stat-desc text-xs">Preguntas CTPAT</div>
+            </div>
+            <div class="stat bg-base-100 border border-base-300 rounded-box px-4 py-3">
+                <div class="stat-title text-xs">Avance</div>
+                <div class="stat-value text-xl text-success">@Progress%</div>
+                <div class="stat-desc text-xs">@Atendidas de @_questions.Count</div>
+            </div>
+            <div class="stat bg-base-100 border border-base-300 rounded-box px-4 py-3">
+                <div class="stat-title text-xs">Pendientes</div>
+                <div class="stat-value text-xl text-warning">@CountBy(CtpatReviewStatus.Pendiente)</div>
+            </div>
+            <div class="stat bg-base-100 border border-base-300 rounded-box px-4 py-3">
+                <div class="stat-title text-xs">Sin cambios</div>
+                <div class="stat-value text-xl text-info">@CountBy(CtpatReviewStatus.SinCambios)</div>
+            </div>
+            <div class="stat bg-base-100 border border-base-300 rounded-box px-4 py-3">
+                <div class="stat-title text-xs">Con cambios</div>
+                <div class="stat-value text-xl text-warning">@CountBy(CtpatReviewStatus.ConCambios)</div>
+            </div>
+            <div class="stat bg-base-100 border border-base-300 rounded-box px-4 py-3">
+                <div class="stat-title text-xs">Revisado OK</div>
+                <div class="stat-value text-xl text-primary">@CountBy(CtpatReviewStatus.Revisado)</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body py-3 px-4 flex-row flex-wrap items-center gap-3">
+                <label class="form-control flex-1 min-w-40 max-w-xs">
+                    <span class="label-text text-xs">Criterio</span>
+                    <select class="select select-bordered select-sm" @bind="_filterCriterio" @bind:after="StateHasChanged">
+                        <option value="">Todos</option>
+                        @foreach (var c in _criterios)
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </select>
+                </label>
+                <label class="form-control min-w-32">
+                    <span class="label-text text-xs">Estado</span>
+                    <select class="select select-bordered select-sm" @bind="_filterStatus" @bind:after="StateHasChanged">
+                        <option value="">Todos</option>
+                        <option value="0">Pendiente</option>
+                        <option value="1">Sin cambios</option>
+                        <option value="2">Con cambios</option>
+                        <option value="3">Revisado</option>
+                    </select>
+                </label>
+                <label class="form-control flex-1 min-w-48">
+                    <span class="label-text text-xs">Buscar</span>
+                    <input type="search" class="input input-bordered input-sm"
+                           placeholder="Texto en pregunta o respuesta…"
+                           @bind="_filterText" @bind:event="oninput" />
+                </label>
+                <div class="text-sm text-base-content/60 ml-auto self-end">
+                    @Filtered.Count de @_questions.Count
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de preguntas (accordion) -->
+        <div class="space-y-2">
+            @foreach (var q in Filtered)
+            {
+                var review = GetReview(q.Id);
+                var isOpen = _openIds.Contains(q.Id);
+                <div class="card bg-base-100 border border-base-300">
+                    <button type="button"
+                            class="card-body py-3 px-4 flex-row items-start gap-3 text-left cursor-pointer hover:bg-base-200/50"
+                            @onclick="() => ToggleOpen(q.Id)">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-1 mb-1">
+                                <span class="badge badge-neutral badge-sm">@q.Criterio</span>
+                                <span class="badge badge-outline badge-sm font-mono">@q.ExternalId</span>
+                                @{
+                                    var (badgeClass, label) = StatusBadge(review.Status);
+                                }
+                                <span class="badge @badgeClass badge-sm">@label</span>
+                                @if (review.FechaRevision.HasValue)
+                                {
+                                    <span class="badge badge-ghost badge-sm">📅 @review.FechaRevision.Value.ToString("yyyy-MM-dd")</span>
+                                }
+                                @if (!string.IsNullOrEmpty(review.Revisor))
+                                {
+                                    <span class="badge badge-ghost badge-sm">👤 @review.Revisor</span>
+                                }
+                            </div>
+                            <div class="text-sm @(isOpen ? "" : "line-clamp-2")">@q.Pregunta</div>
+                        </div>
+                        <div class="text-base-content/50 select-none">@(isOpen ? "▲" : "▼")</div>
+                    </button>
+
+                    @if (isOpen)
+                    {
+                        <div class="border-t border-base-300 p-4 space-y-4 bg-base-200/30">
+
+                            <!-- Respuesta 2025 -->
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-1">
+                                    📄 Respuesta actual (Partner Response 2025)
+                                </div>
+                                <div class="whitespace-pre-wrap text-sm bg-base-100 border border-base-300 rounded-box p-3 max-h-64 overflow-auto">
+                                    @(string.IsNullOrWhiteSpace(q.Respuesta2025) ? "(Sin respuesta registrada)" : q.Respuesta2025)
+                                </div>
+                            </div>
+
+                            <!-- Estado + Fecha + Revisor -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <label class="form-control">
+                                    <span class="label-text text-xs">Estado</span>
+                                    <select class="select select-bordered select-sm"
+                                            @onchange="e => OnStatusChanged(review.Id, e)">
+                                        <option value="0" selected="@(review.Status == CtpatReviewStatus.Pendiente)">Pendiente</option>
+                                        <option value="1" selected="@(review.Status == CtpatReviewStatus.SinCambios)">Sin cambios</option>
+                                        <option value="2" selected="@(review.Status == CtpatReviewStatus.ConCambios)">Con cambios</option>
+                                        <option value="3" selected="@(review.Status == CtpatReviewStatus.Revisado)">Revisado</option>
+                                    </select>
+                                </label>
+                                <label class="form-control">
+                                    <span class="label-text text-xs">Fecha de revisión</span>
+                                    <input type="date" class="input input-bordered input-sm"
+                                           value="@(review.FechaRevision?.ToString("yyyy-MM-dd") ?? "")"
+                                           @onchange="e => OnFieldChanged(review.Id, nameof(CtpatReview.FechaRevision), e)" />
+                                </label>
+                                <label class="form-control">
+                                    <span class="label-text text-xs">Revisor</span>
+                                    <input type="text" class="input input-bordered input-sm"
+                                           placeholder="Nombre del revisor"
+                                           value="@review.Revisor"
+                                           @onchange="e => OnFieldChanged(review.Id, nameof(CtpatReview.Revisor), e)" />
+                                </label>
+                            </div>
+
+                            <!-- Evidencia -->
+                            <label class="form-control">
+                                <span class="label-text text-xs">📁 Evidencia revisada</span>
+                                <textarea class="textarea textarea-bordered textarea-sm min-h-20"
+                                          placeholder="Lista o descripción de documentos revisados…"
+                                          @onchange="e => OnFieldChanged(review.Id, nameof(CtpatReview.EvidenciaRevisada), e)">@review.EvidenciaRevisada</textarea>
+                            </label>
+
+                            <!-- Cambios detectados -->
+                            <label class="form-control">
+                                <span class="label-text text-xs">⚠️ Cambios detectados</span>
+                                <textarea class="textarea textarea-bordered textarea-sm min-h-20"
+                                          placeholder="Describe qué cambió respecto a la respuesta 2025…"
+                                          @onchange="e => OnFieldChanged(review.Id, nameof(CtpatReview.CambiosDetectados), e)">@review.CambiosDetectados</textarea>
+                            </label>
+
+                            <!-- Respuesta nueva -->
+                            <label class="form-control">
+                                <span class="label-text text-xs">✏️ Respuesta nueva</span>
+                                <textarea class="textarea textarea-bordered textarea-sm min-h-32"
+                                          placeholder="Redacta aquí la respuesta actualizada…"
+                                          @onchange="e => OnFieldChanged(review.Id, nameof(CtpatReview.RespuestaNueva), e)">@review.RespuestaNueva</textarea>
+                            </label>
+
+                            <!-- Comentarios -->
+                            <label class="form-control">
+                                <span class="label-text text-xs">💬 Comentarios internos</span>
+                                <textarea class="textarea textarea-bordered textarea-sm min-h-16"
+                                          placeholder="Notas para el equipo…"
+                                          @onchange="e => OnFieldChanged(review.Id, nameof(CtpatReview.Comentarios), e)">@review.Comentarios</textarea>
+                            </label>
+
+                            <!-- Archivos (metadata solamente por ahora; upload usa endpoint HTTP) -->
+                            @if (review.Files is { Count: > 0 })
+                            {
+                                <div>
+                                    <div class="text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">
+                                        📎 Adjuntos (@review.Files.Count)
+                                    </div>
+                                    <div class="space-y-1">
+                                        @foreach (var f in review.Files)
+                                        {
+                                            <div class="flex items-center gap-3 text-sm bg-base-100 border border-base-300 rounded px-3 py-2">
+                                                <span class="font-medium truncate flex-1">@f.FileName</span>
+                                                <span class="text-xs text-base-content/50">@FormatSize(f.Size)</span>
+                                                <a class="btn btn-ghost btn-xs" href="/api/ctpat/files/@f.ExternalId" target="_blank" title="Ver">👁️</a>
+                                                <a class="btn btn-ghost btn-xs" href="/api/ctpat/files/@f.ExternalId" download="@f.FileName" title="Descargar">⬇️</a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            <div class="text-xs text-base-content/50">
+                                Para adjuntar archivos: usa <code>POST /api/ctpat/files/@review.Id</code> (multipart/form-data).
+                                UI de upload disponible en próxima iteración.
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private int _year = DateTime.Now.Year;
+    private List<CtpatQuestion>? _questions;
+    private IReadOnlyDictionary<int, CtpatReview> _reviewMap = new Dictionary<int, CtpatReview>();
+    private List<string> _criterios = new();
+
+    private string _filterCriterio = "";
+    private string _filterStatus = "";
+    private string _filterText = "";
+
+    private HashSet<int> _openIds = new();
+    private string _currentUser = "anonymous";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState.GetAuthenticationStateAsync();
+        _currentUser = authState.User.FindFirst("DisplayName")?.Value
+                       ?? authState.User.Identity?.Name
+                       ?? "anonymous";
+
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _questions = (await Catalog.GetQuestionsAsync()).ToList();
+        _criterios = (await Catalog.GetCriteriosAsync()).ToList();
+        _reviewMap = await Reviews.GetReviewsForYearAsync(_year);
+    }
+
+    private async Task OnYearChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var y) && y >= 2020 && y <= 2100)
+        {
+            _year = y;
+            _openIds.Clear();
+            await LoadDataAsync();
+        }
+    }
+
+    private CtpatReview GetReview(int questionId)
+    {
+        if (_reviewMap.TryGetValue(questionId, out var r)) return r;
+        // Placeholder ephemeral (no persistir aún — se crea al primer edit)
+        return new CtpatReview { QuestionId = questionId, Year = _year, Status = CtpatReviewStatus.Pendiente };
+    }
+
+    private async Task ToggleOpen(int questionId)
+    {
+        if (_openIds.Contains(questionId)) { _openIds.Remove(questionId); return; }
+        _openIds.Add(questionId);
+        // Asegura que existe una review en BD para poder editar
+        if (!_reviewMap.ContainsKey(questionId))
+        {
+            var r = await Reviews.GetOrCreateAsync(questionId, _year);
+            var newMap = new Dictionary<int, CtpatReview>(_reviewMap) { [questionId] = r };
+            _reviewMap = newMap;
+        }
+    }
+
+    private async Task OnStatusChanged(int reviewId, ChangeEventArgs e)
+    {
+        if (reviewId <= 0) return;
+        if (int.TryParse(e.Value?.ToString(), out var s))
+        {
+            var status = (CtpatReviewStatus)s;
+            await Reviews.UpdateStatusAsync(reviewId, status, _currentUser);
+            _reviewMap = await Reviews.GetReviewsForYearAsync(_year);
+        }
+    }
+
+    private async Task OnFieldChanged(int reviewId, string field, ChangeEventArgs e)
+    {
+        if (reviewId <= 0) return;
+        var val = e.Value?.ToString();
+        await Reviews.UpdateFieldAsync(reviewId, field, val, _currentUser);
+        _reviewMap = await Reviews.GetReviewsForYearAsync(_year);
+    }
+
+    private List<CtpatQuestion> Filtered
+    {
+        get
+        {
+            if (_questions is null) return new();
+            IEnumerable<CtpatQuestion> q = _questions;
+            if (!string.IsNullOrEmpty(_filterCriterio)) q = q.Where(x => x.Criterio == _filterCriterio);
+            if (!string.IsNullOrEmpty(_filterStatus) && int.TryParse(_filterStatus, out var s))
+                q = q.Where(x => (int)GetReview(x.Id).Status == s);
+            if (!string.IsNullOrWhiteSpace(_filterText))
+            {
+                var t = _filterText.Trim().ToLowerInvariant();
+                q = q.Where(x =>
+                    x.Pregunta.ToLowerInvariant().Contains(t) ||
+                    (x.Respuesta2025 ?? "").ToLowerInvariant().Contains(t) ||
+                    x.ExternalId.ToLowerInvariant().Contains(t));
+            }
+            return q.ToList();
+        }
+    }
+
+    private int Atendidas => _questions is null ? 0 : _questions.Count(x => GetReview(x.Id).Status != CtpatReviewStatus.Pendiente);
+    private int Progress => (_questions is null || _questions.Count == 0) ? 0 : (int)Math.Round(Atendidas * 100.0 / _questions.Count);
+    private int CountBy(CtpatReviewStatus s) => _questions?.Count(x => GetReview(x.Id).Status == s) ?? 0;
+
+    private static (string cssClass, string label) StatusBadge(CtpatReviewStatus s) => s switch
+    {
+        CtpatReviewStatus.Pendiente  => ("badge-warning", "Pendiente"),
+        CtpatReviewStatus.SinCambios => ("badge-info",    "Sin cambios"),
+        CtpatReviewStatus.ConCambios => ("badge-warning", "Con cambios"),
+        CtpatReviewStatus.Revisado   => ("badge-primary", "Revisado"),
+        _ => ("badge-ghost", s.ToString())
+    };
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024d).ToString("0.0") + " KB";
+        return (bytes / 1024d / 1024d).ToString("0.00") + " MB";
+    }
+}
