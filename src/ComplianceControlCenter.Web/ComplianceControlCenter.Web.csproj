@@ -38,7 +38,17 @@
   <ItemGroup>
     <TailwindWatchInputs Include="Styles/**/*.css" />
     <TailwindWatchInputs Include="Components/**/*.razor" />
+    <TailwindWatchInputs Include="Modules/**/*.razor" />
+    <TailwindWatchInputs Include="Shared/**/*.razor" />
     <TailwindWatchInputs Include="tailwind.extension.json" Condition="Exists('tailwind.extension.json')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- El catálogo CTPAT (139 preguntas + guidance) se carga en runtime por CtpatSeeder. -->
+    <None Include="Modules\Ctpat\Data\ctpat_data.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
 
   <Target Name="EnsureNodeModules"

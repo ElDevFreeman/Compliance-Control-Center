@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ComplianceControlCenter.Web.Core.Domain.Entities;
 using ComplianceControlCenter.Web.Modules.Oea.Domain.Entities;
+using ComplianceControlCenter.Web.Modules.Ctpat.Data;
+using ComplianceControlCenter.Web.Modules.Ctpat.Domain.Entities;
 
 namespace ComplianceControlCenter.Web.Core.Data;
 
@@ -31,6 +33,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<MonthlyStatus> MonthlyStatuses => Set<MonthlyStatus>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
+    // Módulo CTPAT
+    public DbSet<CtpatQuestion> CtpatQuestions => Set<CtpatQuestion>();
+    public DbSet<CtpatGuidance> CtpatGuidance => Set<CtpatGuidance>();
+    public DbSet<CtpatReview> CtpatReviews => Set<CtpatReview>();
+    public DbSet<CtpatReviewFile> CtpatReviewFiles => Set<CtpatReviewFile>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -124,5 +132,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             b.HasIndex(x => x.Timestamp);
             b.HasIndex(x => x.EntityName);
         });
+
+        // ────────────────────────────────────────────────────────────────
+        // Registro de módulos (delegado)
+        // ────────────────────────────────────────────────────────────────
+        builder.AddCtpatModule();
     }
 }

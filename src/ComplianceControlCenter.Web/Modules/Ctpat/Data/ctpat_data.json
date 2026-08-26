@@ -1,0 +1,1448 @@
+{
+  "questions": [
+    {
+      "id": "1.2,1",
+      "criterio": "Upper Management Responsibility",
+      "pregunta": "Have representatives from all of the relevant departments been incorporated into a cross-functional team to build a robust Supply Chain Security Program?\nHave these new security measures been incorporated into existing company procedures to create a more sustainable structure that emphasizes that supply chain security is everyone’s responsibility?",
+      "respuesta2025": "Yes, our company have a team which monitory maintains in compliance our supply chain security program. This team is integrated with personnel of the involved and related departments with the security in the facilities and in the Supply Chain with the objective of give support in the build of effective and robust program in security matter. This group is the 0001014915-ES - CTPAT/AEO Committee & that which monitoring & maintains updated and in compliance our supply chain security program. The departments that conform the team and the respective function are the next: Security guards, Purchasing, Logistic & Transportation, Supply Chain, Import/Export Compliance, Human Resources, Quality, Maintenance & Information Technology, His roles and respective functions are in accordance with the indicated in the criteria and standards of CTPAT and AEO Profiles with relation to his areas:\nCTPAT Criteria:\n1. Upper Management Responsibility.\n2. Risk Assessment.\n3. Business Partners.\n4. Process Security.\n5. Conveyance & ITT.\n6. Agriculture Security\n7. Physical Security.\n8. Access Control.\n9. Personnel Security.\n10. Education, training & awareness.\n11. Cybersecurity.\nStandards AEO:\n1. Supply Chain Security Planning\n2. Physical Security\n3. Access Controls\n4. Business Partners\n5. Process Security\n6. Customs Management\n7. Conveyance and Security Seals\n8. Personnel Security\n9. Documentation & IT Security\n10. Security Training and Awareness\n11. Incidents Management and Investigation.\nAdditionally, we share the resolution letter with the current validity of our AEO certification"
+    },
+    {
+      "id": "1.3,2",
+      "criterio": "Upper Management Responsibility",
+      "pregunta": "Is the supply chain security program designed with, supported by, and implemented by an appropriate written review component? The purpose of this review component is to document that a system is in place whereby personnel are held accountable for their responsibilities and all security procedures outlined by the security program are being carried out as designed. This is arequirement.",
+      "respuesta2025": "Yes, our supply chain security program is designed, supported, and implemented by the CTPAT-AEO internal and external audit procedure. In this procedure, we establish that we have a CTPAT-AEO Committee responsible for ensuring that all security processes described in the security program are carried out as designed.\nUsing the format 0001014899-EN - CTPAT-AEO Annual Security Audit Program, the members of the CTPAT/AEO Committee will be responsible for managing and executing this supply chain security audit program.This 0001014899-EN - CTPAT-AEO Annual Security Audit Program is reviewed, executed, and updated annually through the scheduling of the following audits conducted and administered by the CTPAT/AEO Security Committee.\nInternal Audits:\nThe CTPAT/AEO Committee audits Corning Plants at least once a year, based on the guidelines outlined in the 0001014899-EN - CTPAT/AEO Annual Safety Audit Program, verifying that processes are executed in accordance with the CTPAT/AEO profiles and validating the corresponding evidence to ensure minimum compliance. Internal audits are cross-audits and are conducted among the member departments of the CTPAT/AEO Committee.\nExternal audits:\nExternal audits are conducted on business partners, and the CTPAT/AEO Safety Committee coordinates and executes them at least once a year, as outlined in the 0001015014-ES - Procedure for CTPAT and AEO Safety Reviews of Business Partners. \nFor the implementation of the 0001014899-EN - CTPAT/AEO Annual Security Audit Program, the format 0001014900-ES - Internal and External Audit Questionnaire for CTPAT-AEO Compliance Assessment will be used.This questionnaire was developed based on the guidelines and requirements of the AEO standardsand the CTPAT Criteria.\nAs an alternative measure, a general internal and external audit is scheduled at least once a year,conducted by an independent external third party. This audit is intended to identify potential areasfor improvement and ensure the minimum compliance requirements indicated in the CTPAT/AEO programs."
+    },
+    {
+      "id": "1.3,3",
+      "criterio": "Upper Management Responsibility",
+      "pregunta": "Is the review plan updated as needed based on pertinent changes in your organization’s operations and level of risk? This is a requirement.",
+      "respuesta2025": "The leader and assigned members of each department comprising the CTPAT/AEO Committee are responsible for providing periodic reports and updates to the companys senior management on the progress or results of the audits, exercises, or validations performed, as well as for monitoring the corresponding action plans.\nUsing the format called 0001014899-EN CTPAT/AEO Annual Security Audit Program, the related activities are coordinated and scheduled for execution monthly. The results are identified and reported to the companys senior management once the processes are executed, following up on the corresponding action plans Once the CTPAT/AEO annual security audit program is executed and the corresponding evidence is obtained for each indicated process, the CTPAT/AEO Security Profiles are reviewed and updated annually and submitted to the corresponding authority."
+    },
+    {
+      "id": "1.4,4",
+      "criterio": "Upper Management Responsibility",
+      "pregunta": "The role of a company’s upper management in CTPAT is to provide support and oversight to ensure the creation and maintenance of the company’s Supply Chain Security Program. To this end, do the CTPAT point(s) of contact (POC) provide regular updates regarding the progress or outcomes of any audits, exercises, or validations?",
+      "respuesta2025": "Yes, our companys upper management provide support to ensure the creation and maintenance of the companys Supply Chain Security Program. To this end, we have implemented a Committee CTPAT/OEA that the members between with the POCs, work in an audit program & provide regular updates regarding the progress or outcomes of the exercises, or validations executed to the companys upper management.\nThe audits are executed in accordance with the CTPAT requirements indicated in his 11 Criteria & the CTPAT/AEO Leader will send monthly reports in accordance with the CTPAT/AEO annual audit program."
+    },
+    {
+      "id": "1.4,5",
+      "criterio": "Upper Management Responsibility",
+      "pregunta": "Are the POCs knowledgeable about CTPAT’s program requirements? This is a requirement",
+      "respuesta2025": "The points of contact (POCs) attending CTPAT courses & conferences and also review the information about the program on the CBP website (www.cbp.gov/ctpat), in the Portal Library (Document Exchange)."
+    },
+    {
+      "id": "1.1,7",
+      "criterio": "Upper Management Responsibility",
+      "pregunta": "In promoting a culture of security, is commitment to supply chain security and the CTPAT program demonstrated through a statement of support? Is the statement signed by a senior company official and displayed in appropriate company locations?",
+      "respuesta2025": "Yes, our company have a statement of support for promoting his commitments culture of security in the supply chain security and with the CTPAT program.\nThis statement is signed by the Plant Manager of our company and is displayed in the key locations of the same. This statement of support is reviewed, is signed & is showed annually."
+    },
+    {
+      "id": "2.1,8",
+      "criterio": "Risk Assesment",
+      "pregunta": "Is the amount of risk in supply chains documented? Has an overall risk assessment (RA) been conducted to identify where security vulnerabilities may exist? Does the RA identify threats, assess risks, and incorporate sustainable measures to mitigate vulnerabilities. Are CTPAT requirements specific to the role in supply chain taken into account? These are requirements.",
+      "respuesta2025": "Information based on local, regional, national, and international sources should be obtained to assess risks during the analysis phase. External sources should include security situations arising from news reports in newspapers, radio, television, social media, and any other media outlets that involve potential threats to our facilities and/or foreign trade operations.\nSecurity situations arising from the companys daily surveillance activities (incident reports due to anomalies detected in access control, security patrols, perimeter verification, merchandise transportation, shipment verification, among others) should be considered internal sources.\nBased on the above, the CTPAT-OAS committee must conduct a risk analysis of COCs Logistics Chain, as well as the physical security of its plant and annexes such as warehouses and/or Distribution Centers, at least once a year. This same committee will request the security company to conduct vulnerability analyses of each of its locations.\nThe methodology to be used by the Safety Committee for risk analysis must be based on ISO 9000/9001 for its documentation control and on the corresponding security ISO standards (ISO 31000, ISO 31010, and ISO 28000) applicable to the company."
+    },
+    {
+      "id": "2.2,9",
+      "criterio": "Risk Assesment",
+      "pregunta": "Does the international portion of the risk assessment document or map the movement of cargo throughout the supply chain from the point of origin to the distribution center? Does the mapping\ninclude all business partners involved both directly and indirectly in the exportation/movement of the goods?\nAs applicable, does mapping include documenting how cargo moves in and out of transport facilities/cargo hubs and noting if the cargo is “at rest” at one of these locations for an extended period of time? Cargo is more vulnerable when “at rest,” waiting to move to the next leg of its journey",
+      "respuesta2025": "Yes, we have a ilustrative map the movement of cargo throughout the supply chain from the point of origin to the distribution center.\nThe mapping includes all business partners involved both directly and indirectly in the exportation/ movement of the goods."
+    },
+    {
+      "id": "2.3,10",
+      "criterio": "Risk Assesment",
+      "pregunta": "Are risk assessments reviewed annually, or more frequently as risk factors dictate? This is a requirement.",
+      "respuesta2025": "Our annual process to review and update our risk assessment is based in the following:\nThe methodology to be used by the Security Committee for the risk analysis must be based on ISO 9000/9001 for its documentation control and on the corresponding security ISO standards (ISO 31000, ISO 31010, and ISO 28000) applicable to the company.\nThe COC Security Committee will use a risk analysis matrix, which will include instructions for completing it.\nField 1 of the Risk Analysis Matrix will list the sub standards and minimum-security criteria in accordance with the CTPAT and OEA guidelines.\nField 2 will list the processes within the Logistics Chain, Physical Security, Supply Chain, and Personnel Security.\nIn Field 5, the Security Committee will list a risk classification based on the risk analysis matrix:\nOperational, Documentary, Terrorism, Contraband, Environmental, and Criminal.\nThe risk identification will be reviewed and documented by the CTPAT-OAS committee at least once a year and will be reported to Plant Management.\nRisk identification will be based on the location, environment, and results of internal audits conducted at COC plants. This will be complemented by internal incident reports, applicable drill reports, and the results of external audits conducted with business partners.\nThe method for assessing, identifying, and controlling risks that could affect the continuity of COC operations will be based on the Risk Zone, which is the product of three factors: Probability, Impact, and Scope.\nIn the CTPAT-OEA risk analysis matrix are showing the risk assessments, the threat calification analysis, the monitoring and the control of the action plans."
+    },
+    {
+      "id": "2.4,11",
+      "criterio": "Risk Assesment",
+      "pregunta": "Are written procedures in place that address crisis management, business continuity, security recovery plans, and business resumption?",
+      "respuesta2025": "Our plant security program procedure include the contingency and/or emergency plans related to business continuity/resumption applicable in the event of any situation that affects the normal development of the companys activities and foreign trade operations in its supply chain, such as the following:\nAt company facilities: Power outage, cyberattack affecting the transmission and exchange of commercial data, fire, etc.\nDuring customs clearance: Detention or theft of goods, armed confrontations, detention o kidnapping of a transport driver, roadblocks or closures.\nAt customs facilities or in their surrounding areas: Closure of customs due to any situation such as a bomb threat, detection of suspicious packages, power outage, theft and/or damage to goods, threats or extortion, etc."
+    },
+    {
+      "id": "3.1,12",
+      "criterio": "Business Partners",
+      "pregunta": "Is a written, risk based process in place for screening new business partners and for monitoring current partners? This is a requirement.",
+      "respuesta2025": "The procedure IA-MAT-4100 - Purchases of goods and services is attached, which applies to any\ntype of supplier with a commercial relationship with the company.\nCorning has 2 areas that carry out the selection processes of business partners and suppliers.\nThe Global Supply Management Department (GSM / Global Supply Management) and the Purchasing department.\nThe information required of business partners is indicated in the format 0000098621-EN - Supplier Registration, which states the following:\nSection 1 - General Information of the Supplier.\nSection 2 - List of Partners and / or Owners.\nSection 3 - Statistical Information (company size and seniority).\nSection 4 - Types of Materials, Services and / or Projects in which the Supplier specializes.\nSection 5 - Commercial References.\nSection 6 - Main Customers\nSection 7 - Insurance and Bonds\nSection 8 - Safety and Environment\nSection 9 - Declarations\nSection 10 - Supplier Risk Assessment.\nThe company keeps updated the files of each of its business partners, which, among other requirements, documents and aspects, the following are requested and investigated:\nMoral Persons: Constitutive Act, Notarial Power of the Legal Representative, Official Identification of the Company Representative, copy of the RFC, Last Annual Statement, SUA Proof, Photos of the companys facilities (offices, warehouse, workshop, etc.) and equipment , Proof of address and presentation of the company in Power Point or PDF.\nIndividuals: Official Identification of the Company Representative, copy of the RFC, Last annual declaration, SUA Voucher, Photos of the companys facilities (offices, warehouse, workshop, etc.) and equipment, proof of address, presentation of the company in Power Point or PDF and CURP (If you are a Construction Contractor, attach the PHASE I - Pre-Evaluation of Contractors format).\nFor each Business Partner, a physical and electronic file is maintained.\nThe services of some business partners are evaluated by means of follow-up meetings, which may be face-to-face or virtual via telephone conference where, in some other points, activities in general and some specific points related to the operation, the product and / or the contracted service."
+    },
+    {
+      "id": "3.1,15",
+      "criterio": "Business Partners",
+      "pregunta": "Are checks on activity related to money laundering and terrorist funding included in this process?\nBased on risk, are CTPAT key warning indicators for money laundering and terrorism financing activities taken into account that are most applicable to the functions performed by the business entity in the supply chain?",
+      "respuesta2025": "Our company have a letter signed by our business partners in the which they declared his annual compromise with the compliance with the guidelines of the CTPAT & the AEO. In this compromise letter, our business partners commit to illegal and/or prohibited activities such as money laundering, financing of terrorism, smuggling and drug trafficking among others.\nAlso, Corning screens our suppliers and customers through SAP GTS. This includes OFAC sanctions as part of the screening process. This practice actually continues."
+    },
+    {
+      "id": "3.4,17",
+      "criterio": "Business Partners",
+      "pregunta": "Does the business partner screening process take into account whether a partner is a CTPAT Member or a member in an approved Authorized Economic Operator (AEO) program with a Mutual Recognition Arrangement (MRA) with the United States (or an approved MRA)? Certification in either CTPAT or an approved AEO is acceptable proof for meeting program requirements for business partners. Is evidence of the certification obtained and are business partners continuously monitored to ensure they maintain their certification? These are requirements.",
+      "respuesta2025": "The 0001015014-ES - Procedure for CTPAT and AEO security reviews of business partners indicates that business partners with CTPAT or AEO certification will be asked to share the document supporting their annual revalidation or renewal.\nFor the business partners with AEO or OEA certification, we apply a documentary and physical audit, will be every two years & for the business partners without AEO or OEA certification, a documentary and physical audit, will be annually to guarantee that they maintain it."
+    },
+    {
+      "id": "3.5,18",
+      "criterio": "Business Partners",
+      "pregunta": "Where a CTPAT Member outsources or contracts elements of its supply chain, is due diligence exercised (via visits, questionnaires, etc.) to ensure these business partners have security measures in place that meet or exceed CTPAT’s Minimum Security Criteria (MSC). This is a requirement.",
+      "respuesta2025": "Our company, through the Purchasing Department supported by the CTPAT-AEO Committee, conduct periodic security assessments of the processes and facilities of its business partners based on a risk analysis to ensure they meet the minimum-security standards required by the company based on the CTPAT and OAS programs.\nFor the execution of security reviews or evaluations of business partners, an 0001014900-ES -Questionnaire for internal and external audit CTPAT and AEO compliance assessment (Soc Com) will be used, which was developed based on AEO standards and CTPAT Criteria.\nThe 0001015014-ES - Procedure for CTPAT and AEO security reviews of business partners indicates that business partners with CTPAT or AEO certification will be asked to share the document supporting their annual revalidation or renewal, and that the periodicity for documentary and physical audits, if is applicable, will be every two years."
+    },
+    {
+      "id": "3.6,19",
+      "criterio": "Business Partners",
+      "pregunta": "If weaknesses are identified during business partners’ security assessments, are they addressed as soon as possible and are corrections implemented in a timely manner? Is it confirmed that deficiencies have been mitigated via documentary evidence? These are requirements.",
+      "respuesta2025": "To determine whether a business partner meets CTPAT security criteria, we administer a questionnaire based on the minimum requirements of CTPAT and AEO and apply the following methodology.\n1. Corning sends the questionnaire via email to the business partners.\n2. The business partners review the questions and return the completed questionnaire.\n3. Corning reviews the completed questionnaire and schedules a visit to validate the evidence.\n4. Corning visits the business partner to validate the documentary evidence and conduct a physical inspection of their facilities.\n5. The visit concludes, and both parties agree on action plans to address any findings.\n6. Corning delivers an audit report with observations, comments, and recommendations.\n7. Both parties follow up and monitor the agreed-upon action plans monthly until completion.\nThe next year, a CTPAT/AEO audit is conducted again."
+    },
+    {
+      "id": "3.7,20",
+      "criterio": "Business Partners",
+      "pregunta": "To ensure that business partners continue to comply with CTPAT’s security criteria, are security assessments of business partners updated on a regular basis, or as circumstances/risks dictate?",
+      "respuesta2025": "Yes, in our procedure Procedure of security for the Business Partners (0000098876-EN) we can find how to manage the updates, plus annual revisions are conducted in order to ensure the compliance with the security modules and minimum CTPAT criteria."
+    },
+    {
+      "id": "3.8,21",
+      "criterio": "Business Partners",
+      "pregunta": "For inbound shipments to the United States, if subcontracting transportation services to another highway carrier, is a CTPAT certified highway carrier used or a highway carrier that works directly for the member as delineated through a written contract? Does the contract stipulate adherence to all minimum security criteria MSC) requirements? These are requirements",
+      "respuesta2025": "Currently Corning has contract with 3 Mexican carriers & those carriers does not use other carriers as subcontract in our U.S. bound shipments.\nIn case of that someday our carrier needs subcontract other carrier for our shipments to U.S. our company will assure applying our CTPAT/OEA controls and procedures that the new carrier meeting with the minimal C-TPAT security criteria before approve the material movement with another carrier different"
+    },
+    {
+      "id": "3.9,22",
+      "criterio": "Business Partners",
+      "pregunta": "Is a documented social compliance program in place that, at a minimum, addresses how the company ensures goods imported into the United States were not mined, produced or manufactured, wholly or in part, with prohibited forms of labor, e.g., forced, imprisoned, indentured, or indentured child labor?",
+      "respuesta2025": "Corning it is a socially responsible company, into the company exist several policies about equity, diversity and dignity relation between the company and the employee, Human Resources department and the company are aligned with the\ngovernment rules about how many hours and employee needs to work, this help to ensure you are not forced to work and all work after normal hours is paid in accordance with the contract and the law.\nAlso, our company have a letter signed by our business partners in the which they declared his compromise of have a documented social compliance policy and program among its employees and business partners that addresses how your company guarantees Corning Optical Communications, S. de R.L. de C.V. that its production, storage, services, or other processes were not and are not carried out, in whole or in part, with prohibited forms of labor, i.e., forced or compulsory labor, including forced or compulsory child labor under Article 23.6 of the USMCA and the Agreement Establishing the Goods Whose Importation Is Subject to Regulation by the Ministry of Labor and Social Welfare, published in the DOF on February 17, 2023"
+    },
+    {
+      "id": "7.6,25",
+      "criterio": "Procedural Security",
+      "pregunta": "Are procedures in place to ensure that all information used in the clearing of merchandise/cargo is legible, complete, accurate, protected against the exchange, loss, or introduction of erroneous information, and reported on time? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nCorning has documented procedures that allow the information of the merchandise of importation and exportation, to be handled in a safe and reliable way.\nIn our processes of loading and moving the goods, we use bar code scanners to avoid manual captures & to minimize mistake risks with the information transmitted in automatically form between our systems (ERP SAP, shipments, Customs, etc.), of this form, we assure that the information to be legible, complete and accurate.\nOur systems of ERP/SAP, shipments and customs invoicing are connected each other and the manual capture of information, are not authorized that permit minimize & avoid unauthorized modifications or distributions.\nWe have access codes for all the users to protect the information and track possible situations of losses or error"
+    },
+    {
+      "id": "7.8,26",
+      "criterio": "Procedural Security",
+      "pregunta": "Are the weight and piece count accurate? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications (The documents was updated). In the written procedure IA-EMB-4357 we include the process in page 4, where we describe how the weight and piece count it will declare in our picking list.\nWeight in pounds are declared in the picking list after we collocate the boxes with material in the area scale, this scale generate the weight and dimension label, that info will be included in our master product label, if there is any discrepancy between the declared info and the label info we can use the format 0000044077-ES and the material will be identified with a different color cone, thats mean that the material cannot be shipped and need QC inspection"
+    },
+    {
+      "id": "7.8,27",
+      "criterio": "Procedural Security",
+      "pregunta": "Does the shipper or its agent ensure that bill of ladings (BOLs) and/or manifests accurately reflect the information provided to the carrier, and do carriers exercise due diligence to ensure these documents are accurate? Are BOLs and manifests filed with CBP in a timely manner?\nDoes BOL information filed with CBP show the first foreign location/facility where the carrier takes possession of the cargo destined for the United States? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications (The documents was updated).\nYes, in Cornings written procedure IA-EMB-4357, page 9; we talk on how the BOL it will be elaborated and how we assure the correct info on it.\n4.5 PREPARATION OF BILL OF LADING.\n4.5.1 With transaction VG01 this document is generated which is added to all shipments of pallets, except: UPS SCS, FedEx heavy weight air and when the shipping instruction specify.\n4.5.2 Enter transaction VG01 and the system asks you for a Group Type, add the letter M, which does reference to the freight list, and press enter.\n4.5.3 Add in the Sales Document space the number (s) of the picking list of which (s) are you need the BOL, and it is printed (using transaction VG02), check that the picking number (s) list printed on the BOL match the required (s) and in the space of Freight Charge Term\nYou must choose and add a brand manually, according to the type of charge required by the customer instructions, of the three options set out: Prepaid, Collect or 3rd Party Billing.\nOne copy is stapled to the picking list and the remaining two are stapled together at the level of the order, to identification of traffic personnel (next process).\n4.5.4 For consolidated orders, all the Delivery note numbers must be added within the same BOL. Make sure that the consolidated orders go to the same address, and you must name (Handling unit) different to each pallet of the shipment.\n4.5.5 The verifier adds the BOL number in the (Shipment / BOL.) (VL02N) tab to that it appears on the shipping documents and checks that the special texts are complete according to the shipping instructions (applies for LTL shipments).\n4.5.6 The verifier must stick the carrier label with the tracking number on the BOL.\n4.5.7 Mark in the BOL the amount of pallet position in case the pallets are sent double stack."
+    },
+    {
+      "id": "7.7,30",
+      "criterio": "Procedural Security",
+      "pregunta": "If paper is used, are forms and other import/export related documentation secured to prevent unauthorized use.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications (the documents was updated).\nCorning work with the latest electronic filling technology, according with the US and MX compliance rules we use the electronic filling, procedure 0000146997-ES explain the process\nObtaining the Electronic Proof of Value (COVE and DODA)\n4.3.1 Where applicable, and whenever the invoice is duly captured in the Annexe 24, and after it has been reviewed, it will be transmitted electronically to the Single Window for Foreign Trade (VUCEM) to obtain the Accuse de Valor or COVE correspondent.\n4.3.2 The transmission of the information to VUCEM will be done from PRISMA by selecting the boarding module menu> COVE> Import section. This section will select the invoice and request that you want to transmit. We proceed to send the SW of which after about 2 minutes you should receive a response from said SW.\n4.3.3 Once the COVE is received, the destination / origin is selected, the border strip, the print and save to designated path. Then proceed to print and record the List of Documents which is done in CAM within the reports module>general> list of documents. In case of operations of 2 or more invoices in 1 shipment, each invoice must be selected and the total number of operations defined.\n4.3.4 In the event that the procedure is carried out through Almanza, the COVE will be sent but it will not print. Only from the predefined path to drive C: of each computer the corresponding XML will be taken.\n4.3.5 In case the shipment of equipment is mixed with imported material The final Mexican invoice will be sent by email to Almanza along with the XML for your preparation"
+    },
+    {
+      "id": "7.1,31",
+      "criterio": "Procedural Security",
+      "pregunta": "When cargo is staged overnight, or for an extended period of time, are measures taken to secure the cargo from unauthorized access? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes (The documents was updated).\nProcedure for staging cargo 0000003198-ES talks about the steps that corning follow in order to verify the heavy trailer boxes on our campus yard Day and Night control of heavy transport:\n4.2.3.1 The external guardhouse must audit all transportation that enters the courtyards (Shipments and Receipts) from Corning Optical Communications.\na) You should check the cabin inside the right and left side and cabin. To find Suspicious objects immediately speak to the Security Coordinator or Security Supervisor security.\nb) Check compartments on both sides of the tractors tool. By not opening the Stalls will not be allowed access to the floor.\nc) Trailer boxes with graffiti (paint) and / or holes or broken floors will not be allowed the entrance to the plant.\n4.2.3.2 The external guardhouse must write down the data in the format FF-SEG-0777, for which he requests an identification of the driver.\n4.2.3.3 The guard, both at the entrance and exit, must verify the security seal that it is not violated And that matches the number on the stationery that covers the shipment.\n4.2.3.4 In the event that the seal is violated or that the seal number does not match the document of the Shipment inform the Supervisor of Security, Shipments or Receipts.\n4.2.3.5 The guard allows the carrier to exit or enter.\n4.2.3.6 The guard when presenting the transport of special waste, must check with the department Environmental if the vehicle is authorized to carry out the movement, and it will be noted in the FF_x0002_SEG format. 0777 the number of plates.\n4.2.3.7 All Heavy Cargo Transportation entering Corning Optical Plant Yards Communications. The 17 Points will be reviewed to comply with the C-TPAP / AEO Certification according to the format 0000100886-EN.\n4.2.3.8 All Heavy Cargo Transportation leaving Corning Optical Plant Yards Communications will review the 7 points to comply with the C-TPAT / AEO Certification of according to Format 0000100886-ES.\nAdded information:\n4.2 Supply Chain Security Policy.\n4.2.2.1 Overnight Cargo Storage. The warehouse known as CORTEVA, owned by a third party, is the only location outside Corning facilities authorized as a rest and storage area for cargo vehicles during the transfer of merchandise related to foreign trade (imports and exports). Unloading of merchandise is not carried out at this location. Import and/or export shipments occasionally spend the night in this area, and the average waiting time is approximately 10 hours Monday through Friday, and 16 hours on weekends."
+    },
+    {
+      "id": "7.4,32",
+      "criterio": "Procedural Security",
+      "pregunta": "Is the loading/stuffing of cargo into containers/IIT supervised by a security officer/manager or other designated personnel?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nProcedure IA-EMB-4357 explain how the local verifiers perform their inspection process at the loading time\nVerification Process\n4.5.8.1 For Fedex Freight shipments it should be checked that the pallets do not exceed 14 linear feet according to the carrier and for Southeastern Freight Lines shipments not exceeding 20 linear feet.\n4.5.8.2 According to the service assigned in the delivery, tape an identification sheet of carriers on each pallet and check the corresponding box stackable, not stackable or triple stackable, for shipments via Expeditors international print on green sheets using the 0000150638-GB\n4.5.8.3 The verifier must stick a yellow label (Mixed product Mixed pallet) on each pallet containing mixed material. (ref. to visual aid 0000150634-EN)\n4.5.8.4 For pallets that can only be stowed on another with a flat surface, a label is placed orange (Top load only) according to weight and dimensions (ref. to visual aid 0000150634-EN).\n4.5.8.5 Australia LTL orders a green label (Top load only this side up) is placed on each pallet with a flat surface that can be doubled and the orange label (Top load only) for pallets that They can only be stowed according to weight and dimensions (ref. to visual aid 0000150634-EN).\n4.5.8.6 For Microsoft orders, check if the document is marked as a special order or normal by the shipping assistant, if it is a special order, a presentation sheet must be made in Power point to identify the material following the visual aid 0000150634-EN and they are used the rhombies (GPS) if required.\n4.5.8.7 For Flex nap materials are 100% checked by an inspecto"
+    },
+    {
+      "id": "7.28,33",
+      "criterio": "Procedural Security",
+      "pregunta": "Is arriving cargo reconciled against information on the cargo manifest? Is departing cargo verified against purchase or delivery orders?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications (The format FF-REC-0964 was changed by the format 0000932300-ES)\nYes, Shipping department (Departures) and Receiving department (Arriving) both departments have a process and format to perform a reconciliation\nProcedure IA-EMB-4357 explain how to verify the physical material against the Import / Export documents and BOL or Packing List, if there is any discrepancy format 0000932300-ES needs to be use and report to the proper department the discrepancy"
+    },
+    {
+      "id": "7.27,34",
+      "criterio": "Procedural Security",
+      "pregunta": "Are all shortages, overages, and other significant discrepancies or anomalies investigated and resolved, as appropriate? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nWhen discrepancies are detected in the reception of import or export shipments, the following process is applied:\n- The area of receipts is responsible for verifying that the received physical load coincides with that declared in the customs documentation of the shipment.\n- The area of receipts confronts the quantities, the detailed description of the merchandise and the necessary data that allow the correct identification and quantification of the merchandise.\n- The area of receipts in case of detecting missing or excess merchandise, conducts a report of discrepancies using the format FF-REC-0964 with which reports the information to the area of imp_x0002_exp.\n- The area of import-export, review the cases that apply for rectifications & in case of be approved by the Trade Customs Compliance Manager, the rectifications are applied of form monthly.\nImportation anomalies:\nThe next cases are determined as damage caused in the handle of load & unload & in the transportation when:\n-The packaging of the material presents visible damage\n-Badly stowed material\n-The packaging is open\n-The packaging is crushed\n-Packing presents damage caused by the stevedore blades.\nExportation anomalies:\nWhen in the McAllen warehouse is detected that a material received from the Reynosa warehouse, have potential damage, the area of Inspection of Reynosa, is responsible of to go to the McAllen\nWarehouse and conduct the evaluation of the material to investigate the possible causes & determine if apply a Damage Report & the return of the material to Reynosa for revision or change.\nThe departments involved in that process are:\n-McAllen Warehouse\n-Reynosa warehouse\n-Purchasing\n-Receipts\n-Imp-Export\n-Quality Inspection"
+    },
+    {
+      "id": "7.24,49",
+      "criterio": "Procedural Security",
+      "pregunta": "Are procedures in place to identify, challenge, and address unauthorized/unidentified persons? Do personnel know the protocol to challenge an unknown/unauthorized person, how to respond to the situation and are they familiar with the procedure for removing an unauthorized individual from the premises? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes.\nAt Corporate level, our company has a Global Incident Reporting process in place for escalation process if an incident or Risk Situation is detected or suspected.\nAt local level, our company has the format 0000078768-ES for report anomalies and suspected activities.\nProcedure 0000003198-ES described the process for report any illegal situation with the corresponding authorities."
+    },
+    {
+      "id": "7.23,50",
+      "criterio": "Procedural Security",
+      "pregunta": "Are written procedures in place for reporting an incident to include a description of the facility’s internal escalation process?\nIs a notification protocol in place to report any suspicious activities or security incidents that may affect the security of the member’s supply chain? As applicable, are incidents reported to the SCSS, the closest port of entry, any pertinent law enforcement agencies, and business partners that may be\npart of the affected supply chain? Do notification procedures include the accurate contact information that lists the name(s) and phone number(s) of personnel requiring notification, as well as for law\nenforcement agencies? These are requirements.",
+      "respuesta2025": "Yes, Corning has a procedure that describes how to deal with any incident, suspicious or risk situation activity within the facilities and the protocol to follow to inform the C-TPAT, CBP, or other authorities."
+    },
+    {
+      "id": "7.23,51",
+      "criterio": "Procedural Security",
+      "pregunta": "Are notifications to CBP made as soon as feasibly possible and in advance of any conveyance or IIT crossing the border? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, first of all we need to use format FF-SEG-8603 and explain in a very detail way what happen, we need to use vocabulary aligned to the C-TPAT security standards, then we can consult the Suspicious activity (Plant safety procedure-0000003198-ES), if there any not written situation on the anomaly, Security department and Corning Legal department can have an emergency meeting to discuss the way to proceed with the existing situation."
+    },
+    {
+      "id": "7.23,52",
+      "criterio": "Procedural Security",
+      "pregunta": "Are procedures periodically reviewed to ensure contact information is accurate? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nThere is not and specifically procedure, but Corning haw the True-Blue webpage, in this webpage we can consult any Corning employee contact info, location, phone, email and even photo, so there is a daily automated task in the True Blue server which update the info, information it is accurate and safe"
+    },
+    {
+      "id": "7.25,55",
+      "criterio": "Procedural Security",
+      "pregunta": "Has a mechanism been established to report security related issues anonymously? When an allegation is received, is it investigated, and if applicable, are corrective actions taken?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, Corning has a hot line number 1607-974-0000, in this number every corning member can elevated an issue in a anonymous way.\nWhen a corning worker elevate an issue a case number it will be generated, with that phone number and a password the employee can follow the updates of the open case.\nPlease see attached the webpage:\nhttps://secure.ethicspoint.com/domain/en/default_reporter.asp"
+    },
+    {
+      "id": "7.37,204",
+      "criterio": "Procedural Security",
+      "pregunta": "Are internal investigations performed immediately after an incident? Is the investigation documented? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nTo corporative level, our company has a Global Incident Reporting process in place for escalation process if an incident is detected or suspected.\nTo a local level, Corning has the format 0000078768-ES for report anomalies & suspected activities.\nIn the procedure 0000003198-ES, is described the process for report any illegal situation with the corresponding authorities"
+    },
+    {
+      "id": "5.1,56",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are conveyances and Instruments of International Traffic (IIT) stored in a secure area to prevent unauthorized access, which could result in an alteration to the structure of an Instruments of International Traffic or (as applicable) allow the seal/doors to be compromised? This is a requirement",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nThe Cornings procedures in place for tracking and monitoring of conveyances since the load point until to deliver point indicate the next process.\nOur company uses the services of an external company who is responsible for the transportation of goods during the road.\nThe shipments are monitored with the following tracking methods: GPS devices.\nThe satellite tracking modules are installed in the vehicles and are hidden so that they cannot be removed or manipulated.\nThe modules that are installed in the tractors depend on the energy of the vehicle.\nThe modules installed in the trailers are totally autonomous, which have a load sensor and door opening sensor.\nSaid satellite tracking modules report every 5 minutes, they are also kept identified and controlled by the number of series.\nThe tracking system is located in the Department of Satellite Tracking & only the personnel in that area have control and access to the system.\nAll personnel that are in the Satellite Tracking Department are trained to recognize a geofence, points of interest, areas of rest, risk areas, etc., as well as knowing the position of the vehicles at all times.\nThe modules emit the following alerts:\nOutside of geofence\nPanic button\nEntry and exit of risk areas\nOpening doors (trailers)\nLoading or unloading (trailers)\nThe modules account with extra functions such as:\nAudio in the cabin\nEngine stop\nGPS tracking.\nA revision of the predetermined routes is carried out physically, with the intention of identifying patios, pensions, mechanical stations, vulcanization, customs, fuel loading, authorized stops or rest areas, areas of risk (purchase of diesel, theft of vehicles or merchandise, etc.), seals of authorities, etc. As well as reviewing and analyzing the estimated times of route or travel between the origin and destination.\nThe Satellite Tracking Department and the assigned personnel are the responsible for monitoring vehicles and trailers.\nThe personnel that belong to the Satellite Tracking Department are trained to perform such work and is prepared for any kind of contingency or emergency that is presented.\nThe Satellite Tracking Department performs the monitoring through the satellite tracking system called IGS and carry out tracking logs.\nThe personnel of the Satellite Tracking Department review the status of the vehicles and trailers randomly.\nThe status of tracking the location of the vehicles is sent and trailers to customers every hour and at the end of the monitoring.\nThe personnel of the Satellite Tracking Department make a report every\nOnce there are anomalies in the route (unauthorized stops, failures mechanics, accidents, infractions, route changes, etc.), using the Format\nof Anomaly Card . Operators are trained to deal with faults minimum mechanics of the vehicles.\nThere are procedures to act in case of any contingency or emergency according to the C-TPAT_x0002_AEO-Plans procedure Contingency or Emergency.\nThe personnel of the Satellite Tracking Department are constantly communication with the operators of the vehicles. Operators have cell phone and radio which is provided by the Department of Information Technology, as well as audio in the cabin which is activated by the personnel of the Satellite Tracking Department, with the intention to establish effective and effective communication."
+    },
+    {
+      "id": "5.2,57",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are written procedures in place for both security and agricultural inspections of IIT? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, they are procedures related to the physical integrity for the load, trailer and tractor.\nDriver scope include the external inspection before placing the trailer on the docking area\nShipper clerks use the 8-inspection point using a checklist, part of the revision include the cleanliness of the trailer, it must be free of contamination and any type of pest.\nOnce the trailer its already loaded security guards inspect the trailer using the 19 point of inspection review format.\nFollowing points are included:\nfender, engine, tires, doors, tool compartments and locking mechanism, floor, fuel tanks, air tanks, drive shaft, exhaust pipe, fifth wheel area, exterior dry box overhaul, locking mechanism Exterior doors, floor, ceiling, walls, housing fan on refrigerated trailers, free check for boxes of dirt, seeds, trash, pests, strange animals, odors"
+    },
+    {
+      "id": "5.3,58",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Prior to loading/stuffing/packing, do all conveyances and empty IIT undergo CTPAT approved security and agricultural inspections to ensure their structures have not been modified to conceal contraband or have not been contaminated with visible agricultural pests? Is a seven-point inspection\non all empty containers and unit load devices (ULD), and an eight-point inspection on all empty refrigerated containers and ULDs conducted prior to loading/stuffing to include:\n1. Front wall; 2. Left side; 3. Right side; 4. Floor; 5. Ceiling/Roof; 6. Inside/outside doors, including the reliability of the locking mechanisms of the doors; 7. Outside/Undercarriage; 8. Fan housing on refrigerated containers?\nDo these systematic inspections include:\nTractors:\n1. Bumper/tires/rims; 2. Doors, tool compartments and locking mechanisms; 3. Battery box; 4. Air breather; 5. Fuel tanks; 6. Interior cab compartments/sleeper; 7. Faring/roof?\nTrailers:\n1. Fifth wheel area - check natural compartment/skid plate; 2. Exterior - front/sides; 3. Rear - bumper/ doors; 4. Front wall; 5. Left side; 6. Right side; 7. Floor; 8. Ceiling/roof; 9. Inside/outside doors and locking mechanisms; 10. Outside/Undercarriage? These are requirements",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nThere are procedures related to the verification of the physical integrity of the load, the trailer and the tractor. The driver inspects the trailer using an external inspection form before placing it on the dock.\nAfter performing the external review, the shipping clerk reviews the 8 inspection points using a checklist (these 8 inspection points are for the interior of the trailer only) within the 8 points, the cleanliness of the trailer is verified by thoroughly reviewing that be free of contamination and any kind of pests.\nOnce the trailer is loaded, the security guard inspects the trailer using a 19-point of inspection format checklist that also verifies that the trailer is free of dirt, seeds, debris , pests, strange animals or odors to release the shipment. The traffic coordinator uses devices to measure the dimensions of the container at all times. If a finding is found at any time during these inspections, the trailer is rejected or stopped until the finding is resolved, the escalation procedure is applied for the corresponding findings during this inspection.\nOnce the shipment has been reviewed and released by all parties involved the traffic coordinator places the high security seal together with the security guard and the driver."
+    },
+    {
+      "id": "5.4,59",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are conveyances and IIT (as appropriate) equipped with external hardware that can reasonably withstand attempts to remove it? Are the doors, handles, rods, hasps, rivets, brackets, and all other parts of a container’s locking mechanism fully inspected to detect tampering and any hardware inconsistencies prior to the attachment of any sealing device? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nAll means of transport and ITT are fully inspected before being loaded, these checks consist of inspecting doors, handles, bars, bolts, rivets, supports and all other parts of the container locking mechanism.\nSecurity team use mirror, hammer and laser in order to measure the deep, height and length of each trailer box."
+    },
+    {
+      "id": "5.7,62",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "If visible pest contamination is found during the conveyance/IIT inspection, is washing/vacuuming carried out to remove such contamination? Is documentation retained for one year to demonstrate compliance with these inspection requirements? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nThe normal process is to notify the carrier coordinator, and we will replace the trailer, we prefer to use another inspected trailer instead of performing a clean."
+    },
+    {
+      "id": "5.3,63",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are inspections of conveyances and IIT systematic and are they conducted at conveyance storage yards? Where feasible, are inspections conducted upon entering and departing the storage yards and at the point of loading/stuffing? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nThe trailers cargo that will be used in the later customs clearance & the containers that are empty, are stored in the parking area assigned in the shipment perimeter.\nThis trailers cargo & containers, is protected by the companys security measures as high security seals, monitoring with CCTV, security guards tours and adequate electric night light."
+    },
+    {
+      "id": "5.6,64",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are security inspections performed in an area of controlled access and, if available, monitored via a CCTV system?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, and the area have a CCTV system which it is monitored by Corning personal (Security) 24 / 7, each facility of corning campus has a control room"
+    },
+    {
+      "id": "5.5,65",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Is the inspection of all conveyances and IIT recorded on a checklist? Are the following elements documented on the checklist: container/trailer/instruments of international traffic number, date of inspection, time of inspection, name of employee conducting the inspection, and specific areas of the instruments of international traffic that were inspected?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nCarrier driver inspects the trailer using CYMez inspection form before placing it on the dock.\nAfter performing the external review, the shipping clerk reviews the 8 inspection points using a checklist (these 8 points are for the interior of the trailer only), if all is well then start loading the container.\nOnce the trailer is loaded, the traffic coordinator places the high security seal along with the security guard and driver. The security guard inspects the trailer using a 19-point inspection format checklist to release the shipment.\nCheck List include:\n- Trailer Number\n- Inspection Date and Time\n- Employee name (the person who conducting the inspection"
+    },
+    {
+      "id": "5.5,66",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "If the inspections are supervised, does the supervisor also sign the checklist?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, is not supervised, the main reason is our CCTV system, the cameras allow us to have a very wide, clear and zoomed vision of the entire process of the Inspection."
+    },
+    {
+      "id": "5.5,67",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Is the completed container/IIT inspection sheet part of the shipping documentation packet? Does the consignee receive the complete shipping documentation packet prior to receiving the merchandise?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, is not part of the shipping documentation, it will be part of shipping records locally at the facility. those inspections sheets are kept by the Security personnel"
+    },
+    {
+      "id": "5.8,69",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Based on risk, does management conduct random searches of conveyances after the transportation staff have conducted conveyance/IIT inspections? Are searches of the conveyance done periodically, with a higher frequency based on risk? Are the searches conducted at random without warning, so they will not become predictable?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nAt least once a year random inspection is performed by the Trade Compliance department, those inspection include documental review, physically inspection. the Inspection is performed by the TC Manager"
+    },
+    {
+      "id": "5.8,70",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are inspections conducted at various locations where the conveyance is susceptible: the carrier yard, after the truck has been loaded, and en route to the United States border?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nIt is part of the annual audit to inspect Corning IIT in the carrier yard, findings will be recorded at the risk analysis, following actions plans will take place and more frequently internal audits will occur."
+    },
+    {
+      "id": "6.1,71",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are written high security seal procedures in place that describe how seals are issued and controlled at the facility and during transit? Are procedures in place that provide the steps to take if a seal is found to be altered, tampered with, or has the incorrect seal number to include documentation of the\nevent, communication protocols to partners, and investigation of the incident? Are the findings from the investigation documented, and any corrective actions implemented as quickly as possible? Do written seal controls include the following elements?\nControlling access to seals: management of seals is restricted to authorized personnel, secure storage, inventory, distribution, & tracking (seal log), recording the receipt of new seals, issuance of seals recorded in log, track seals via the log, and only trained, authorized personnel may affix seals to\ninstruments of international traffic (IIT).\nControlling seals in transit:\nwhen picking up sealed IIT (or after stopping), verify the seal is intact with no signs of tampering, confirm the seal number matches what is noted on the shipping documents,\nSeals broken in transit:\nif load examined--record replacement seal number, the driver must immediately notify dispatch when a seal is broken, indicate who broke it, and provide the new seal number; the carrier must immediately notify the shipper, broker, and importer of the seal change, and the replacement seal number; and the shipper must note the replacement seal number in the seal log.\nSeal discrepancies:\nhold any seal discovered to be altered or tampered with to aid in the investigation, Investigate the discrepancy, follow-up with corrective measures (if warranted), and as applicable, report compromised seals to CBP and the appropriate foreign government to aid in the investigation. These are requirements.",
+      "respuesta2025": "Our company physically handles the high security seals & have the procedure number 0000146872-ES for the Management of high security seals, that include the following controls.\n- Supply and monitoring of balances of high security seals\n- Process of arrival of high security seals to the McAllen Warehouse\n- Process of arrival of high security seals to the Reynosa Warehouse\n- General handling and control of high security seals\n- Handling of high security seals in customs clearance\n- Confrontation of high security seals in final destinations\n- High security seal tracking process.\n- Administration, control, assignment, safeguarding, discrepancy handling, and destruction process."
+    },
+    {
+      "id": "6.1,72",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are procedures reviewed at least once a year and updated as necessary? This\n is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nProcedures are inspected at least once a year, if there is a need to modify, update or create a new procedure, this action is assigned to the respective representative, the instruction is handled by the CTPAT/AEO Committee."
+    },
+    {
+      "id": "6.1,73",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are written procedures maintained at the local, operating level so that they are easily accessible? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, Written procedures are maintained and kept at the local operational level so that they are easily accessible, plus we have a system administration called wind-chill it helps us to organize and easy maintain our procedures and policies."
+    },
+    {
+      "id": "6.2,74",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are all CTPAT shipments that can be sealed secured immediately after loading/stuffing/packing by the responsible party (e.g. the shipper or packer acting on the shippers behalf) with a high security seal that meets or exceeds the most current International Standardization Organization (ISO) 17712 standard for high security seals? Qualifying cable and bolt seals are both acceptable. Are seals securely and properly affixed to IIT that are transporting CTPAT members’ cargo to/from the United States? There are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, trailers are immediately secure after the loading process, we use high security seals approved and aligned to ISO 17712:2013."
+    },
+    {
+      "id": "6.7,75",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Is CTPAT’s seal verification process followed to ensure all high security seals (bolt/cable) have been affixed properly to IIT, and are operating as designed? The procedure is known as the VVTT process:\nV – View seal and container locking mechanisms; ensure they are OK;\nV – Verify seal number against shipment documents for accuracy;\nT – Tug on seal to make sure it is affixed properly;\nT – Twist and turn the bolt seal to make sure its components do not unscrew, separate from one another, or any part of the seal becomes loose. This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, the company has the C-TPAT seal verification process to ensure that all high security seals (ISO 17712:2013 Cable) have been placed correctly in IIT and function as designed, the procedure is known as the VVTT process: V - See the seal and container closing mechanisms; make sure they are okay; V - Verify the stamp number against the shipping documents for greater precision; T - Pull the seal to make sure it is positioned correctly; T - Twist and turn the bolt seal to ensure that its components do not unscrew, separate from each other, or any part of the seal becomes loose.."
+    },
+    {
+      "id": "6.5,76",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Is it documented that the high security seals either meet or exceed the most current ISO 17712 standard? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, the current Cornings supplier provides a certificate for our seals, please find attached the certificate, at this point we are expecting the two-year valid certificate, this is a must for Corning operation."
+    },
+    {
+      "id": "7.5,77",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "As documented evidence of the properly installed seal, are digital photographs taken at the point of stuffing?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, the reason is because the CCTV system maintain a record for the Inspection process, Photos are not allowed due Internal Security Process."
+    },
+    {
+      "id": "7.5,78",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "To the extent feasible, are these *images electronically forwarded to the destination for verification purposes?\n*photographs taken at the point of stuffing.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications. No applicable for Corning."
+    },
+    {
+      "id": "7.30,79",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are seal numbers electronically printed on the bill of lading or other shipping\n documents?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, seal number are included on:\n- Mexican Invoice\n- Us Invoice\n- Inward Cargo Manifest\n- ACE manifest.\n- DODA"
+    },
+    {
+      "id": "(7.29,80)",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Are seal numbers assigned to specific shipments transmitted to the\n consignee prior to departure?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, the C-TPAT seal numbers are not transmitted to the consignee prior to departure, it is kept in our records (PRISMA) in case there is an incident with the shipment / IIT."
+    },
+    {
+      "id": "6.6,81",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "If an inventory of seals is maintained, does company management or a security supervisor conduct audits of seals that includes periodic inventory of stored seals and reconciliation against seal inventory logs and shipping documents? Are all audits documented?\nAs part of the overall seal audit process, do dock supervisors and/or warehouse managers periodically verify seal numbers used on conveyances and IIT? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, procedure 0000146872-ES explain that the seals are periodically audited by the TC Department, the stored ones are counted, and their registration is verified to take control of the stamps themselves and ensure that they are not missing. a record is also kept of the stamps used in each export shipment to the US"
+    },
+    {
+      "id": "5.14,89",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Is there a mechanism in place to work with transportation providers to track conveyances from origin to final destination point? Are specific requirements for tracking, reporting, and sharing of data incorporated within terms of service agreements with service providers?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications. The procedures in place for tracking and monitoring of conveyances since the load point until to deliver point indicate the next process. Our company uses the services of an external company who is responsible for the transportation of goods during the road.\nThe shipments are monitored with the following tracking methods: \nGPS devices or system.\nThe satellite tracking modules are installed in the vehicles and are hidden so that they cannot be removed or manipulated.\nThe modules that are installed in the tractors depend on the energy of the vehicle.\nThe modules installed in the trailers are totally autonomous, which have a load sensor and door opening sensor.\nRules report every 5 minutes, they are also kept identified and controlled by the numbers of series. The tracking system is located in the Department of Satellite Tracking & only the personnel in that area have control and access to the system.\nAll personnel that are in the Satellite Tracking Department are trained to recognize a geofence, points of interest, areas of rest, risk areas, etc., as well as knowing the position of the vehicles at all times.\nThe modules emit the following alerts:\nOutside of geofence, Panic button, Entry and exit of risk areas, Opening doors (trailers), Loading or unloading (trailers)\nThe modules accounts with extra functions such as:\nAudio in the cabin\nEngine stop\nGPS tracking.\nA revision of the predetermined routes is carried out physically, with the intention of identifying patios, pensions, mechanical stations, vulcanization, customs, fuel loading, authorized stops or rest areas, areas of risk (purchase of diesel, theft of vehicles or merchandise, etc.), seals of authorities, etc. As well as reviewing and analyzing the estimated times of route or travel between the origin and destination.\nThe Satellite Tracking Department and the assigned personnel are the responsible for monitoring vehicles and trailers.\nThe personnel that belong to the Satellite Tracking Department are trained to perform such work and is prepared for any kind of contingency or emergency that is presented.\nThe Satellite Tracking Department performs the monitoring through the satellite tracking system called IGS and carry out tracking logs.\nThe personnel of the Satellite Tracking Department review the status of the vehicles and trailers randomly.\nThe status of tracking the location of the vehicles is sent and trailers to customers every hour and at the end of the monitoring.\nThe personnel of the Satellite Tracking Department make a report every once there are anomalies in the route (unauthorized stops, failures mechanics, accidents, infractions, route changes, etc.), using the Format of Anomaly Card . Operators are trained to deal with faults minimum mechanics of the vehicles.\nThere are procedures to act in case of any contingency or emergency according to the C-TPAT_x0002_OEA-Plans procedure Contingency or Emergency.\nThe personnel of the Satellite Tracking Department are constantly communication with the operators of the vehicles.\nOperators have cell phone and radio which is provided by the Department of Information\nTechnology, as well as audio in the cabin which is activated by the personnel of the Satellite\nTracking Department, with the intention to establish effective and effective communication."
+    },
+    {
+      "id": "5.15,90",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "Is there a mechanism in place to access the carrier’s GPS fleet monitoring system to track the movement of shipments?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications. Corning do not handle the GPS System, Carrier (TRANCASA) have the access to the software, but we have some test on requesting info or position from a specific shipment and time response are less of 7 minutes"
+    },
+    {
+      "id": "5.29,91",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "If a credible (or detected) threat to the security of a shipment or conveyance is discovered, are business partners in the supply chain that may be affected and any law enforcement agencies alerted (as soon as feasibly possible), as appropriate. This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, in case of detecting a security threat for both the company and all shipments in transit to the US.\nAll these situations are notified to our corporate immediately and also to the Mexican and American authorities."
+    },
+    {
+      "id": "5.16,106",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "For land border shipments that are in proximity to the United States border, is a “no-stop” policy implemented with regard to unscheduled stops?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, there is a policy to explain that every shipment that left the Corning campus with direction to the Reynosa international bridge (Pharr Bridge) CAN NOT stop in any other point until final destination."
+    },
+    {
+      "id": "5.24,108",
+      "criterio": "Conveyance and IIT",
+      "pregunta": "In areas of high risk, and immediately prior to arrival at the border crossing, is a “last chance,” verification process incorporated for U.S. bound shipments for checking conveyances/IIT for signs of tampering to include visual inspections of conveyances and the VVTT seal verification process? Do properly trained individuals conduct the inspections?\nV – View seal and container locking mechanisms; ensure they are OK;\nV – Verify seal number against shipment documents for accuracy;\nT – Tug on seal to make sure it is affixed properly;\nT – Twist and turn the bolt seal to make sure its components do not unscrew, separate from one another, or any part of the seal becomes loose.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, we dont apply that policy for Corning shipments"
+    },
+    {
+      "id": "8.1,111",
+      "criterio": "Agricultural Procedures",
+      "pregunta": "In accordance with the applicable business model, are there written procedures in place that are designed to prevent visible pest contamination to include compliance with Wood Packaging Materials (WPM) regulations? Do measures regarding WPM meet the International Plant Protection Convention’s (IPPC) International Standards for Phytosanitary Measures No. 15 (ISPM 15)? This is a requirement.",
+      "respuesta2025": "In our routes of importation or exportation, we use for our shipments wooden pallets or skids & our wooden pallet suppliers certified that all the wooden pallets that sent to our company for use in the domestic or international shipments, are inspected, heat treated and pest free.\nThe Corning receiving & shipping material areas & personnel knows the appropriate STAMP that every wooden pallet needs to show in a clearly & legible way.\nWritten corporate procedures are in place for pest contamination inspections that are consistent with IPPC and ISPM 15 standards.\nAlso, we have training about this topic for reinforce the knowledge about it.\nIn this process, we make sure that is comply with the provisions indicated by SEMARNAT and NOM-144 SEMARNAT-2017, in accordance with the International Standard on Phytosanitary Measures No. 15 called Regulation of wooden packaging used in International Trade"
+    },
+    {
+      "id": "8.1,112",
+      "criterio": "Agricultural Procedures",
+      "pregunta": "Are visible pest prevention measures adhered to throughout the supply \nchain? This is a requirement.",
+      "respuesta2025": "We frequently used wooden pallets or skids for our Raw Material, Equipment & Finished Goods exportation.\nThese wooden pallets are in a separate & protected location in the facility, away from weather conditions, pest and any other possibility of contamination.\nThese pallets are always inspected by the shipping clerk before they use it.\nPlus, our national & international suppliers perform the heat threated procedure to ensure that the pallets are in compliance with the phytosanitary standards.\nThis treatment must comply with the International Standard for Phytosanitary Measures (ISPM-15), which regulates wood packaging materials in international trade to reduce the risk of introducing pests.\nThe supplier issues a certificate to certify the treatment of the wood packaging."
+    },
+    {
+      "id": "7.2,113",
+      "criterio": "Agricultural Procedures",
+      "pregunta": "Are cargo staging areas, and the immediate surrounding areas, inspected on a regular basis to ensure these areas remain free of visible pest contamination? This is a requirement.",
+      "respuesta2025": "Yes, our cargo areas and surrounding areas are inspected daily by the receiving and shipping departments personnel as well as the guards security inspections to verify before each load that the areas are free of contamination and pests.\nOur EHS Department is also in charge of carrying out the annual fumigation plan within the plant facilities, in which the critical areas of the loading and unloading plant, warehouse, cafeteria is fumigated once a month office, etc. to avoid any type of contamination by pests and thus ensure our shipments to the USA.\nIn the trainning about the Agriculture Security we give awereness about the topic of the contamination and pests in the conveyance parking area."
+    },
+    {
+      "id": "9.1,206",
+      "criterio": "Physical Security",
+      "pregunta": "Are there physical barriers and/or deterrents in place to prevent unauthorized access to offices, trailer yards, cargo handling and storage facilities? This is a requirement.",
+      "respuesta2025": "The peripheral wall of this installation is of metal structure and steel mesh with concertina in the upper part of it and encloses and protects the access to the building.\nThe minimum height of the perimeter fences is 3.50 meters.\nThe perimeter fence is permanently monitored by security guards strategically located in the front area of the facilities.\nThe vehicles & trailers access gates are separately & are automated.\nThe verification of the integrity of the walls, physical barriers & fences is carried out every day through the tours made by the guards security (minimum are 2 tours by turn).\nThe perimeter area is permanently monitored by CCTV system.\nThe perimeter fences & the strict vigilance controls, keep the facilities of the company secure & under sheltered.\nAll our business partners are informed about the internal access policies (all the visitors need official id, security vest, footwear, lenses, etc. & the trucks need arrive with maximum security seal correctly placed & declared in the documents in the applicable cases)."
+    },
+    {
+      "id": "9.2,115",
+      "criterio": "Physical Security",
+      "pregunta": "Does perimeter fencing enclose the areas around cargo handling and storage\n facilities?",
+      "respuesta2025": "The parking lot of the employees, visitors, contractors & suppliers are duly segregated from the shipping/receiving areas.\n- The parking of the employees, are in the front of the facility.\n- The parking for visitors & suppliers, are in a side of the facility & around have a divisor fencing.\n- The shipping & receiving areas are behind of the facility.\nBehind in the north side, between the shipping & receiving areas & the employees parking are a\ndivisor fencing"
+    },
+    {
+      "id": "9.2,116",
+      "criterio": "Physical Security",
+      "pregunta": "If a facility handles cargo, is interior fencing used to secure cargo and cargo handling areas? Based on risk, does additional interior fencing segregate various types of cargo such as domestic, international, high value, and/or hazardous materials?",
+      "respuesta2025": "Our facility do not handle cargo, all the material in our warehouse are designated to export process, there is not hazardous material in the Facility"
+    },
+    {
+      "id": "9.2,117",
+      "criterio": "Physical Security",
+      "pregunta": "Is fencing regularly inspected for integrity and damage by designated \npersonnel?",
+      "respuesta2025": "Procedure 0000003198-EN - Plant Safety Program, contemplates the following points:\n4.2.19 Physical Security Tours.\n4.2.19.1 Patrimonial Security in compliance with the C-TPAT / MX AEO, as a best practice it conducts documented physical security tours in the format 0000078768-EN in order to carry out an analysis to identify risks and weaknesses, in order to establish strategies that help mitigate risks\n4.2.19.2 The Coordinator or the security officer makes the perimeter route and the internal coordinator randomly verifies that the route is carried out correctly.\na) .- The Security Officer or Coordinator carries with him the format 0000078768-EN where he notes findings and observations of the inspection carried out.\nb) .- The Security Officer or Coordinator makes a tour of the entire perimeter of the plant to inspect meshes, concertinas, gates and turnstiles verifying that they are in good condition and functioning properly.\nc) .- The Security Officer or Coordinator, makes a tour of the perimeter of the plant facilities to inspect doors, windows, shipping curtains and receipts verifying that they are in good condition and functioning properly.\nd) .- At the end of the tour, the Security officer delivers the format 0000078768 to the Internal Coordinator.\ne) .- The Internal Coordinator generates work orders, according to the findings found, supporting the Maintenance staff.\nf) .- The Internal Coordinator records in 0000078768-EN format the order number assigned to the case.\ng) .- If the findings are repetitive, the internal security coordinator informs the Security Supervisor.\nh) .- The Security Supervisor is responsible for following up the findings.\ni) .- If the finding has not had a solution, the Security supervisor will generate a corrective action with the quality department to solve the finding.\nj) .- In coordination, the Security Supervisor and Internal Coordinators carry out metrics with graphs of findings and advances of the Physical Security Tours to present them to the Patrimonial Security Manager"
+    },
+    {
+      "id": "9.2,118",
+      "criterio": "Physical Security",
+      "pregunta": "If damage is found in the fencing, are repairs made as soon as possible?",
+      "respuesta2025": "Facility department in conjunction with security guard is perform daily round to the different point and access of our facility, if there is any damage in our fencing or doors; booth departments can use CHECKLIST RE CORRIDO DE SEGURIDAD FISICA."
+    },
+    {
+      "id": "9.4,119",
+      "criterio": "Physical Security",
+      "pregunta": "Are gates where vehicles and/or personnel enter or exit (as well as other points of ingress/egress) manned or monitored? This is a requirement.",
+      "respuesta2025": "Corning just have 2 access point at the warehouse, both of them are monitored by the CCTV control room 24/7, both access to the facility have security guards."
+    },
+    {
+      "id": "9.5,120",
+      "criterio": "Physical Security",
+      "pregunta": "Are private passenger vehicles prohibited from parking in or adjacent to cargo handling and storage areas, and conveyances?",
+      "respuesta2025": "The parking lot of the employees, visitors, contractors & suppliers, are duly segregated from the shipping/receiving areas.\n- The parking lot of the employees, are in the front of the facility.\n- The parking lot for visitors & suppliers, are in a side of the facility & around have a divisor fencing.\n- The shipping & receiving areas are behind of the facility.\nBehind in the north side, between the shipping & receiving areas & the employees parking are a\ndivisor fencing."
+    },
+    {
+      "id": "9.6,121",
+      "criterio": "Physical Security",
+      "pregunta": "Is adequate lighting provided inside and outside the facility including, as appropriate, the following areas: entrances and exits, cargo handling and storage areas, fence lines, and parking areas? This is a requirement.",
+      "respuesta2025": "The critical areas with most illumination are the interior of the building, the perimeter, the parking lots & the outside area of shipments & receipts.\nThe areas with permanent lighting are the dining room, warehouse area & security.\nThe company has a backup generator that protects the main areas, such as production, dining rooms, IT servers, accesses of entrances and exits and the general monitoring room of CCTV system monitoring.\nThe company, through a study that ensures that the lighting system is appropriate in each of the areas of the company.\nThe area responsible for the control of the lighting systems is the Maintenance department.\nThe exterior lighting system is controlled automatically and the interior manually.\nThe operating hours of the lighting system is 24 hours in production and in offices is of 9:30 hours on a regular basis or on demand for work activities.\nThe lighting systems maintenance and revision program is carried out on a monthly."
+    },
+    {
+      "id": "9.7,207",
+      "criterio": "Physical Security",
+      "pregunta": "Is Security Technology utilized to monitor the premises and prevent unauthorized access to sensitive areas?",
+      "respuesta2025": "Number of gates at our facility (RWD).\n- To the perimeter:\n2 gates for vehicles of employees (1 entrance & 1 exit, South).\n1 door of pedestrian access for visitors (entrance & exit)\n1 door handy cap (entrance & exit)\n8 turnstiles pedestrian access for employees (entrance & exit).\n2 gates for vehicles of employees (1 entrance & 1 exit, North).\n2 gates for trailers (1 entry / 1 exit).\n1 gate for vehicles of suppliers (entry & exit)\n- To the building:\n25 doors in total (regular access & emergency exits).\nAll the gates & doors, are monitored with security guards & with constant CCTV vigilance."
+    },
+    {
+      "id": "9.12,122",
+      "criterio": "Physical Security",
+      "pregunta": "Do cameras monitor the facility’s premises and sensitive areas to deter\n unauthorized access?",
+      "respuesta2025": "The company has CCTV system installed and located inside and outside the building.\nThese cameras cover the boarding areas and the entry and exit points of the facilities.\nThe CCTV system, where the monitors are located, is located inside the building and is monitored by security personnel 24 hours a day, 365 days a year.\nThe company has remote monitoring stations.\nThe recordings are checked automatically every day (the system indicates whether it is recording or not).\nThe recordings are kept for a period of 30 days.\nThe CCTV system is backed by an electric power generator.\nThe doors have alarm sensors. No motion sensors are counted.\nThe process to follow in case of activation of an alarm is to physically verify the area.\nThe company has not hired an external alarm servic"
+    },
+    {
+      "id": "9.12,123",
+      "criterio": "Physical Security",
+      "pregunta": "Are alarms used to alert unauthorized access into sensitive areas?",
+      "respuesta2025": "The employees have access only to his areas or other departments & are controlled with electronic access system in his personnel badge.\nThe visitors or contractors have access only with a temporary identification & with an employee as escort.\nIn addition to the temporary identification assigned & as an internal best practice, in our company, we have implemented an visual control for all the employees & for all the visitors that consists in the use of security vests assigned by color & by type of area of access, with the purpose of have an identification of persons, more easy & better.\nThe colors of the security vest are assigned in agree to an internal control & apply for all locations of our Reynosa Corning Campus."
+    },
+    {
+      "id": "9.8,124",
+      "criterio": "Physical Security",
+      "pregunta": "If relying on security technology for physical security, are there written policies and procedures governing the use, maintenance, and protection of this technology?\nAt a minimum, do these policies and procedures stipulate:\nHow access to the locations where the technology is controlled/managed or where its hardware (control panels, video recording units, etc.) is kept, is limited to authorized personnel?\nThe procedures that have been implemented to test/inspect the technology on a regular basis?\nThat the inspections include verifications that all of the equipment is working properly, and if applicable, that the equipment is positioned correctly?\nThat the results of the inspections and performance testing is documented?\nThat if corrective actions are necessary, these are to be implemented as soon as possible and that the corrective actions taken are documented?\nThat the documented results of these inspections be maintained for a sufficient time for audit purposes? These are requirements.",
+      "respuesta2025": "In the procedure 0000003198-ES section 4.2.21 Caseta central de monitores we explain how the security guards maintain secure the Control room (CCTV ROOM) The performance verification is carried out periodically stipulated only in the maintenance policy of each equipment. The results of the inspections and corrective actions implemented are documented and are carried out by the External security company"
+    },
+    {
+      "id": "9.8,125",
+      "criterio": "Physical Security",
+      "pregunta": "Are security technology policies and procedures reviewed and updated annually, or more frequently, as risk or circumstances dictate? This is a requirement.",
+      "respuesta2025": "All the procedures of the Department of IT are reviewed annually by themselves, in case of any change, risk or circumstance, they are modified and updated immediately.\nAdditionally, the companys quality department performs an on-site audit step by step at the Dept.\nIT that what the IT procedure mentions is what they are actually carrying out, this is an activity and additional requirement as part of our Corporate policies, all departments must be audited at least once a year by an external entity to the department being audited."
+    },
+    {
+      "id": "9.8,126",
+      "criterio": "Physical Security",
+      "pregunta": "If a third party central monitoring station (off-site) is utilized, does the CTPAT Member have written procedures stipulating critical systems functionality and authentication protocols such as (but not limited to) security code changes, adding or subtracting authorized personnel, password revisions(s),\nand systems access or denial(s)?",
+      "respuesta2025": "We dont use a third party supplier for corning Operation."
+    },
+    {
+      "id": "9.9,127",
+      "criterio": "Physical Security",
+      "pregunta": "Are licensed/certified resources utilized when considering the design and installation of security technology?",
+      "respuesta2025": "Facility departments in conjunction with security department are in charge of the installation of the CCTV system, corporate IT and Security help to coordinate the technology setup"
+    },
+    {
+      "id": "9.10,128",
+      "criterio": "Physical Security",
+      "pregunta": "Is all security technology infrastructure physically secured from unauthorized access? This is a requirement.",
+      "respuesta2025": "The areas are restricted to unauthorized personnel to the IT room or server room are restricted,\nThese are monitored by CCTV System and proximity cards as electronic magnetic accesses controlled and restricted."
+    },
+    {
+      "id": "9.11,129",
+      "criterio": "Physical Security",
+      "pregunta": "Are security technology systems configured with an alternative power source that will allow the systems to continue to operate in the event of an unexpected loss of direct power?",
+      "respuesta2025": "Yes, an alternative sources of energy provides electricity to the control room, server and other parts of Cornings facility"
+    },
+    {
+      "id": "9.14,130",
+      "criterio": "Physical Security",
+      "pregunta": "If camera systems are deployed, do cameras have an alarm/notification feature, which would signal a “failure to operate/record” condition?",
+      "respuesta2025": "There is no alarm system for camera failures, but there will be a notification directly send it to the control room(Security department)"
+    },
+    {
+      "id": "9.13,131",
+      "criterio": "Physical Security",
+      "pregunta": "If camera systems are deployed, are cameras positioned to cover key areas of facilities that pertain to the import/export process? This is a requirement.",
+      "respuesta2025": "Yes, there is a total of 25 cameras just for the receiving / shipping department, plus more than 20 cameras in the cargo yard, there is 1 camera at the import / export offices."
+    },
+    {
+      "id": "9.13,132",
+      "criterio": "Physical Security",
+      "pregunta": "Are cameras programmed to record at the highest picture quality setting reasonably available, and set to record on a 24/7 basis?",
+      "respuesta2025": "Yes, they recorded at 1080 pixels and record time it is 24/7"
+    },
+    {
+      "id": "9.16,133",
+      "criterio": "Physical Security",
+      "pregunta": "If cameras are being used, are recordings of footage covering key import/export processes maintained for a sufficient time for a monitored shipment to allow an investigation to be completed?",
+      "respuesta2025": "Yes, CCTV system storage are 50 Terabytes (TB) with a 12 months recorded period."
+    },
+    {
+      "id": "9.15,134",
+      "criterio": "Physical Security",
+      "pregunta": "If camera systems are deployed, are periodic, random reviews of the camera footage conducted (by management, security, or other designated personnel) to verify that cargo security procedures are being properly followed in accordance with law? Are the results of the reviews summarized in writing to include any corrective actions taken? Are the results maintained for a sufficient time for audit purposes? These are requirements.",
+      "respuesta2025": "Yes, security guards monitor the cameras and perform periodic and random reviews or checks of CCTV-monitored camera images 24/7 and the results of the reviews are kept for 12 months."
+    },
+    {
+      "id": "10.1,136",
+      "criterio": "Access Controls",
+      "pregunta": "Are there written procedures governing how identification badges and access devices are granted, changed, and removed? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, the procedure for the identification of employees (Plant safety procedure - 0000003198-ES) annexed, talks about the process for adding/ remove of badges and devices.\nThe RH & Security Manager areas of the Company are responsible of the management & the control the issuance and removal of employee, visitor and vendor identification badges"
+    },
+    {
+      "id": "10.1,137",
+      "criterio": "Access Controls",
+      "pregunta": "Where applicable, is a personnel identification system in place for positive identification and access control purposes? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\n ID cards and credentials are issued and controlled by the Human Resources Department (issuance) and security personnel, programmed by the IT Department. The Human Resources Department controls identification cards, keys and any other access device. Written procedures have been established to give temporary identifications and retain identification credentials of visitors and suppliers. When they leave, they give their temporary identification and they return their official identification that had been withheld at the time of their entry by the security guards, upon their departure it is recorded in the logbook. Windows, fences and doors are secured with locking devices. We have a written procedure for the management and maintenance of the keys, the control of the keys is maintained by the responsible managers. The Human Resources Manager has a copy of these keys and keeps them in a secure cabinet in the Human Resources Department"
+    },
+    {
+      "id": "10.1,139",
+      "criterio": "Access Controls",
+      "pregunta": "Is access to sensitive areas restricted based on job description or assigned duties? This is a requirement",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nElectronic locking devices are placed in critical areas to reinforce the entry of unauthorized persons:\nIT control rooms, office areas, materials, storage, receipts and shipments. There is a written procedure that establishes the internal process to designate access for the corresponding areas for each employee."
+    },
+    {
+      "id": "10.1,140",
+      "criterio": "Access Controls",
+      "pregunta": "Does removal of access devices take place upon the employee’s separation from the company? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nThe company has a documented exit interview checklist of the Employees that includes the following components: canceling the badge with local security office, car permits, any company dress uniform issued, retrieval of issued keys, retrieval of work equipment including that used at home (laptop, desk computer, cell phone, glasses, tools, etc.), cancellation of all voice and computer accounts.\nAlso, the company has the procedure 0000127741-ES for the keys control record.\nIn case any employee loses or does not return the keys or access cards, the level of access that he had is identified and, if applicable, the lock is to be changed, or those accesses canceled."
+    },
+    {
+      "id": "9.4,141",
+      "criterio": "Access Controls",
+      "pregunta": "Are individuals and vehicles subject to search in accordance with local and\n labor laws?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, the security guards perform these inspections t before entering the facility"
+    },
+    {
+      "id": "10.2,143",
+      "criterio": "Access Controls",
+      "pregunta": "Do visitors, vendors and service providers present photo identification upon arrival? Is a log maintained that records the details of the visit? Does the registration log include the following: date of the visit, visitor’s name, verification of photo identification (type verified such as license or national\nID card)? Frequent, well known visitors such as regular vendors may forego the photo identification, but are they still logged in and out of the facility, including time of arrival, company point of contact and time of departure? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nAll visitors must previously present an official photo ID (INE, Passport, FM3) to register & enter to our locations or Facilities.\nAll visits since the enter register, must be accompanied by all the time that is in the facilities by the host and / or by another employee & visibly display temporary identification all time."
+    },
+    {
+      "id": "10.2,144",
+      "criterio": "Access Controls",
+      "pregunta": "In addition, are all visitors and service providers issued temporary\n identification?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, it is a temporary badge that is issued to the visitors or contractor"
+    },
+    {
+      "id": "10.2,145",
+      "criterio": "Access Controls",
+      "pregunta": "If temporary identification is used, is it visibly displayed at all times during the visit? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, it is a must to the visitor display and show all the entire visit time their visitor badge, it is a responsibility from the host to remember this policy to the visitor."
+    },
+    {
+      "id": "10.2,146",
+      "criterio": "Access Controls",
+      "pregunta": "Are all visitors escorted?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, a visitor cannot be by itself around our facility. the host have to escort the visitors"
+    },
+    {
+      "id": "10.7,148",
+      "criterio": "Access Controls",
+      "pregunta": "Where operationally feasible, are deliveries and pickups allowed by \nappointment only?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, there is not the appointment only option in Corning System"
+    },
+    {
+      "id": "10.7,149",
+      "criterio": "Access Controls",
+      "pregunta": "Prior to arrival, does the carrier notify the facility of the estimated time of arrival for the scheduled pick up, the name of the driver, and truck number?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nNo, but when the carrier arrived at the Facility the security guard need to registry the carrier, their checklist includes Carrier, driver Name, date, time and truck number / plates. We have an authorized drivers list in an electronic system."
+    },
+    {
+      "id": "10.3,150",
+      "criterio": "Access Controls",
+      "pregunta": "Are drivers delivering or receiving cargo positively identified before cargo is received or released?\nDo drivers present government-issued photo identification to the facility employee granting access to verify their identity? If presenting a government-issued photo identification is not feasible, the facility employee may accept a recognizable form of photo identification issued by the highway carrier company that employs the driver picking up the load. These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nAll drivers are required to present a government-issued photo ID upon arrival prior to entering the Corning Facilities, cargo drivers are positively identified at the on-duty checkpoint before entering the facility. A list of photo information is kept at the security guard check. We have an authorized drivers list in an electronic system."
+    },
+    {
+      "id": "10.4,151",
+      "criterio": "Access Controls",
+      "pregunta": "Is a cargo pickup log kept to register drivers and record the details of their conveyances when picking up cargo? When drivers arrive to pick up cargo at a facility, does a facility employee register them in the cargo pickup log? Upon departure, are drivers logged out? Is the cargo log kept secured and are\ndrivers not allowed access to it? These are requirements.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, we have a log where the information of the carriers is recorded, which includes the Transport Data, Drivers license, Plates, Name of the driver, arrival and departure time, Vehicle data, Merchandise, shipping documentation. We have an authorized drivers list in an electronic system."
+    },
+    {
+      "id": "10.4,152",
+      "criterio": "Access Controls",
+      "pregunta": "Does the cargo pickup log have the following items recorded: driver’s name, date, time of arrival, employer, truck number, trailer number, time of departure, and the seal number affixed to the shipment at the time of departure?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, we have a record where the information Date, drivers name, arrival time, employer, vehicle data, trailer number, plates, departure time and the seal affixed to the shipment. We have an authorized drivers list in an electronic system."
+    },
+    {
+      "id": "10.8,153",
+      "criterio": "Access Controls",
+      "pregunta": "Are arriving packages and mail periodically screened for contraband before\nbeing admitted?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, Email or documents are delivered to the control station and are inspected and reviewed by the security guard and personally delivered to the recipient. All unidentified documents or packages or if you present a finding after detection are rejected by security personnel at the front door or on receipts. Additionally, all employees take C-TPAT training that mentions how to report and identify a suspicious package at the plant. As part of the annual C-TPAT training plan, in addition to the C_x0002_TPAT training of general employees, special training is provided to personnel who handle, load and unload material belonging to the shipping, receiving and transit area"
+    },
+    {
+      "id": "10.10,154",
+      "criterio": "Access Controls",
+      "pregunta": "If security guards are used, are work instructions for security guards contained in written policies and procedures? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nWe have a procedure with the functions and responsibilities of the Security Company (CYMEZ) this procedure is kept by the Security personnel."
+    },
+    {
+      "id": "10.10,155",
+      "criterio": "Access Controls",
+      "pregunta": "Does management periodically verify compliance and appropriateness with \nthese procedures through audits and policy reviews? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, compliance audits are carried out at least annually to verify compliance with the procedures of the security guards (CYMEZ), in case of any change in the process, an additional audit is carried out by the Cornings Security department."
+    },
+    {
+      "id": "11.1,157",
+      "criterio": "Personnel Security",
+      "pregunta": "What are the written procedures for screening prospective employees and for performing checks on current employees? Is application information, such as employment history and references, verified prior to employment, to the extent possible and allowed under the law? This is a requirement.",
+      "respuesta2025": "The process to evaluate the possible employees before working allows to verify the information settled in the vitae curriculum and request of the candidates with possibility of employment, in accordance with the local legislation in MX.\nThe procedures frame the general requirements for all employees, depending on the position sought in each profile and this is handled during the recruitment interview.\n* Recruitment procedure of unionized personnel (IA-RCH-0112)\n* Recruitment procedure of confidence personnel (IA-RCH-0004)."
+    },
+    {
+      "id": "11.2,158",
+      "criterio": "Personnel Security",
+      "pregunta": "In accordance with applicable legal limitations, and the availability of criminal record databases, are employee background screenings conducted? Are results of background checks factored in, as permitted by local statutes, in making hiring decisions? Does employee background screening include\nverification of the employee’s identity and criminal history that encompass city, state, provincial, and country databases? Background checks are not limited to verification of identity and criminal records. In areas of greater risk, more in depth investigations may be warranted.",
+      "respuesta2025": "The process to verify the general information and deep background of the applicants prior to the application to employment are reviewed & solicited during the recruitment interview.\nSome of these requirements are the following:\nStudies grade\nMinimum experience\nEmployment history\nPersonal & Laboral references\nID official\nBirth certificate\nOthers\nBackground check\nAn external company is hired to verify the legal background of the candidate"
+    },
+    {
+      "id": "11.2,159",
+      "criterio": "Personnel Security",
+      "pregunta": "Based on the sensitivity of the position, do employee vetting requirements extend to temporary workforce and contractors?",
+      "respuesta2025": "Yes, in our company we have external employees of other companies and with Corning temporary workers\nYes, depending on the sensitivity of the position, the employee background check requirements of the regular Corning employees, extend to temporary workers and contractors."
+    },
+    {
+      "id": "11.2,160",
+      "criterio": "Personnel Security",
+      "pregunta": "Once employed, are periodic reinvestigations performed based on cause, and/or the sensitivity of the employee’s position?",
+      "respuesta2025": "Our company have an annual program of tests and examinations toxicological that apply to the departments involved with the supply chain (Buyers, shipping & receiving of materials, logistics,\ntransportation, import-export, security).\nThis toxicologic control tests apply to all the employees contracted with activities & positions in these areas.\nThese checks include random the following tests:\n- Drug and alcohol testing.\n- Other toxicologic substances.\nAlso, our company have a program of support & following for employees with controlled medicaments derived for some conditions as diabetes, high blood pressure, stress, anxiety, etc. to effect of monitoring some anormal behaviors as sleep, tiredness, absence, deconcentration, irritability & general attitude in the job."
+    },
+    {
+      "id": "11.5,211",
+      "criterio": "Personnel Security",
+      "pregunta": "Is there an Employee Code of Conduct that includes expectations and defines acceptable behaviors? Are employees and contractors required to acknowledge that they have read and understand the Code of Conduct? This is a requirement.",
+      "respuesta2025": "Corning launches new hot line for Code of Conduct concerns\nA hotline number 888-296-8173 is a confidential method for reporting violations of Cornings Code of Conduct or for submitting suggestions or questions related to the code.\nThis system is designed to provide a high level of confidentiality. It cannot trace reports back to you unless you decide to identify yourself.\nAll suspected violations of the Code of Conduct should be reported. The first options for posing questions or raising issues related to the Code should be your supervisor or your organizations Human Resource manager. If youre uncomfortable with that approach, during business hours you may contact Cornings Law Department at 607-974-0000, the Control Division at 607-974-8242, or\nthe hotline, which is available 24/7.\nCorning investigates all reports of violations of the Code of Conduct. Each report and the results of the investigation are reviewed periodically with the Audit Committee of Cornings Board of Directors.\nIts against Cornings policy to punish or retaliate against an employee who has, in good faith, raised a concern about misconduct. If you believe anyone has retaliated against you for reporting a situation, you can use the hotline to report that concern as wel"
+    },
+    {
+      "id": "12.1,164",
+      "criterio": "Education and Training",
+      "pregunta": "One of the key aspects of a security program is training. Is a security training and awareness program in place and maintained to recognize and foster awareness of the security vulnerabilities to facilities, conveyances, and cargo at each point in the supply chain, which could be exploited by terrorists or contraband smugglers? This is a requirement.",
+      "respuesta2025": "Its part of Corning to maintain a high level OF knowledge to our personal about CTPAT and AEO, as part of the induction courses for new employees and to the active employes with reforcement\ncouses.\nCorning provides a quick but focus training for CTPAT y OEA.\nIn this awereness talks, the employee ir be introduced to the CTPAT and AEO definitions, meaning and purpose for the programs.\nAn annual retraining it is provided by the Security and Trade Compliance Department, high risk personal it will be identify according to their function and closeness to our material, for example, all the personal from our Reynosa Warehouse its a must to take the training."
+    },
+    {
+      "id": "12.1,165",
+      "criterio": "Education and Training",
+      "pregunta": "Employees who understand why security measures are in place are more likely to adhere to them. Is security training provided to employees, as required based on their functions and position, on a regular basis? Do newly hired employees receive this training as part of their orientation/job skills training? Is the training program comprehensive and does it cover all of CTPAT’s security requirements? This is a requirement.",
+      "respuesta2025": "Yes, we have a program for new employees, the training includes an awareness program focused on security in our foreign trade and supply chain operations.\nThe training includes the following topics:\nBackground of AEO and CTPAT certifications\nWhat does C-TPAT mean?\nWhat does AEO mean?\nWhat are the AEO and CTPAT certifications?\nWhat is the purpose of these programs?\nWhat are the benefits of these programs?\nWhat is the purpose of training in AEO and CTPAT?\nWhat are the minimum criteria to monitor? (The 9 CTPAT criteria and the 11 AEO standards are explained)\nWhat does the company need to maintain these certifications?\nWhat is my commitment as an employee?\nWhat is the companys commitment to AEO and CTPAT certifications?"
+    },
+    {
+      "id": "12.1,166",
+      "criterio": "Education and Training",
+      "pregunta": "Do personnel in sensitive positions receive additional specialized training geared toward the responsibilities that the position holds? This is a requirement.",
+      "respuesta2025": "Commercial partners such as our Security company receive a double portion of training, the first potion it will with their company CYMEZ and as a second portion Corning will have a training session imparted by the local experts about more specific topics such as:\n- Identification of possible cases of terrorist acts\n- Noncompliance personal in our docking area\n- How to approach to an identified person."
+    },
+    {
+      "id": "12.2,167",
+      "criterio": "Education and Training",
+      "pregunta": "Is refresher training conducted periodically, as needed after an incident or security breach, or when there are changes to company procedures? This is a requirement.",
+      "respuesta2025": "The re-enforcement talks or trainings happens on the months of September, October and November, according to the social distance policies, this year the talks was given via electronic media, like Microsoft Teams.\nThe participation of employees in these training sessions is recorded in documented internal control\nformats (attendance list - FF-ENT-7003). which are delivered to the department of Organizational Development of the company for its control of file and evidence."
+    },
+    {
+      "id": "12.1,168",
+      "criterio": "Education and Training",
+      "pregunta": "Is training evidence retained, such as training logs, sign in sheets (roster), or electronic training records? This is a requirement.",
+      "respuesta2025": "Yes, there is an electronic recordkeeping for Education and Training\nThe topics are taught by internal personnel of the company who are the leaders and administrators of the MX AEO & C-TPAT certifications who have both the experience and the sufficient knowledge as well as training obtained and granted by external companies that they certify them as internal auditors in the supply chain.\nThe participation of employees in these training sessions is recorded in documented internal control formats (attendance list - FF-ENT-7003). which are delivered to the department of Organizational Development of the company for its control of file and evidence."
+    },
+    {
+      "id": "12.1,169",
+      "criterio": "Education and Training",
+      "pregunta": "Do training records include the date of the training, names of attendees, and the topics of the training?",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nYes, the format FF-ENT-7003 which include important info about the personal that take the internal C-TPAT and AEO training."
+    },
+    {
+      "id": "12.4,170",
+      "criterio": "Education and Training",
+      "pregunta": "Are measures in place to verify that the training provided met all training \nobjectives?",
+      "respuesta2025": "There are serval ways to corroborate that the given training was effective:\nIn session verification:\nAt the end of each training there is a Q&A session with the personal involve on the training, the trainer target with specific question about the program to (at least) the 60% of the attendees, this is an example of the questions.\nWhat does C-TPAT mean?\nWhat does AEO mean?\nWhat are the AEO and C-TPAT certifications?\nWhat is the purpose of these programs?\nWhat are the benefits of these programs?\nWhat is the purpose of training in MX AEO and C-TPAT?\nWhat are the minimum criteria to monitor? (The 9 C-TPAT criteria and the 11 AEO standards are\nexplained)\nWhat does the company need to maintain these certifications?\nWhat is my commitment as an employee?\nWhat is the companys commitment to AEO and C-TPAT certifications?\nThe other way to prove the acquiring knowledge still valid it will with the random and periodically internal audits, the C-TPAT and AEO certified teams will target specify and high risk areas such as Security department, shipping, warehouse, transportation, import / export and receiving department to perform random questions and situation, according with the answers the C-TPAT team will coordinate (if it is necessary) a re training session"
+    },
+    {
+      "id": "12.2,171",
+      "criterio": "Education and Training",
+      "pregunta": "Are drivers and other personnel that conduct security and agricultural inspections of empty conveyances and IIT trained to inspect their conveyances/IIT for both security and agricultural purposes? Does inspection training include the following topics: signs of hidden compartments, concealed contraband in naturally occurring compartments, and signs of pest contamination? These are requirements.",
+      "respuesta2025": "Yes, identify hidden compartments, naturally hidden compartment, pest and signs of hidden compartments are a very major part of their annual training, as a info reinforcement, the transports (Carrier) and security department have their own trainings too, this can be validated with our annual external audit to our commercial partners, attached to this standard you will find the C-TPAT PPT Slides."
+    },
+    {
+      "id": "12.10,174",
+      "criterio": "Education and Training",
+      "pregunta": "Are employees trained on how to report security incidents and suspicious activities? This is a requirement.",
+      "respuesta2025": "Yes, they are trainings on the topic of how to report security incidents\nInside of the training and awareness program focused on security in our foreign trade and supply chain operations, is including the following topic:\nManagement and investigation of incidents.\nIn this topic the training includes the following subtopics.\n-Report and investigate incidents in the supply chain\n-Report anomalies and / or persons & suspicious activities.\n-Identify the vulnerability of the chain.\n-Actions to take to avoid recurrence.\nPlease refer to format 4.6.2 Report of acts and anomalies (FF-SEG-8603)"
+    },
+    {
+      "id": "12.8,178",
+      "criterio": "Education and Training",
+      "pregunta": "As applicable based on their functions and/or positions, are employees trained on the company’s cybersecurity policies and procedures? Does this include the need for employees to protect passwords/passphrases and computer access? This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications. There is a policy and procedure in place on how the user can protect and maintain they security password for their computers or any other device connected to the Corning Private Network IT Password and Access. User Password requirements are based on the type of account used.\n[CO2.6] Administrative rights to computers and systems are only granted based on individual requirements for daily business purposes.To enter a request to receive administrative access, contact the IT Service Desk at 607-974-3000, all requests must include a business reason.User Passwords to access Corning provided IT Devices systems and applications should be unique and are not to be re-used for other purposes outside of Corning. Re-Using Corning passwords to access non-Corning systems, applications, or websites (i.e. banking, personal email, etc.) put the Corning network at risk if those passwords become compromised. Providing access to another individual, either deliberately or through failure to secure its access, is prohibited. All IT Devices must be secured with a password protected screensaver with the automatic activation feature set to 10 minutes or less. Users must lock the screen or log off when the device is unattended. Accounts that have no log on activity recorded for >120 days are subject to be disabled.\n7.1 Interactive Accounts passwords\n[CO2.9] All interactive User account passwords used to access Corning provided IT Devices must comply with all of the following requirements:\nMinimum password length of at least eight (8) characters.\nPassword must include at least three of the following categories.\no English uppercase characters (A-Z)\no English lowercase characters (a-z)\no Base 10 digits (0-9)\no Special characters (! @ %\nPrevious 10 passwords may not be reused.\nMinimum password age is one day; and\nPassword will expire at a maximum of 90 days.\n7.2 Non-interactive Generic Accounts Passwords\n[CO2.7] All Non-interactive generic User accounts and passwords must be created by IT Operations Level I or II and must comply with all of the following requirements:\nThe associated passwords must be sixteen (16) characters, unless limited by the application.\nPassword must include at least three of the following categories.\no English uppercase characters (A-Z)\no English lowercase characters (a-z)\no Base 10 digits (0-9)\no Special characters (! @ %)\nPrevious 10 passwords may not be reused.\nMinimum password age is one day; and\nPassword will expire at a maximum of 90 days.\n[CO2.8] The password must be modified when a role-change occurs (i.e. transfer, separation from company, etc.) for an individual who has the account and password knowledge. Corning IT will evaluate, on a case-by-case basis, non-interactive and non-expiring generic User account password requests. Requests must be submitted through the IT Service Desk at 607-974-3000 and must include a valid business reason.\n7.3 Account Lock Out\nAll IT Devices must be secured with a password protected screensaver with the automatic activation feature set to 10 minutes or less. You must lock the screen or log off when the device is unattended.\nAn unlocked or unattended computer or IT Device can be accessed by unauthorized personnel who could compromise or access the information on the device or elsewhere on the network (i.e. File shares, E-Mail, etc.) If a password protected IT Device account has a succession of 5 unsuccessful attempts to log in, the account will be locked out.\nLimiting the number of unsuccessful attempts will deter unauthorized access attempts. User accounts will be unlocked after the use of an IT Service Desk approved unlock or password reset process\n7.4 Account Reuse\nAll user account IDs once deprovisioned cannot be reassigned for:\nInteractive and non-interactive generic accounts or Internal and cloud service accounts."
+    },
+    {
+      "id": "12.9,179",
+      "criterio": "Education and Training",
+      "pregunta": "Have employees operating and managing security technology systems received training in their operation and maintenance? Prior experience with similar systems is acceptable. Self-training via operational manuals and other methods is acceptable. This is a requirement.",
+      "respuesta2025": "The process described below is maintained under the control indicated without changes or modifications.\nCorning Employee who operates and administer security technology systems like the CCTV system, SAFE or Ariba systems receive mandatory security training annually as part of company policy and are additionally trained in the event of changes in the protection standards of technology systems with regarding access to the system, passwords, functionality"
+    },
+    {
+      "id": "4.1,180",
+      "criterio": "Cybersecurity",
+      "pregunta": "Are comprehensive written cybersecurity policies and/or procedures in place to protect information technology (IT) systems? Does the written IT security policy, at a minimum, cover all of the individual cybersecurity criteria? These are requirements.",
+      "respuesta2025": "Cornings Information Technology Department (IT) is committed to protect the company and our employees, contractors, and vendors from illegal or damaging actions undertaken, either knowingly or unknowingly.\nThe Corning Incorporated IT Acceptable Use Policy outlines acceptable use of IT resources, services, and systems.\nThese resources, services, and systems are to be used for business purposes in serving the interests of the company in the course of normal operation.\nIt is the responsibility of every Corning IT User to know and abide by this Policy.\nEnforcement of this Acceptable Use Policy will be consistent with the all the policy and procedures of Corning Incorporated, including the Code of Conduct."
+    },
+    {
+      "id": "4.6,181",
+      "criterio": "Cybersecurity",
+      "pregunta": "Are cybersecurity policies and procedures reviewed annually, or more frequently, as risk or circumstances dictate? Following the review, are policies and procedures updated if necessary? These are requirements.",
+      "respuesta2025": "Yes, Corning have periodically reviewed for new threatens on the security and code of conduct for IT.\nThis Corning Incorporated IT Acceptable Use Policy applies to any individual utilizing Corning IT resources, services, and systems, whether Corning employee or non-Corning personnel (i.e. customer, vendor, contractor, etc.), collectively User. This policy applies to Corning Incorporated and any of its majority owned affiliates (Corning) and the employees and contractors to such\nentities.\nAll Users are expected to adhere to all applicable Corning Policies, including the Corning Code of Conduct, in their use of Cornings IT resources, services and systems, as well as comply with all applicable laws and regulations.\nThis policy applies to all IT Devices authorized for use in connection with Cornings IT resources, services and systems"
+    },
+    {
+      "id": "4.2,182",
+      "criterio": "Cybersecurity",
+      "pregunta": "If a data breach occurs or an event results in the loss of data and/or equipment, do procedures include the recovery (or replacement) of IT systems and/or data? This is a requirement.",
+      "respuesta2025": "In the procedure CI-03143-DOC Business Continuity and Disaster Recovery Policy declares:\nPoint 6.2 IT Business Continuity (BC) and Disaster Recovery (DR) plans and associated response and recovery procedures shall be developed and approved to manage a disaster, to maintain the recovery objectives (RTO and RPO) to a predetermined level and to meet Cornings business continuity objectives. [NIST CSF: PR.PT-5, PR.IP-9, RC.IM-1].\nPoint 6.3 BC and DR plans shall define the recovery processes and procedures, including clear management structure with the necessary authority, crisis communication requirements, and experience and competence to invoke and manage such response to a disaster. [NIST CSF:\nID.BE-5; C.CO-1; RC.CO-2; RC.CO-3]\nUsers must follow Cornings Global Information Security Policy and Procedures for protecting information and managing passwords.\nUsers should not attempt to access operating systems, files, security systems, or administrative systems which they have not been given authorization to use. Including use of electronic mail, data, programs, or other restricted information sources.\nUsers may not connect unauthorized networking devices to the Corning IT Network. For example, users may not attempt to connect a router, switch, or hub to the Corning IT Network to create an IT network for a work group or department.\nUsers may not alter or delete the internal security controls or configurations on Corning IT devices.\nDevices that attach to the Corning IT Network must meet all Corning IT Network compliance requirements.\nUsers must regularly connect IT devices to the Corning IT Network to assure current software patches and updates are applied, and that devices are scanned for vulnerabilities and verified for compliance.\nUsers are responsible for properly securing all IT devices while not in use.\nIncluding:\nDo not leave devices in clear view in unattended vehicles or in hotel rooms\nDo not leave easily transportable IT Devices (i.e. computers, mobile devices, removable media and storage devices) unattended or unsecured while away from your assigned workspace or while traveling Corning Restricted electronic information stored or transmitted via non-Corning technology infrastructure must be encrypted using Corning IT approved technologies and/or services.\nThis includes Corning IT approved encryption methods to prevent unauthorized access to transmitted information outside the Corning network includes Transport Layer Security TLS mail encryption services and Secure File Storage services for collaboration purposes.\nReporting an Information Technology Incident.\nAny breach, misuse, loss or theft of a Corning device, resource, or information must be promptly reported to the IT Service Desk web portal or by phone at 607-974-3000.\nAll reported incidences will be recorded and investigated.\nUsers must immediately report lost or stolen devices.\nInformation security."
+    },
+    {
+      "id": "4.4,183",
+      "criterio": "Cybersecurity",
+      "pregunta": "Do cybersecurity policies address how information is shared on cybersecurity threats with the government and other business partners?",
+      "respuesta2025": "Yes, Corning has a policy for this point and not just for information, software it will be included too Applicable Laws\nUsers must obey local, federal, and all laws in effect in the country of operation. The following are examples of activities that are strictly prohibited:\nViolations of countrys applicable laws apply while traveling.\nAll copyright, trade secret, patent, software licensing and use, secure device use, other hardware use, intellectual property laws, or similar laws or regulations, including, but not limited to, the installation or distribution of pirated or other software products that are not properly licensed for use by Corning Incorporated.\nExporting software, technical information, encryption software or technology, in violation of international or regional export control laws. Contact appropriate management prior to export of any material that is in question.\nIntentional introduction of malicious programs into the network or server (ex: viruses, worms, Trojan horses, email bombs, etc.)\nProviding unauthorized Corning Restricted Materials to parties outside of Corning Incorporated."
+    },
+    {
+      "id": "4.2,184",
+      "criterio": "Cybersecurity",
+      "pregunta": "Are policies and procedures in place to prevent attacks via social \nengineering? This is a requirement.",
+      "respuesta2025": "Security of IT Resources and Corning Compliance Tools\nFor business requirements of security, maintenance and technical management of its Information System, Corning may implement electronic reporting and analysis tools on its IT Resources and IT Devices without prior notice to its Users, including those subjects to this Policy A. Business information about the User, including personal data, may be subject to access by authorized Corning personnel in these efforts. These business security, maintenance and technical operations may be performed by Corning or a Corning authorized 3rd party working under Corning supervision, specially authorized for this purpose, and in compliance with applicable local laws, regulations, and Cornings Data Privacy Policy.\nFor the sake of transparency, the aforementioned electronic reporting and analysis tools include, but are not limited to, the following applications:\n- Electronic content filtering systems that are designed to detect and delete unauthorized, harmful or otherwise, inappropriate (i) types of attachments (images, photos, videos, etc.), (ii) messages containing certain keywords which are deemed unlawful, and (iii) spam and other unsolicited advertisements.\n- Electronic security protections to limit unauthorized and potentially harmful electronic folder sharing, which may be identified by document file type extension (such as, .mp3, .mp4, .avi, etc.)\n- Electronic security protections against unauthorized, harmful or otherwise inappropriate Internet website access. For example, this protection tool would apply to websites offering pornographic, racist, or pedophiliac content or which are discriminatory, infringe on Intellectual Property rights, or are in violation of Corning Code of Conduct or Values and also any websites that may disturb the proper operation of the Corning Information System.\n- Electronic reporting of IT Resources such as Corning IT workstations and servers are logged. For example, this reporting would apply to the connection, date and time, duration, the login name used and sometimes the network connection source address."
+    },
+    {
+      "id": "4.11,185",
+      "criterio": "Cybersecurity",
+      "pregunta": "Do cybersecurity policies and procedures include measures to prevent the use of counterfeit or improperly licensed technological products?",
+      "respuesta2025": "Security of IT Resources and Corning Compliance Tools\nFor its business requirements of security, maintenance and technical management of its Information System, Corning may implement electronic reporting and analysis tools on its IT Resources and IT Devices without prior notice to its Users, including those subjects to this Policy A. Business information about the User, including personal data, may be subject to access by authorized Corning personnel in these efforts. These business security, maintenance and technical operations may be performed by Corning or a Corning authorized 3rd party working under Corning supervision, specially authorized for this purpose, and in compliance with applicable local laws, regulations, and Cornings Data Privacy Policy.\nFor the sake of transparency, the aforementioned electronic reporting and analysis tools include, but are not limited to, the following applications:\n- Electronic content filtering systems that are designed to detect and delete unauthorized, harmful or otherwise, inappropriate (i) types of attachments (images, photos, videos, etc.), (ii) messages containing certain keywords which are deemed unlawful, and (iii) spam and other unsolicited advertisements.\n- Electronic security protections to limit unauthorized and potentially harmful electronic folder sharing, which may be identified by document file type extension (such as, .mp3, .mp4, .avi, etc.);\n- Electronic security protections against unauthorized, harmful or otherwise inappropriate Internet website access. For example, this protection tool would apply to websites offering pornographic, racist, or pedophiliac content or which are discriminatory, infringe on Intellectual Property rights, or are in violation of Corning Code of Conduct or Values and also any websites that may disturb the proper operation of the Corning Information System.\n- Electronic reporting of IT Resources such as Corning IT workstations and servers are logged. For example, this reporting would apply to the connection, date and time, duration, the login name used and sometimes the network connection source address"
+    },
+    {
+      "id": "4.5,186",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is a system in place to identify unauthorized access of IT systems/data or abuse of policies and procedures including improper access of internal systems or external websites and tampering or altering of business data by employees or contractors? This is a requirement.",
+      "respuesta2025": "Users are not permitted to use personal storage and removable media devices without authorization, such as flash or thumb drive, smart phones, MP3, MP4 and the like to access Corning IT Resources or Corning Restricted information.\nThe primary storage location for archiving Corning data is an IT approved Corning network drive.\nData stored on non-Corning IT supported drives or devices external to the network may not be recoverable by IT in case of failure or loss.\nUsers requiring removable media and storage devices to support their job function or where legitimate business reasons exist, must submit a request through the IT Service Desk web link or call 607-974- 3000 for approval.\nAll authorized removable media and storage devices must be encrypted Software\nA standard set of IT Resources has been provided as a Standard Profile on each Named Users computer consistent with the needs of their position. Hardware and software that is provided by Corning IT may not be modified or removed, except by authorized Corning IT personnel.\nOnly authorized software should be installed on Corning IT provided computers or IT Devices.\nNew software should be procured by submitting an IT Service Desk request.\nThe submission will follow Cornings Software Asset Management Process to ensure that appropriate approvals and procurement procedures are followed, software compliance is assured, and any installation or modifications required are coordinated with appropriate IT personnel.\nFreeware, open-sourced software, and trialware, including, but not limited to, instances of software that are used for testing purposes or in pilot projects, from any source, should not be used without prior written authorization from Corning IT and the Corning Law Dept. This includes software and Internet services used for translation services, .pdf converters, online file storage, or transfer services, etc."
+    },
+    {
+      "id": "4.5,187",
+      "criterio": "Cybersecurity",
+      "pregunta": "Are all violators subject to appropriate disciplinary actions? This is a\nrequirement.",
+      "respuesta2025": "Compliance to this Policy may be measured through various methods, including but not limited to, business reporting tools, internal and external audits and other feedback to the Policy owners.\nUsers are also responsible for reporting any violation of this Policy. The consequences for policy violations vary depending on the nature of the violation.\nUsers found in violation of this Policy may be subject to Disciplinary action up to and including termination of employment or contract with Corning.\nUnauthorized use of IT Devices or IT Resources may also violate local or federal laws and may subject a Corning employee or contingent worker to personal criminal or civil sanctions, such as fines and/or imprisonment under trade secrets laws, computer crimes laws, or privacy laws.\nProvisions of this Policy cannot be waived. Corning employees (including Corning management) do not have the authority to approve waivers to this Policy unless approved by Corning IT management.\nThis Policy is not intended to create a contract between Corning and any employee, contingent worker, or 3rd party.\nThis Policy may be revised or revoked by Corning at any time, without advance notice or cause.\nAdditionally, permissions or access to Corning IT Devices or IT Resources may be revoked at any time for inappropriate use.\nIf there are questions about this Policy, contacting the IT Service Desk."
+    },
+    {
+      "id": "4.2,188",
+      "criterio": "Cybersecurity",
+      "pregunta": "To defend Information Technology (IT) systems against common cybersecurity threats, has sufficient software/hardware been installed for the protection from malware (viruses, spyware, worms, Trojans, etc.) and has an internal/external intrusion detection system been installed (firewalls)? These are requirements.",
+      "respuesta2025": "Protecting IT Devices and Cornings Information\nUsers must follow Cornings Global Information Security Policy and Procedures for protecting information and managing passwords.\nUsers should not attempt to access operating systems, files, security systems, or administrative systems which they have not been given authorization to use.\nIncluding use of electronic mail, data, programs, or other restricted information sources.\nUsers may not connect unauthorized networking devices to the Corning IT Network.\nFor example, users may not attempt to connect a router, switch, or hub to the Corning IT Network to create an IT network for a work group or department.\nUsers may not alter or delete the internal security controls or configurations on Corning IT devices.\nDevices that attach to the Corning IT Network must meet all Corning IT Network compliance requirements.\nUsers must regularly connect IT devices to the Corning IT Network to assure current software patches\nand updates are applied, and that devices are scanned for vulnerabilities and verified for compliance.\nUsers are responsible for properly securing all IT devices while not in use. Including:\nDo not leave devices in clear view in unattended vehicles or in hotel rooms\nDo not leave easily transportable IT Devices (i.e. computers, mobile devices, removable media and storage devices) unattended or unsecured while away from your assigned workspace or while traveling"
+    },
+    {
+      "id": "4.2,189",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is security software current and does it receive regular security updates? This\n is a requirement.",
+      "respuesta2025": "All the software installed on the computers that belong to the companys domain are updated every 30 days by the LANDesk and Symantec systems, which configure the updates to be made on the computers (PC or Portable Laptops) with timetables and dates."
+    },
+    {
+      "id": "4.3,190",
+      "criterio": "Cybersecurity",
+      "pregunta": "When utilizing network systems, is the security of the IT infrastructure regularly tested? If vulnerabilities are found, are corrective actions implemented as soon as feasible? These are requirements.",
+      "respuesta2025": "Corning has daily routines to run verification to the security main system and restricted areas (Servers, Control Room, CCTV system Room), if a vulnerability is found, security personal immediately will report the issue to Security Department and IT Campus Manager, corrective actions will implement in a lapse of time not greater that 6 hours."
+    },
+    {
+      "id": "4.12,191",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is data backed up once a week or as appropriate? Is all sensitive and confidential data stored in an encrypted format?",
+      "respuesta2025": "Yes, is data backed up & is all sensitive and confidential data stored in an encrypted format.\nThe growth in data has necessitated an efficient approach to data back-up and data recovery. Data loss poses a significant risk to Corning Incorporated and its subsidiaries. This policy is intended to enhance the availability of data resources and mitigate the potential damage of lost data. Data back-up is not a disaster recovery plan.\nHowever, it is a component of Corning Incorporateds plan to recover from a disaster. It is expected that data owners will maintain proper DARM (Department of Archive and Records Management) compliance in their respective production systems."
+    },
+    {
+      "id": "4.13,192",
+      "criterio": "Cybersecurity",
+      "pregunta": "Are all media, hardware, or other IT equipment that contains sensitive information regarding the import/export process accounted for through regular inventories? This is a requirement.",
+      "respuesta2025": "The IT Department conducts periodic inventories for all IT media, hardware and equipment. All computer media such as hard drives, removable drives, CD-ROMs or CD-Rs, DVDs, or micro or USB drives that contain confidential information related to the companys operating processes must be monitored and kept under control."
+    },
+    {
+      "id": "4.13,193",
+      "criterio": "Cybersecurity",
+      "pregunta": "When disposed, are they properly sanitized and/or destroyed in accordance with the National Institute of Standards and Technology (NIST) Guidelines for Media Sanitization or other appropriate industry guidelines? This is a requirement.",
+      "respuesta2025": "Cornings IT department has documentation and an implemented process that indicates how to disinfect or destroy these computer media. This process is carried out based on the Guidelines of the National Institute of Standards and Technology (NIST)."
+    },
+    {
+      "id": "4.10,194",
+      "criterio": "Cybersecurity",
+      "pregunta": "If employees are allowed to use personal devices to conduct company work, do all such devices adhere to the company’s cybersecurity policies and procedures to include regular security updates and a method to securely access the company’s network? This is a requirement.",
+      "respuesta2025": "No, we dont allow that Corning employees to use any personal device for conduct business or any other work activity... Corning provide the necessary tool to their employee to work out of the office, but a secure connection (VPN or VIP Access) needs to be authorized and installed on an specific device."
+    },
+    {
+      "id": "4.8,195",
+      "criterio": "Cybersecurity",
+      "pregunta": "Do individuals with access to IT systems use individually assigned accounts?\nThis is a requirement.",
+      "respuesta2025": "Yes, Corning CI-03155-DOC Identity and Access Management Standard, declares and protects the info with the next explanation,\n7. STANDARD(S)\nThis section defines the requirements that are necessary to ensure effective identity and access control principles are applied. This section defines the requirements that are necessary to ensure effective implementation of information security awareness and training program at Corning.\nUSER ACCESS MANAGEMENT\n7.1.1 User Identity [NIST CSF: PR.AC-1, PR.AC-4, PR.AC-6; NIST 800-171: 3.1.1, 3.1.5, 3.5.1; SOX: 2.7, 2.1; GDPR: Recital 30, Recital 57.2]\n7.1.1.1 Each user (person, service, device, or other entity) accessing Corning Assets and information resources shall be issued a unique identity excluding generic accounts which are shared across users.\n7.1.1.2 User identities and authorizations to key systems and resources shall be granted based on their role and job function requirements, while adhering to the principle of Least Privilege and Segregation of Duties.\n7.1.1.3 Password protected user accounts shall be locked after a succession of 5 unsuccessful login attempts.\n7.1.1.4 When a user forgets the password or gets the account lock out, the new password shall be obtained through the approved IT Service Desks Unlock or Password Reset process.\n7.1.2 Provisioning and Access Management [NIST CSF: PR.AC-1, PR.IP-11; NIST 800-171: 3.1.4]\n7.1.2.1 Account provisioning/de-provisioning requests or assignment of privileges shall go through a Corning-approved provisioning and/or ticketing system.\n7.1.2.2 The request to create or grant access to these accounts shall be approved by an authorized Corning authority prior to pursuing the request and shall adhere to Segregation of Duties principle for the applicable systems.\n7.1.2.3 Any override or exception to the Role-based access provisioning shall be approved by Corning Information Security and only for limited duration.\n7.1.2.4 Non-privileged users shall be prevented from executing privileged functions. [NIST 800-171: 3.1.7]\n7.1.3 User Authentication [NIST CSF: PR.AC-6; NIST 800-171: 3.5.2, 3.5.11; SOX: 2.7]\n7.1.3.1 Users must be authenticated on each occasion before access is granted to a Corning system.\n7.1.3.2 Authentication must occur against Cornings standard authentication system (e.g., Active Directory (AD)). Exceptions must be approved by the Corning Information Security team.\n7.1.3.3 Users identity shall be verified before the user is allowed to reset their account password.\n7.1.3.4 Authentication procedures shall obscure feedback (e.g., displaying asterisks in place of actual password characters or displaying actual characters for a very limited time before fully obscuring it), preventing unauthorized individuals from compromising authentication mechanisms.\n7.1.4 Generic User Account Access Management\n7.1.4.1 Generic accounts shall not be created unless it is explicitly approved by applicable authority as part of the exception process as mentioned in IT Acceptable Use Policy.\n7.1.4.2 Generic accounts shall be used when creation of a named account is not possible i.e. when the shared resources exist in production or lab environments.\n7.1.4.3 Generic accounts shall not be used by End Users to access Corning data.\n7.1.4.4 Generic accounts shall be created in Active Directory and not locally on the system.\n7.1.4.5 Generic accounts shall be assigned a designated owner who will be accountable for the use of the account and will provide approval for access. A primary and secondary owner shall be documented in a system of record and receive approval from respective Application/System Owner.\n7.1.4.6 The designated owner shall be required to maintain account password and shall be the only person permitted to submit a request to change the password.\n7.1.4.7 All users with access to generic accounts shall be documented, justified with a business reason, approved by the Application/System Owner and reviewed on a periodic basis.\n7.1.4.8 Generic accounts shall not be enabled for the use of Instant Messaging (IM).\n7.1.4.9 Account usage and distribution list shall be subject to a periodic review by Account Owner."
+    },
+    {
+      "id": "4.8,196",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is access to IT systems protected from infiltration via the use of strong passwords, passphrases, or other forms of authentication and is user access to IT systems safeguarded? These are requirements.",
+      "respuesta2025": "Passwords must be changed every 90 days and must be a minimum of 8 characters and must contain 3 of the following options: uppercase, lowercase, number or a non-alphabetic symbol (special characters). The user should avoid easily recognizable access codes such as names of relatives, dates of relatives, etc. In case of entering a wrong password three or more times, your account will be blocked by the system automatically."
+    },
+    {
+      "id": "4.7,197",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is user access restricted based on job description or assigned duties? This is\na requirement",
+      "respuesta2025": "Yes, User are restricted for some software or activities inside of the Corning Private Network, the restriction are aliened in concordance with the next info:\n- Grade\n- Position\n- Role : Supervisor, Superintendent or Manager\nThere is several software around the company campus, for example, a supervisor can not have access to financial statement or budgets info, but a manager can not have access to internal audits modules from it department.\nThe main reason of this situation is that Corning IT Department assign access and accounts to each employee based on their job description, this job description needs to be approve and endorse by Human Resources Department and the manager of the employee."
+    },
+    {
+      "id": "4.7,198",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is authorized access reviewed on a regular basis to ensure access to sensitive systems is based on job requirements? This is a requirement.",
+      "respuesta2025": "Yes, especially when a contract to an employee is ended, Human Resources and It department communicate each other to review in a daily basis with an automated task to review employee number (active or inactive) and make a comparison if still have the same position or there was a change.\nWhen an employee changes their status or position, there is a process to follow to grant or deny different access through Corning system. As we mention in previous security criteria, the assigned privileges are related with the Grade, Role, Position and other factors that IT department validate with Human Resources Department and the employee immediately manager."
+    },
+    {
+      "id": "4.7,199",
+      "criterio": "Cybersecurity",
+      "pregunta": "Is computer and network access removed upon employee separation? This Is\n a requirement.",
+      "respuesta2025": "The procedure for dismissal of personnel (IA-RCH-0018), contemplates several situations applicable as voluntary resignations, termination of contract, not pass probation period and for unjustified absences or abandonment of work.\nDepending on the situation, the corresponding process is carried out.\nThe delivery of badge, equipment, work tool and systems down, is done through the format FF_x0002_RCH-0079 in which, in applicable cases, the process of delivery of equipment, material, keys and badge IDs between others and which includes a satisfaction survey and an employee interview with the HR department.\nA special registry is maintained for cases in which the loss of personnel has been for security reasons and is informed, as the company determines, to the commercial partners in this regard."
+    },
+    {
+      "id": "4.9,200",
+      "criterio": "Cybersecurity",
+      "pregunta": "When users are allowed to remotely connect to a network, are secure technologies employed, such as virtual private networks (VPNs), to allow employees to access the company’s intranet securely when located outside of the office? Are procedures in place that are designed to prevent remote\naccess from unauthorized users? These are requirements.",
+      "respuesta2025": "Yes, only Corning employees with a valid token or VIP Access app or Authenticator can log in into the Corning network, user account needs some privileges given by the IT department to proceed with the access."
+    }
+  ],
+  "guidance": {
+    "Upper Management Responsibility": [
+      {
+        "criterio": "1.1.7 Declaración de apoyo",
+        "respTip": "Existe una declaración firmada por la Alta Dirección apoyando CTPAT.",
+        "revisar": "Verificar que la declaración siga vigente, firmada por la Dirección actual y visible en la organización.",
+        "evidencia": "Política de Seguridad, Manifiesto de Seguridad, fotografías de publicación, intranet, inducción."
+      },
+      {
+        "criterio": "1.2.1 Comité multidisciplinario",
+        "respTip": "Existe un Comité CTPAT/OEA integrado por áreas clave.",
+        "revisar": "Confirmar que todas las áreas continúan participando y que no existen cambios organizacionales sin actualizar.",
+        "evidencia": "Organigrama, lista de integrantes, minutas del comité."
+      },
+      {
+        "criterio": "1.2.2 Participación de áreas",
+        "respTip": "Seguridad es responsabilidad compartida entre departamentos.",
+        "revisar": "Revisar si RH, IT, Compras, Logística, Seguridad, Comercio Exterior siguen involucrados.",
+        "evidencia": "Roles y responsabilidades, matriz RACI, minutas."
+      },
+      {
+        "criterio": "1.3.2 Programa de auditorías",
+        "respTip": "Existe un programa de auditorías internas CTPAT/OEA.",
+        "revisar": "Verificar que el programa anual fue emitido y ejecutado.",
+        "evidencia": "Programa anual de auditorías, cronograma, auditorías realizadas."
+      },
+      {
+        "criterio": "1.3.3 Revisión del programa",
+        "respTip": "El programa se revisa periódicamente.",
+        "revisar": "Confirmar que las auditorías generan seguimiento y actualización de procesos.",
+        "evidencia": "Reportes de auditoría, acciones correctivas."
+      },
+      {
+        "criterio": "1.3.4 Actualización del perfil",
+        "respTip": "El perfil de seguridad se revisa cuando existen cambios.",
+        "revisar": "Revisar cambios en operación, procesos, socios comerciales, instalaciones o estructura.",
+        "evidencia": "Historial de cambios, actualización del perfil CTPAT."
+      },
+      {
+        "criterio": "1.4.4 Reporte a Alta Dirección",
+        "respTip": "Los POC presentan resultados, auditorías y validaciones.",
+        "revisar": "Verificar que continúen realizándose reportes periódicos a la Dirección.",
+        "evidencia": "Reportes mensuales, trimestrales, presentaciones ejecutivas, minutas."
+      },
+      {
+        "criterio": "1.4.5 Capacitación POC",
+        "respTip": "Los responsables CTPAT mantienen conocimiento actualizado.",
+        "revisar": "Validar que los responsables recibieron capacitación durante el año.",
+        "evidencia": "Constancias, cursos, webinars CBP, capacitaciones internas."
+      }
+    ],
+    "Risk Assesment": [
+      {
+        "criterio": "2.1.8 Evaluación de Riesgos",
+        "respTip": "La empresa realiza una evaluación de riesgos documentada de su cadena de suministro.",
+        "revisar": "Verificar que el análisis de riesgos se haya realizado o actualizado durante el año y que considere riesgos internos y externos.",
+        "evidencia": "Evaluación de Riesgos, matriz de riesgos, aprobación gerencial, revisión anual."
+      },
+      {
+        "criterio": "2.1.9 Met",
+        "respTip": "La empresa utiliza una metodología definida para identificar, analizar y evaluar riesgos.",
+        "revisar": "Confirmar que la metodología sigue siendo la misma o que cualquier modificación fue documentada y aprobada.",
+        "evidencia": "Procedimiento de Risk Assessment, metodología utilizada, formatos de evaluación. [31082-ANAL...-PASOS.pdf | PDF], [36448-CTPA...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "2.2.10 Mapeo de la Cadena de Suministro",
+        "respTip": "La empresa tiene documentado el flujo de su cadena de suministro desde origen hasta destino final.",
+        "revisar": "Revisar que todos los socios comerciales directos e indirectos continúen incluidos y que no existan flujos sin documentar.",
+        "evidencia": "Supply Chain Mapping, diagramas de flujo, rutas de transporte, listado de socios comerciales. [Spanish -...2020_1.pdf | PDF], [31082-ANAL...-PASOS.pdf | PDF], [36448-CTPA...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "2.2.11 Actualización del Mapeo",
+        "respTip": "El mapeo de la cadena se actualiza cuando existen cambios relevantes.",
+        "revisar": "Verificar si hubo nuevos proveedores, carriers, agentes aduanales, almacenes o centros de distribución.",
+        "evidencia": "Historial de cambios, actualización de mapas, revisiones anuales. [Spanish -...2020_1.pdf | PDF], [31082-ANAL...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "2.3.12 Evaluación de Amenazas",
+        "respTip": "Se identifican amenazas que pueden afectar la seguridad de la cadena de suministro.",
+        "revisar": "Revisar si han cambiado las condiciones regionales, rutas, países de origen o incidencias de seguridad.",
+        "evidencia": "Matriz de amenazas, reportes de seguridad, información regional. [31082-ANAL...-PASOS.pdf | PDF], [36448-CTPA...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "2.3.13 Clasificación de Riesgos",
+        "respTip": "Los riesgos son clasificados de acuerdo con su impacto y probabilidad.",
+        "revisar": "Confirmar que los criterios de clasificación continúan vigentes y aplicándose correctamente.",
+        "evidencia": "Matriz de riesgos, criterios de evaluación, reportes de revisión. [31082-ANAL...-PASOS.pdf | PDF], [36448-CTPA...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "2.4.14 Evaluación de Vulnerabilidades",
+        "respTip": "La empresa identifica vulnerabilidades dentro de sus operaciones y cadena de suministro.",
+        "revisar": "Verificar que todas las áreas críticas fueron evaluadas y que las vulnerabilidades permanecen vigentes o fueron actualizadas.",
+        "evidencia": "Vulnerability Assessment, auditorías internas, recorridos de seguridad. [31082-ANAL...-PASOS.pdf | PDF], [36448-CTPA...-PASOS.pdf | PDF], [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "2.4.15 Planes de Mitigación",
+        "respTip": "Existen acciones para reducir los riesgos y vulnerabilidades identificadas.",
+        "revisar": "Confirmar que las acciones continúan implementadas y que su efectividad fue evaluada.",
+        "evidencia": "Planes de acción, acciones correctivas, seguimiento de hallazgos. [39935-TALL...EA (2).pdf | PDF], [31082-ANAL...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "2.4.16 Seguimiento de Riesgos",
+        "respTip": "Los riesgos son monitoreados periódicamente para evaluar cambios en la operación.",
+        "revisar": "Revisar si existen riesgos nuevos, riesgos incrementados o riesgos eliminados.",
+        "evidencia": "Minutas de revisión, matrices actualizadas, reuniones de seguimiento. [39935-TALL...EA (2).pdf | PDF], [31082-ANAL...-PASOS.pdf | PDF]"
+      }
+    ],
+    "Business Partners": [
+      {
+        "criterio": "3.1.12 Selección de Socios Comerciales",
+        "respTip": "Existe un proceso para seleccionar y aprobar socios comerciales.",
+        "revisar": "Verificar que el proceso de evaluación continúa vigente y que los criterios no han cambiado.",
+        "evidencia": "Procedimiento de proveedores, criterios de evaluación, expedientes de aprobación. [Spanish -...2020_1.pdf | PDF], [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "3.1.13 Evaluación de Riesgos de Socios Comerciales",
+        "respTip": "Los socios comerciales son evaluados con base en riesgos.",
+        "revisar": "Confirmar que las evaluaciones están actualizadas y que los riesgos siguen siendo válidos.",
+        "evidencia": "Matriz de riesgos de proveedores, evaluaciones completadas. [Spanish -...2020_1.pdf | PDF], [31082-ANAL...-PASOS.pdf | PDF], [36448-CTPA...-PASOS.pdf | PDF]"
+      },
+      {
+        "criterio": "3.1.14 Requisitos de",
+        "respTip": "Los socios comerciales deben cumplir requerimientos de seguridad equivalentes a CTPAT.",
+        "revisar": "Revisar si los requisitos siguen comunicándose y exigiéndose contractualmente.",
+        "evidencia": "Contratos, cuestionarios de seguridad, acuerdos firmados. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "3",
+        "respTip": "Se realizan validaciones de antecedentes y cumplimiento.",
+        "revisar": "Verificar que las validaciones continúan realizándose con la frecuencia establecida.",
+        "evidencia": "OFAC Screening, listas restrictivas, registros de revisión."
+      },
+      {
+        "criterio": "3.2.",
+        "respTip": "Los socios comerciales son monitoreados periódicamente.",
+        "revisar": "Revisar si los procesos de monitoreo siguen activos y documentados.",
+        "evidencia": "Seguimiento anual, evaluaciones periódicas, reportes de desempeño. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "3",
+        "respTip": "Se verifica si los socios cuentan con certificaciones como CTPAT, OEA o equivalentes.",
+        "revisar": "Confirmar que las certificaciones continúan vigentes.",
+        "evidencia": "Certificados CTPAT, OEA, BASC, ISO, etc. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "3.5.18 Auditorías a",
+        "respTip": "Se realizan auditorías o validaciones de seguridad a socios críticos.",
+        "revisar": "Verificar que las auditorías planificadas fueron ejecutadas.",
+        "evidencia": "Programa de auditorías, reportes de auditoría, hallazgos. [39935-TALL...EA (2).pdf | PDF], [39942-PLAN...CTPAT.xlsx | Excel]"
+      },
+      {
+        "criterio": "3.6",
+        "respTip": "Los hallazgos identificados generan acciones correctivas.",
+        "revisar": "Revisar que los hallazgos permanezcan cerrados o en seguimiento.",
+        "evidencia": "CAPA, planes de acción, evidencia de cierre. [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "3.7",
+        "respTip": "Los socios comerciales son reevaluados periódicamente.",
+        "revisar": "Confirmar que las revisiones anuales se realizaron conforme a riesgo.",
+        "evidencia": "Reevaluaciones, expedientes actualizados, reportes. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "3.8.",
+        "respTip": "Se utilizan transportistas aprobados y evaluados.",
+        "revisar": "Validar que todos los transportistas actuales se encuentren en el listado autorizado.",
+        "evidencia": "Lista de carriers aprobados, evaluaciones, contratos. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "3.8",
+        "respTip": "Se da preferencia a transportistas CTPAT o equivalentes.",
+        "revisar": "Verificar vigencia de certificaciones y acuerdos.",
+        "evidencia": "Certificaciones vigentes, contratos, registros de validación. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "3.9.23",
+        "respTip": "Existe un proceso para evaluar riesgos de trabajo forzoso y cumplimiento social.",
+        "revisar": "Revisar si el programa continúa vigente y si los proveedores fueron evaluados.",
+        "evidencia": "Cuestionarios de cumplimiento social, auditorías, políticas. [39935-TALL...EA (2).pdf | PDF], [Spanish -...2020_1.pdf | PDF]"
+      }
+    ],
+    "Procedural Security": [
+      {
+        "criterio": "7.1.31 Procedimientos documentados",
+        "respTip": "Existen procedimientos escritos para los procesos relacionados con la seguridad de la carga.",
+        "revisar": "Verificar que los procedimientos continúen vigentes y reflejen la operación actual.",
+        "evidencia": "Procedimientos, instrucciones de trabajo, control documental. [Spanish -...2020_1.pdf | PDF], [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "7.4.32 Control de mercancías",
+        "respTip": "Existen controles para asegurar la integridad de la mercancía durante su manejo y almacenamiento.",
+        "revisar": "Confirmar que los puntos de control siguen operando conforme al procedimiento.",
+        "evidencia": "Procedimientos de almacén, registros de embarque, inventarios. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "7.6.25 Recepción y embarque",
+        "respTip": "Se verifican materiales y mercancías durante recepción y embarque.",
+        "revisar": "Revisar que continúen realizándose inspecciones y validaciones documentadas.",
+        "evidencia": "Checklists, bitácoras, formatos de recepción y embarque. [Spanish -...2020_1.pdf | PDF], [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "7.8.26 Documentación de embarques",
+        "respTip": "Los embarques son respaldados por documentación exacta y completa.",
+        "revisar": "Verificar que no hayan cambiado los controles de generación y validación documental.",
+        "evidencia": "Facturas, packing list, pedimentos, documentación logística. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "7.8.27 Exactitud documental",
+        "respTip": "Existe validación de información antes de liberar embarques.",
+        "revisar": "Revisar que continúe el proceso de revisión y autorización.",
+        "evidencia": "Procedimientos, evidencias de revisión, registros de aprobación. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "7.7.30 Investigación de",
+        "respTip": "Las discrepancias son investigadas y documentadas.",
+        "revisar": "Confirmar que todas las discrepancias siguen registrándose y cerrándose formalmente.",
+        "evidencia": "Reportes de discrepancias, investigaciones, CAPA. [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "7.23.50 Seguimiento de mercancía",
+        "respTip": "Existe monitoreo y trazabilidad de los movimientos de la mercancía.",
+        "revisar": "Verificar que la trazabilidad continúe siendo posible de extremo a extremo.",
+        "evidencia": "Sistema ERP, registros logísticos, tracking. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "7.23.51 Integridad de registros",
+        "respTip": "Los registros relacionados con la carga se conservan y protegen.",
+        "revisar": "Revisar tiempos de retención y controles de acceso a los registros.",
+        "evidencia": "Política de retención documental, expedientes electrónicos."
+      },
+      {
+        "criterio": "7.23.52 Control de documentos sensibles",
+        "respTip": "La información logística se encuentra protegida.",
+        "revisar": "Confirmar que únicamente el personal autorizado tenga acceso.",
+        "evidencia": "Matriz de accesos, controles documentales, permisos del sistema."
+      },
+      {
+        "criterio": "7.24.49 Gestión de discrepancias",
+        "respTip": "Existe un proceso formal para documentar y analizar variaciones.",
+        "revisar": "Revisar si existen nuevas causas recurrentes o cambios en el proceso.",
+        "evidencia": "Reportes, tendencias de discrepancias, acciones correctivas. [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "7.25.55",
+        "respTip": "Existen mecanismos para corregir desviaciones identificadas.",
+        "revisar": "Confirmar que los hallazgos continúan cerrándose oportunamente.",
+        "evidencia": "CAPA, evidencia de cierre, seguimiento. [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "7.27.34 Control de procesos críticos",
+        "respTip": "Los procesos críticos se monitorean para prevenir contaminación de carga.",
+        "revisar": "Revisar si existe algún cambio en procesos críticos o layout.",
+        "evidencia": "Procedimientos, recorridos, auditorías internas. [Spanish -...2020_1.pdf | PDF], [39935-TALL...EA (2).pdf | PDF]"
+      },
+      {
+        "criterio": "7.28.33 Seguridad durante el manejo de carga",
+        "respTip": "Se mantienen controles para evitar acceso no autorizado a la mercancía.",
+        "revisar": "Confirmar que los controles físicos y administrativos continúan vigentes.",
+        "evidencia": "CCTV, rondines, registros de acceso, procedimientos. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "7.37",
+        "respTip": "La organización revisa y mejora periódicamente sus procedimientos.",
+        "revisar": "Verificar que los procedimientos hayan sido revisados y actualizados cuando aplique.",
+        "evidencia": "Historial de revisiones, auditorías, acciones de mejora. [39935-TALL...EA (2).pdf | PDF]"
+      }
+    ],
+    "Conveyance and IIT": [
+      {
+        "criterio": "5.1 Almacenamiento seguro de medios de transporte e IIT",
+        "respTip": "Los IIT (trailers, cajas, contenedores) son almacenados en áreas seguras para evitar accesos no autorizados.",
+        "revisar": "Verificar que las áreas de resguardo continúen delimitadas, monitoreadas y bajo control de acceso.",
+        "evidencia": "Procedimiento de patios, CCTV, rondines, fotografías, controles de acceso."
+      },
+      {
+        "criterio": "5.2 Inspección de medios de transporte e IIT",
+        "respTip": "Se realizan inspecciones de seguridad y agrícolas antes de la carga.",
+        "revisar": "Confirmar que el proceso de inspección continúa ejecutándose y documentándose.",
+        "evidencia": "Checklists de inspección, fotografías, registros electrónicos."
+      },
+      {
+        "criterio": "5.3 Procedimientos de inspección",
+        "respTip": "Existe un procedimiento documentado para inspeccionar vehículos e IIT.",
+        "revisar": "Revisar que el procedimiento siga vigente y refleje el proceso actual.",
+        "evidencia": "Procedimiento, historial de revisión, control documental."
+      },
+      {
+        "criterio": "5.4 Capacitación de personal que inspecciona",
+        "respTip": "El personal conoce y aplica el proceso de inspección.",
+        "revisar": "Confirmar que los inspectores mantienen capacitación vigente.",
+        "evidencia": "Matriz de capacitación, constancias, entrenamientos."
+      },
+      {
+        "criterio": "5.5 Integridad estructural",
+        "respTip": "Se inspecciona la integridad física de remolques o contenedores.",
+        "revisar": "Revisar que continúe la validación de paredes, techo, piso, puertas y compartimentos ocultos.",
+        "evidencia": "Formatos de inspección, fotografías, auditorías internas."
+      },
+      {
+        "criterio": "5.6 Protección de unidades vacías",
+        "respTip": "Las unidades vacías permanecen protegidas hasta su utilización.",
+        "revisar": "Verificar que continúen existiendo controles en patios y áreas de espera.",
+        "evidencia": "Registros de patio, monitoreo, CCTV."
+      },
+      {
+        "criterio": "5.7 Seguridad durante operaciones de carga y descarga",
+        "respTip": "Existen controles durante la carga para evitar contaminación o acceso no autorizado.",
+        "revisar": "Confirmar que el proceso continúa siendo supervisado.",
+        "evidencia": "Procedimientos, rondines, registros de seguridad."
+      },
+      {
+        "criterio": "5.8 Monitoreo y control de unidades",
+        "respTip": "La empresa monitorea unidades durante el movimiento o tránsito.",
+        "revisar": "Revisar si continúan utilizándose GPS, monitoreo satelital o herramientas equivalentes.",
+        "evidencia": "Reportes GPS, bitácoras, reportes de monitoreo."
+      }
+    ],
+    "Agricultural Procedures": [
+      {
+        "criterio": "8.1 Programa de Seguridad Agrícola",
+        "respTip": "La empresa cuenta con controles para prevenir la introducción de plagas, contaminantes agrícolas o materiales restringidos en la cadena de suministro.",
+        "revisar": "Verificar que el programa continúa vigente y que las responsabilidades siguen definidas.",
+        "evidencia": "Procedimiento de Seguridad Agrícola, políticas, matriz de responsabilidades. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "8.1 Inspección agrícola de medios de transporte e IIT",
+        "respTip": "Se realizan inspecciones visuales para detectar plagas, tierra, semillas, insectos o contaminantes agrícolas.",
+        "revisar": "Confirmar que las inspecciones continúan realizándose antes de la carga y/o recepción.",
+        "evidencia": "Checklists de inspección, registros de inspección, fotografías. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "8.1 Control de pallets",
+        "respTip": "La empresa utiliza materiales de embalaje que cumplen los requisitos fitosanitarios aplicables.",
+        "revisar": "Verificar que los pallets continúan cumpliendo ISPM-15/NIMF-15 o requisito aplicable.",
+        "evidencia": "Certificados de proveedores, sellos IPPC, registros de inspección. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "8.1 Limpieza de unidades y áreas de carga",
+        "respTip": "Las unidades y áreas utilizadas para carga permanecen libres de residuos agrícolas o materiales contaminantes.",
+        "revisar": "Revisar que continúen existiendo actividades de limpieza e inspección previas a embarque.",
+        "evidencia": "Registros de limpieza, checklists, auditorías internas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "8.1 Identificación y reporte de hallazgos agrícolas",
+        "respTip": "Existen mecanismos para reportar plagas o contaminantes detectados durante inspecciones.",
+        "revisar": "Confirmar que el personal conoce el proceso de reporte y escalación.",
+        "evidencia": "Procedimientos, registros de incidentes, capacitaciones. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "8.1 Capacitación en Seguridad Agrícola",
+        "respTip": "El personal involucrado recibe capacitación para identificar riesgos agrícolas.",
+        "revisar": "Verificar vigencia de entrenamientos y cobertura del personal crítico.",
+        "evidencia": "Matriz de capacitación, listas de asistencia, constancias"
+      }
+    ],
+    "Physical Security": [
+      {
+        "criterio": "9.1 Seguridad Física General",
+        "respTip": "La empresa cuenta con medidas de seguridad física diseñadas para prevenir accesos no autorizados.",
+        "revisar": "Verificar que los controles físicos continúen operando conforme a lo documentado.",
+        "evidencia": "Procedimiento de Seguridad Física, recorridos, auditorías internas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.2 Cercado perimetral",
+        "respTip": "Las instalaciones están protegidas mediante cercos, bardas u otros medios físicos.",
+        "revisar": "Confirmar que el perímetro continúa íntegro y sin áreas vulnerables.",
+        "evidencia": "Inspecciones perimetrales, órdenes de trabajo, fotografías. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.3 Control de puertas y accesos vehiculares",
+        "respTip": "Los accesos de entrada y salida están controlados y monitoreados.",
+        "revisar": "Verificar que no existan accesos sin control o modificaciones no documentadas.",
+        "evidencia": "Procedimientos, registros de acceso, inspecciones físicas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.4 Estacionamientos",
+        "respTip": "Los estacionamientos se encuentran controlados y separados según aplique.",
+        "revisar": "Revisar que continúen existiendo restricciones y monitoreo.",
+        "evidencia": "CCTV, controles de acceso, políticas de estacionamiento. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.5 Edificios y estructura",
+        "respTip": "Los edificios se encuentran construidos y mantenidos para resistir accesos no autorizados.",
+        "revisar": "Confirmar que no existan daños estructurales o modificaciones sin autorización.",
+        "evidencia": "Mantenimiento preventivo, inspecciones físicas, reportes de instalaciones. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9",
+        "respTip": "Las áreas críticas cuentan con iluminación adecuada para vigilancia y monitoreo.",
+        "revisar": "Validar que la iluminación continúe operativa en interior, exterior y perímetro.",
+        "evidencia": "Inspecciones, mantenimiento, recorridos nocturnos. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.7 Sistemas de alarma",
+        "respTip": "Existen sistemas de alarma para detectar accesos no autorizados.",
+        "revisar": "Revisar que las alarmas continúen funcionando y se realicen pruebas periódicas.",
+        "evidencia": "Reportes de pruebas, mantenimiento, bitácoras. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.8 Videovigilancia (CCTV)",
+        "respTip": "Se utilizan cámaras para monitorear áreas críticas.",
+        "revisar": "Confirmar cobertura, retención de grabaciones y funcionamiento del sistema.",
+        "evidencia": "Layout de cámaras, auditorías CCTV, evidencia de grabaciones. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.9 Monitoreo de CCTV",
+        "respTip": "Las cámaras son monitoreadas por personal autorizado.",
+        "revisar": "Verificar que continúe la supervisión conforme a procedimiento.",
+        "evidencia": "Bitácoras, procedimientos, registros de monitoreo. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.10 Almacenamiento de grabaciones",
+        "respTip": "Las grabaciones se conservan por el período establecido.",
+        "revisar": "Revisar que los tiempos de retención continúen cumpliéndose.",
+        "evidencia": "Política de retención, registros de respaldo. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.11 Áreas restringidas",
+        "respTip": "Existen áreas críticas con acceso limitado.",
+        "revisar": "Confirmar que las áreas restringidas continúan identificadas y protegidas.",
+        "evidencia": "Planos, señalización, controles de acceso. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.12 Control de llaves",
+        "respTip": "Existe administración y control formal de llaves o dispositivos equivalentes.",
+        "revisar": "Revisar inventarios, responsables y registros de entrega.",
+        "evidencia": "Bitácoras de llaves, inventarios, auditorías. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.13 Protección de mercancía",
+        "respTip": "La mercancía se encuentra protegida contra robo o manipulación no autorizada.",
+        "revisar": "Verificar que los controles operativos continúen vigentes.",
+        "evidencia": "Inspecciones, CCTV, recorridos, auditorías. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.14",
+        "respTip": "Las áreas de embarque y recepción mantienen controles de seguridad.",
+        "revisar": "Confirmar que no existan cambios operativos sin documentar.",
+        "evidencia": "Procedimientos, rondines, CCTV. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.15 Mantenimiento de infraestructura",
+        "respTip": "Existen procesos para corregir daños en infraestructura de seguridad.",
+        "revisar": "Revisar que los hallazgos físicos sean corregidos oportunamente.",
+        "evidencia": "Reportes de mantenimiento, órdenes de trabajo cerradas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "9.16 Inspecciones periódicas",
+        "respTip": "Se realizan inspecciones regulares de los elementos de seguridad física.",
+        "revisar": "Confirmar cumplimiento de la frecuencia definida.",
+        "evidencia": "Checklists, inspecciones, auditorías internas. [Spanish -...2020_1.pdf | PDF]"
+      }
+    ],
+    "Access Controls": [
+      {
+        "criterio": "10.1 Identificación de empleados",
+        "respTip": "Todos los empleados cuentan con identificación visible y controlada.",
+        "revisar": "Verificar que continúe el uso obligatorio de gafetes y que el proceso de emisión siga vigente.",
+        "evidencia": "Procedimiento de identificación, muestras de gafetes, registros de emisión. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.1 Administración de credenciales",
+        "respTip": "Existe control para emisión, reposición y cancelación de credenciales.",
+        "revisar": "Revisar que las bajas y cambios de personal sigan reflejándose oportunamente.",
+        "evidencia": "Bitácoras de gafetes, registros de RH, auditorías de accesos. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.2 Control de visitantes",
+        "respTip": "Los visitantes son registrados, identificados y acompañados cuando corresponde.",
+        "revisar": "Confirmar que el procedimiento sigue aplicándose sin excepciones.",
+        "evidencia": "Bitácoras de visitantes, formatos de registro, gafetes temporales. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.2 Verificación de identidad de visitantes",
+        "respTip": "Se valida la identidad antes de autorizar el acceso.",
+        "revisar": "Revisar que continúe la revisión de identificación oficial o mecanismo equivalente.",
+        "evidencia": "Registros de recepción, procedimiento de acceso. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.2 Control de proveedores y contratistas",
+        "respTip": "Los contratistas y proveedores reciben controles de acceso equivalentes.",
+        "revisar": "Verificar que el proceso siga aplicándose a personal externo.",
+        "evidencia": "Registros de ingreso, contratos, listas de autorización. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.3 Entrega y recuperación d",
+        "respTip": "Existe control sobre la devolución de gafetes y dispositivos de acceso.",
+        "revisar": "Confirmar que se recuperan credenciales al terminar la relación laboral o contractual.",
+        "evidencia": "Checklist de baja, expedientes RH, registros de devolución. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.4 Control de llaves y dispositivos de acceso",
+        "respTip": "Las llaves, tarjetas y dispositivos son administrados formalmente.",
+        "revisar": "Revisar inventarios, responsables y registros de entrega.",
+        "evidencia": "Inventario de llaves, bitácoras, autorizaciones. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.4 Áreas restringidas",
+        "respTip": "Las áreas sensibles tienen acceso limitado al personal autorizado.",
+        "revisar": "Confirmar que los accesos definidos siguen siendo válidos.",
+        "evidencia": "Matriz de accesos, planos de áreas restringidas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.7 Monitoreo de accesos",
+        "respTip": "Los accesos son monitoreados y revisados periódicamente.",
+        "revisar": "Verificar que continúe la revisión de accesos físicos y electrónicos.",
+        "evidencia": "Reportes de acceso, auditorías, registros del sistema. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.8 Identificación de personal autorizado",
+        "respTip": "La empresa puede identificar fácilmente quién tiene acceso a áreas críticas.",
+        "revisar": "Revisar que la lista de autorizados permanezca actualizada.",
+        "evidencia": "Matriz de accesos vigente, autorizaciones firmadas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "10.10 Procedimientos de control de acceso",
+        "respTip": "Existen procedimientos documentados para administrar accesos físicos.",
+        "revisar": "Confirmar que los procedimientos siguen vigentes y alineados a la operación actual.",
+        "evidencia": "Procedimientos, historial de revisiones, auditorías internas. [Spanish -...2020_1.pdf | PDF]"
+      }
+    ],
+    "Personnel Security": [
+      {
+        "criterio": "11.1 Investigación previa al empleo",
+        "respTip": "La empresa realiza verificaciones previas al empleo conforme a la legislación aplicable y la criticidad del puesto.",
+        "revisar": "Confirmar que el proceso de contratación continúa incluyendo validaciones definidas por la empresa y que no hubo cambios en el procedimiento.",
+        "evidencia": "Procedimiento de contratación, expedientes de personal, checklist de contratación. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "11.2 Verificación periódica del personal",
+        "respTip": "La empresa realiza revisiones periódicas o reevaluaciones del personal cuando aplica.",
+        "revisar": "Revisar si la frecuencia o metodología de revisión se mantiene vigente.",
+        "evidencia": "Procedimiento de RH, registros de reevaluación, controles internos. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "11.2 Manejo de cambios en",
+        "respTip": "Existen procesos para gestionar cambios de puesto, transferencias o cambios de responsabilidades.",
+        "revisar": "Verificar que los procesos de autorización y actualización de accesos siguen funcionando.",
+        "evidencia": "Movimientos de personal, autorizaciones, actualizaciones de acceso. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "11.2 Terminación laboral",
+        "respTip": "Existe un proceso para controlar la salida de empleados y recuperación de activos de la empresa.",
+        "revisar": "Confirmar que continúan ejecutándose todas las actividades de baja establecidas.",
+        "evidencia": "Checklist de baja, devoluciones de gafetes, accesos cancelados, expedientes RH. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "11.5 Personal de seguridad y",
+        "respTip": "El personal que ocupa posiciones críticas o relacionadas con seguridad cumple requisitos específicos definidos por la organización.",
+        "revisar": "Revisar que los puestos críticos continúen identificados y que el personal asignado cumpla los requisitos establecidos.",
+        "evidencia": "Descripciones de puesto, expedientes, capacitaciones, validaciones de personal. [Spanish -...2020_1.pdf | PDF]"
+      }
+    ],
+    "Education, Training and Awareness": [
+      {
+        "criterio": "12.1 Programa de Capacitación en Seguridad",
+        "respTip": "La empresa cuenta con un programa formal de capacitación en seguridad de la cadena de suministro.",
+        "revisar": "Verificar que el programa siga vigente, documentado y ejecutándose conforme al plan establecido.",
+        "evidencia": "Plan anual de capacitación, matriz de entrenamiento, calendario de cursos. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.1 Capacitación para nuevos empleados",
+        "respTip": "Todo nuevo empleado recibe capacitación relacionada con seguridad y CTPAT durante su incorporación.",
+        "revisar": "Confirmar que la inducción continúa incluyendo temas de seguridad de la cadena de suministro.",
+        "evidencia": "Programa de inducción, listas de asistencia, registros de RH. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.1 Capacitación periódica",
+        "respTip": "Los empleados reciben entrenamiento recurrente sobre temas de seguridad.",
+        "revisar": "Revisar que la frecuencia definida siga cumpliéndose y que las áreas críticas continúen incluidas.",
+        "evidencia": "Registros de capacitación, evidencias de participación. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.2 Concientización sobre amenazas",
+        "respTip": "Los empleados son capacitados para identificar amenazas a la cadena de suministro.",
+        "revisar": "Confirmar que continúan impartiéndose temas relacionados con contrabando, narcóticos, terrorismo, tráfico de personas y contaminación de carga.",
+        "evidencia": "Presentaciones, exámenes, campañas de comunicación. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.2 Reconocimiento de comportamiento sospechoso",
+        "respTip": "El personal conoce cómo identificar y reportar actividades sospechosas.",
+        "revisar": "Revisar que el procedimiento de reporte continúe siendo comunicado al personal.",
+        "evidencia": "Material de capacitación, posters, registros de entrenamiento. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.4 Procedimientos de reporte",
+        "respTip": "Los empleados conocen los mecanismos para reportar incidentes o situaciones de riesgo.",
+        "revisar": "Verificar que los canales de reporte continúen vigentes y que sean conocidos por el personal.",
+        "evidencia": "Procedimientos, líneas de denuncia, material de comunicación. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.8 Capacitación de persona",
+        "respTip": "Personal de embarques, seguridad, almacén y puestos críticos recibe capacitación especializada.",
+        "revisar": "Confirmar que las posiciones identificadas como críticas continúan recibiendo entrenamiento específico.",
+        "evidencia": "Matriz de capacitación por puesto, constancias, planes de entrenamiento. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.9 Concientización continua",
+        "respTip": "La empresa mantiene campañas permanentes de comunicación relacionadas con seguridad.",
+        "revisar": "Revisar que continúen realizándose campañas, recordatorios o actividades de concientización.",
+        "evidencia": "Correos, carteles, comunicados, campañas internas. [Spanish -...2020_1.pdf | PDF]"
+      },
+      {
+        "criterio": "12.10 Evaluación de efectividad del entrenamiento",
+        "respTip": "La empresa cuenta con mecanismos para validar la comprensión del personal.",
+        "revisar": "Confirmar que continúan realizándose evaluaciones, exámenes o verificaciones posteriores a la capacitación.",
+        "evidencia": "Exámenes, evaluaciones, resultados de entrenamiento. [Spanish -...2020_1.pdf | PDF]"
+      }
+    ]
+  }
+}

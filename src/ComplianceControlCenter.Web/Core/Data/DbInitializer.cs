@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ComplianceControlCenter.Web.Modules.Oea.Domain.Entities;
+using ComplianceControlCenter.Web.Modules.Ctpat.Data;
 using ComplianceControlCenter.Web.Core.State;
 
 namespace ComplianceControlCenter.Web.Core.Data;
@@ -11,6 +12,7 @@ namespace ComplianceControlCenter.Web.Core.Data;
 ///  - Siembra roles (Admin, Editor, Reader).
 ///  - Crea un usuario Admin por defecto si no existe (configurable en appsettings).
 ///  - Siembra las ~33 actividades OEA por defecto la primera vez.
+///  - Delega a los seeders de cada módulo (CTPAT catálogo, etc.).
 /// </summary>
 public static class DbInitializer
 {
@@ -22,6 +24,7 @@ public static class DbInitializer
         var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>();
+        var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 
         // 1) Migraciones
         await db.Database.MigrateAsync();
@@ -58,13 +61,16 @@ public static class DbInitializer
             }
         }
 
-        // 4) Actividades default (solo si la tabla está vacía)
+        // 4) Actividades OEA default (solo si la tabla está vacía)
         if (!await db.Activities.AnyAsync())
         {
             db.Activities.AddRange(SeedActivities);
             await db.SaveChangesAsync();
             logger.LogInformation("Seeded {Count} default OEA activities", SeedActivities.Length);
         }
+
+        // 5) Catálogo CTPAT (idempotente, sólo agrega lo que falte)
+        await CtpatSeeder.SeedAsync(db, env, logger);
     }
 
     /// <summary>
