@@ -229,9 +229,6 @@ exports.MapGet("/matrix.xlsx", async (
         $"matriz-{fromYear:0000}{fromMonth:00}-{toYear:0000}{toMonth:00}.xlsx");
 });
 
-// ────────────────────────────────────────────────────────────────
-// Inicialización DB (migrate + seed roles + seed activities)
-// ────────────────────────────────────────────────────────────────
 await DbInitializer.InitializeAsync(app.Services);
 
 app.Run();

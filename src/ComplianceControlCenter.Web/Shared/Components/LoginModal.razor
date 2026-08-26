@@ -5,11 +5,20 @@
    El submit hace POST HTTP nativo a /Account/Login (la página SSR de Identity),
    que procesa las credenciales, setea la cookie, y redirige a ReturnUrl.
    data-enhance="false" evita que Blazor intercepte el submit vía fetch, así
-   la cookie de auth se aplica con recarga completa y AuthorizeView se refresca. *@
+   la cookie de auth se aplica con recarga completa y AuthorizeView se refresca.
 
+   El token antiforgery se obtiene vía IAntiforgery durante el prerender (único
+   momento en que HttpContext está disponible en un componente InteractiveServer).
+   Esto evita el error "A valid antiforgery token was not provided" que ocurre
+   cuando se usa <AntiforgeryToken /> dentro de un componente interactivo, ya que
+   en ese contexto el token no coincide con el que espera UseAntiforgery(). *@
+
+@using Microsoft.AspNetCore.Antiforgery
 @implements IDisposable
 @inject LoginModalState State
 @inject NavigationManager Nav
+@inject IAntiforgery Antiforgery
+@inject IHttpContextAccessor HttpContextAccessor
 
 @if (_visible)
 {
@@ -34,8 +43,9 @@
                 </div>
             }
 
-            <form method="post" action="Account/Login" data-enhance="false" class="space-y-2">
-                <AntiforgeryToken />
+            <form method="post" action="Account/Login" data-enhance="false" @formname="login" class="space-y-2">
+                @* Token antiforgery obtenido en el prerender vía IAntiforgery; válido para UseAntiforgery(). *@
+                <input type="hidden" name="@_antiforgeryFieldName" value="@_antiforgeryToken" />
                 <input type="hidden" name="_handler" value="login" />
                 <input type="hidden" name="ReturnUrl" value="@_returnUrl" />
                 <input type="hidden" name="Input.FromModal" value="true" />
@@ -89,9 +99,24 @@
     private bool _showError;
     private string _returnUrl = "";
 
+    // Token antiforgery obtenido en OnInitialized (prerender tiene HttpContext disponible).
+    private string _antiforgeryToken = "";
+    private string _antiforgeryFieldName = "";
+
     protected override void OnInitialized()
     {
         State.OnOpenRequested += HandleOpenRequested;
+
+        // Obtener el token antiforgery mientras tenemos HttpContext (prerender / SSR).
+        // En la fase interactiva posterior HttpContext ya no está disponible, pero el
+        // token ya quedó almacenado y se emite como hidden input en el HTML del modal.
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext is not null)
+        {
+            var tokens = Antiforgery.GetAndStoreTokens(httpContext);
+            _antiforgeryFieldName = tokens.FormFieldName;
+            _antiforgeryToken     = tokens.RequestToken ?? "";
+        }
 
         // Si venimos de un intento fallido de login vía modal, re-abrir con error.
         var uri = new Uri(Nav.Uri);
