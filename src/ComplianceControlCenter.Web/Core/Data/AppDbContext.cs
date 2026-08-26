@@ -9,15 +9,20 @@ namespace ComplianceControlCenter.Web.Core.Data;
 /// <summary>
 /// DbContext principal de la aplicación.
 ///
-/// Convención de nombres de tablas: TODAS con prefijo "OEA_" para que puedan
-/// convivir sin chocar en la base de datos compartida del Warehouse.
+/// Convención de nombres de tablas:
+///   * `CCC_*`      — tablas del núcleo compartido (Identity, auditoría, adjuntos)
+///   * `CCC_OEA_*`  — tablas específicas del módulo OEA
+///   * `CCC_CTPAT_*`— tablas específicas del módulo CTPAT
 ///
-/// Tablas de negocio:
-///   OEA_Activities, OEA_MonthlyStatus, OEA_Comments, OEA_AuditLog
+/// Todas las tablas viven en la BD compartida `FDS_DEV_RYR9` y no chocan
+/// con otras aplicaciones gracias al prefijo `CCC_`.
 ///
-/// Tablas de ASP.NET Identity (renombradas):
-///   OEA_Users, OEA_Roles, OEA_UserRoles, OEA_UserClaims,
-///   OEA_UserLogins, OEA_UserTokens, OEA_RoleClaims
+/// Tablas de negocio OEA:
+///   CCC_OEA_Activities, CCC_OEA_MonthlyStatus, CCC_OEA_Comments
+///
+/// Tablas del núcleo:
+///   CCC_Users, CCC_Roles, CCC_UserRoles, CCC_UserClaims,
+///   CCC_UserLogins, CCC_UserTokens, CCC_RoleClaims, CCC_AuditLog
 /// </summary>
 public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<ApplicationUser>(options)
@@ -32,22 +37,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         base.OnModelCreating(builder);
 
         // ────────────────────────────────────────────────────────────────
-        // Renombrar tablas de Identity con prefijo OEA_
+        // Núcleo compartido: Identity (prefijo CCC_)
         // ────────────────────────────────────────────────────────────────
-        builder.Entity<ApplicationUser>(b => b.ToTable("OEA_Users"));
-        builder.Entity<IdentityRole>(b => b.ToTable("OEA_Roles"));
-        builder.Entity<IdentityUserRole<string>>(b => b.ToTable("OEA_UserRoles"));
-        builder.Entity<IdentityUserClaim<string>>(b => b.ToTable("OEA_UserClaims"));
-        builder.Entity<IdentityUserLogin<string>>(b => b.ToTable("OEA_UserLogins"));
-        builder.Entity<IdentityUserToken<string>>(b => b.ToTable("OEA_UserTokens"));
-        builder.Entity<IdentityRoleClaim<string>>(b => b.ToTable("OEA_RoleClaims"));
+        builder.Entity<ApplicationUser>(b => b.ToTable("CCC_Users"));
+        builder.Entity<IdentityRole>(b => b.ToTable("CCC_Roles"));
+        builder.Entity<IdentityUserRole<string>>(b => b.ToTable("CCC_UserRoles"));
+        builder.Entity<IdentityUserClaim<string>>(b => b.ToTable("CCC_UserClaims"));
+        builder.Entity<IdentityUserLogin<string>>(b => b.ToTable("CCC_UserLogins"));
+        builder.Entity<IdentityUserToken<string>>(b => b.ToTable("CCC_UserTokens"));
+        builder.Entity<IdentityRoleClaim<string>>(b => b.ToTable("CCC_RoleClaims"));
 
         // ────────────────────────────────────────────────────────────────
-        // OEA_Activities
+        // Módulo OEA: CCC_OEA_Activities
         // ────────────────────────────────────────────────────────────────
         builder.Entity<Activity>(b =>
         {
-            b.ToTable("OEA_Activities");
+            b.ToTable("CCC_OEA_Activities");
             b.HasKey(x => x.Id);
             b.Property(x => x.Item).HasMaxLength(64).IsRequired();
             b.Property(x => x.Legal).HasMaxLength(256);
@@ -65,11 +70,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         });
 
         // ────────────────────────────────────────────────────────────────
-        // OEA_MonthlyStatus
+        // Módulo OEA: CCC_OEA_MonthlyStatus
         // ────────────────────────────────────────────────────────────────
         builder.Entity<MonthlyStatus>(b =>
         {
-            b.ToTable("OEA_MonthlyStatus");
+            b.ToTable("CCC_OEA_MonthlyStatus");
             b.HasKey(x => x.Id);
             b.Property(x => x.CorrectiveActions).HasMaxLength(1024);
             b.Property(x => x.UpdatedBy).HasMaxLength(128);
@@ -84,11 +89,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         });
 
         // ────────────────────────────────────────────────────────────────
-        // OEA_Comments
+        // Módulo OEA: CCC_OEA_Comments
         // ────────────────────────────────────────────────────────────────
         builder.Entity<Comment>(b =>
         {
-            b.ToTable("OEA_Comments");
+            b.ToTable("CCC_OEA_Comments");
             b.HasKey(x => x.Id);
             b.Property(x => x.Author).HasMaxLength(128).IsRequired();
             b.Property(x => x.AuthorUserId).HasMaxLength(450);
@@ -104,11 +109,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         });
 
         // ────────────────────────────────────────────────────────────────
-        // OEA_AuditLog
+        // Núcleo compartido: CCC_AuditLog (usado por todos los módulos)
         // ────────────────────────────────────────────────────────────────
         builder.Entity<AuditLog>(b =>
         {
-            b.ToTable("OEA_AuditLog");
+            b.ToTable("CCC_AuditLog");
             b.HasKey(x => x.Id);
             b.Property(x => x.User).HasMaxLength(128);
             b.Property(x => x.Action).HasMaxLength(32);
