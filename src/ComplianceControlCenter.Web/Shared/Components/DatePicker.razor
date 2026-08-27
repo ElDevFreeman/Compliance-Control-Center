@@ -6,7 +6,7 @@
 @using System.Globalization
 @inject IJSRuntime JS
 
-<div class="relative inline-block @Extra @(Disabled ? "opacity-60 pointer-events-none" : "")">
+<div class="inline-block @Extra @(Disabled ? "opacity-60 pointer-events-none" : "")">
     <!-- Trigger -->
     <button type="button"
             class="input input-bordered @SizeClass flex items-center gap-2 w-full text-left cursor-pointer"
@@ -35,8 +35,10 @@
         <!-- Backdrop invisible para cerrar al hacer click fuera -->
         <div class="fixed inset-0 z-40" @onclick="Close"></div>
 
-        <!-- Popover del calendario -->
-        <div class="absolute z-50 w-72 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none @PopoverPositionClass"
+        <!-- Popover del calendario: position: fixed para escapar de overflows.
+             Coordenadas calculadas por cccFixedPopover en JS. -->
+        <div class="fixed z-50 w-72 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none dropdown-in"
+             style="top:@(_top)px; left:@(_left)px;"
              @onclick:stopPropagation="true"
              @onkeydown="HandleCalendarKeyDown">
 
@@ -151,9 +153,9 @@
     /// </summary>
     [Parameter] public string Align { get; set; } = "start";
 
-    // Clases de posición calculadas tras medir el viewport
-    private string PopoverPositionClass =>
-        $"{(_openUp ? "bottom-full mb-1" : "top-full mt-1")} {(_openLeft ? "right-0" : "left-0")}";
+    // Coordenadas fixed calculadas por cccFixedPopover.
+    private double _top;
+    private double _left;
 
     private ElementReference _triggerRef;
     private bool _openUp;
@@ -212,15 +214,22 @@
     {
         try
         {
-            // w-72 = 288px, altura estimada del calendario ~330px
+            // w-72 = 288px, altura estimada del calendario ~330px.
+            // Se usa cccFixedPopover para obtener coordenadas absolutas de viewport
+            // (position: fixed) porque el DatePicker puede estar dentro de un
+            // contenedor con overflow-x-auto (tabla del Checklist).
+            var pref = Align?.ToLowerInvariant() == "end" ? "end" : "start";
             var result = await JS.InvokeAsync<PlacementResult>(
-                "cccPopover.getPlacement", _triggerRef, 330, 288);
+                "cccFixedPopover.getPlacement", _triggerRef, 330, 288, pref);
+            _top      = result.Top;
+            _left     = result.Left;
             _openUp   = result.OpenUp;
-            // Si el usuario forzó "end", respetamos eso; si JS detecta overflow, también abrimos izq.
-            _openLeft = result.OpenLeft || Align?.ToLowerInvariant() == "end";
+            _openLeft = result.OpenLeft;
         }
         catch
         {
+            _top      = 0;
+            _left     = 0;
             _openUp   = false;
             _openLeft = Align?.ToLowerInvariant() == "end";
         }
@@ -296,5 +305,5 @@
         if (e.Key == "Escape") _isOpen = false;
     }
 
-    private record PlacementResult(bool OpenUp, bool OpenLeft);
+    private record PlacementResult(double Top, double Left, bool OpenUp, bool OpenLeft);
 }

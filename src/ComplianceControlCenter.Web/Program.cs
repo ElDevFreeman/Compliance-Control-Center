@@ -15,6 +15,7 @@ using ComplianceControlCenter.Web.Modules.Ctpat.Hubs;
 using ComplianceControlCenter.Web.Modules.Ctpat.Services;
 using ComplianceControlCenter.Web.Core.State;
 using ComplianceControlCenter.Web.Modules.Ctpat.State;
+using ComplianceControlCenter.Web.Modules.Oea.State;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,7 @@ builder.Services.AddScoped<ThemeState>();
 builder.Services.AddScoped<UserSessionState>();
 builder.Services.AddScoped<LoginModalState>();
 builder.Services.AddScoped<CtpatPanelState>();
+builder.Services.AddScoped<OeaChecklistPanelState>();
 
 // Blazor-ApexCharts
 builder.Services.AddApexCharts();

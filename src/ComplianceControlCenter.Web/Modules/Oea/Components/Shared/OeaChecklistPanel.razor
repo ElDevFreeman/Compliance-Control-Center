@@ -1,0 +1,283 @@
+@* OeaChecklistPanel.razor
+   Panel lateral slide-over de OEA Checklist.
+   Se renderiza en MainLayout.razor, FUERA del drawer-content, para que
+   "position: fixed" se ancle al viewport real y no a un contenedor con
+   overflow != visible. *@
+@rendermode InteractiveServer
+
+@using ComplianceControlCenter.Web.Modules.Oea.State
+@using ComplianceControlCenter.Web.Modules.Oea.Domain.Entities
+@using ComplianceControlCenter.Web.Modules.Oea.Domain.Enums
+
+@inject OeaChecklistPanelState PanelState
+@inject IJSRuntime JS
+@implements IDisposable
+
+@if (PanelState.IsOpen)
+{
+    var a = PanelState.Activity!;
+
+    <div class="fixed inset-0 z-50 flex">
+        <!-- Backdrop -->
+        <div class="flex-1 bg-black/40 backdrop-blur-sm panel-backdrop-in" @onclick="ClosePanel"></div>
+
+        <!-- Panel -->
+        <div class="w-full max-w-2xl bg-base-100 shadow-2xl flex flex-col h-full overflow-hidden panel-slide-in">
+
+            <!-- Panel header -->
+            <div class="flex items-start gap-3 px-6 py-4 border-b border-base-300 bg-base-200/60">
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                        <span class="badge badge-neutral badge-sm font-mono">@a.Item</span>
+                        <StatusBadge Status="@((a.MonthlyStatuses.FirstOrDefault()?.Status) ?? ComplianceStatus.Pendiente)" />
+                    </div>
+                    <p class="text-sm font-medium leading-snug text-base-content line-clamp-2">
+                        @a.Name
+                    </p>
+                    <p class="text-xs text-base-content/60 mt-0.5">@a.Legal</p>
+                </div>
+                <button class="btn btn-ghost btn-sm btn-circle shrink-0" @onclick="ClosePanel" title="Cerrar">
+                    <span class="material-symbols-outlined text-[20px] leading-none">close</span>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs tabs-border px-6 pt-3 bg-base-200/40 shrink-0">
+                <button class="tab @(PanelState.ActiveTab == 0 ? "tab-active" : "")" @onclick='() => SetTab(0)'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">history</span>
+                    Historial
+                </button>
+                <button class="tab @(PanelState.ActiveTab == 1 ? "tab-active" : "")" @onclick='() => SetTab(1)'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">chat</span>
+                    Comentarios
+                    @if (PanelState.Comments.Count > 0)
+                    {
+                        <span class="badge badge-sm ml-1">@PanelState.Comments.Count</span>
+                    }
+                </button>
+                <button class="tab @(PanelState.ActiveTab == 2 ? "tab-active" : "")" @onclick='() => SetTab(2)'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">info</span>
+                    Datos
+                </button>
+            </div>
+
+            <!-- Tab content (scrollable) -->
+            <div class="flex-1 overflow-y-auto">
+
+                @if (PanelState.ActiveTab == 0)
+                {
+                    <!-- TAB: HISTORIAL -->
+                    <div class="px-6 py-5">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
+                            Últimos 12 meses
+                        </p>
+                        @if (PanelState.LoadingHistory)
+                        {
+                            <TableSkeleton Rows="6" Columns="4" />
+                        }
+                        else if (PanelState.History.Count == 0)
+                        {
+                            <p class="text-base-content/50 text-sm">Sin historial aún.</p>
+                        }
+                        else
+                        {
+                            <div class="overflow-auto rounded-box border border-base-content/5">
+                                <table class="table table-sm table-zebra">
+                                    <thead>
+                                        <tr class="bg-base-200 text-base-content/70">
+                                            <th>Mes</th>
+                                            <th>Estado</th>
+                                            <th>Vencimiento</th>
+                                            <th>Actualizado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var m in PanelState.History)
+                                        {
+                                            <tr class="hover:bg-base-200/50">
+                                                <td class="font-mono text-xs">@($"{m.Year:0000}-{m.Month:00}")</td>
+                                                <td><StatusBadge Status="@m.Status" /></td>
+                                                <td class="text-xs">@(m.DueDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                                                <td class="text-xs text-base-content/60">
+                                                    @m.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                                    @if (!string.IsNullOrEmpty(m.UpdatedBy))
+                                                    {
+                                                        <span class="block opacity-70">@m.UpdatedBy</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (PanelState.ActiveTab == 1)
+                {
+                    <!-- TAB: COMENTARIOS -->
+                    <div class="px-6 py-5 space-y-4">
+                        @if (PanelState.CanEdit)
+                        {
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Nuevo comentario</legend>
+                                <textarea class="textarea textarea-bordered textarea-sm w-full"
+                                          rows="3"
+                                          placeholder="Escribe un comentario..."
+                                          @bind="PanelState.NewComment"></textarea>
+                            </fieldset>
+                            <button class="btn btn-primary btn-sm w-full"
+                                    @onclick="AddCommentAsync"
+                                    disabled="@(PanelState.Saving || string.IsNullOrWhiteSpace(PanelState.NewComment))">
+                                @if (PanelState.Saving)
+                                {
+                                    <span class="loading loading-spinner loading-xs"></span>
+                                }
+                                Publicar
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info alert-soft text-sm">
+                                <span>
+                                    <button type="button" @onclick="RequestLogin" class="link link-primary">Inicia sesión</button>
+                                    para publicar comentarios.
+                                </span>
+                            </div>
+                        }
+
+                        <div class="divider my-1"></div>
+
+                        @if (PanelState.Comments.Count == 0)
+                        {
+                            <p class="text-base-content/50 text-sm text-center py-6">Sin comentarios.</p>
+                        }
+                        else
+                        {
+                            <div class="space-y-1">
+                                @foreach (var c in PanelState.Comments)
+                                {
+                                    var isMine = c.AuthorUserId != null && c.AuthorUserId == PanelState.CurrentUserId;
+                                    var placement = isMine ? "chat-end" : "chat-start";
+                                    var bubbleColor = isMine ? "chat-bubble-primary" : "";
+                                    var initial = string.IsNullOrEmpty(c.Author) ? "?" : c.Author[0].ToString().ToUpper();
+
+                                    <div class="chat @placement">
+                                        <div class="chat-image avatar avatar-placeholder">
+                                            <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                                <span class="text-xs">@initial</span>
+                                            </div>
+                                        </div>
+                                        <div class="chat-header text-xs text-base-content/70">
+                                            @c.Author
+                                            <time class="text-[10px] opacity-60 ml-1">
+                                                @c.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                            </time>
+                                        </div>
+                                        <div class="chat-bubble @bubbleColor whitespace-pre-wrap break-words text-sm">
+                                            @c.Text
+                                        </div>
+                                        @if (isMine || PanelState.IsAdmin)
+                                        {
+                                            <div class="chat-footer text-[10px] opacity-60">
+                                                <button class="link link-hover text-error"
+                                                        @onclick="() => DeleteCommentAsync(c)">
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <!-- TAB: DATOS GENERALES -->
+                    <div class="px-6 py-5">
+                        <dl class="grid grid-cols-1 gap-y-3 text-sm">
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Descripción</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(a.Description) ? "—" : a.Description)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Documentos</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(a.Documents) ? "—" : a.Documents)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Responsable</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(a.Owner) ? "—" : a.Owner)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Relacionados</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(a.Related) ? "—" : a.Related)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Frecuencia</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(a.Frequency) ? "—" : a.Frequency)</dd>
+                            </div>
+                        </dl>
+                    </div>
+                }
+
+            </div>
+
+            <!-- Panel footer -->
+            <div class="border-t border-base-300 px-6 py-3 flex items-center gap-3 bg-base-100 shrink-0">
+                <a href="/oea/activity/@a.Id"
+                   class="btn btn-ghost btn-sm"
+                   title="Abrir página completa">
+                    <span class="material-symbols-outlined text-[18px] leading-none">open_in_new</span>
+                    Ver página completa
+                </a>
+                <div class="flex-1"></div>
+                <button class="btn btn-ghost btn-sm" @onclick="ClosePanel">Cerrar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        PanelState.OnChange += HandlePanelChange;
+    }
+
+    private void HandlePanelChange() => InvokeAsync(StateHasChanged);
+
+    private void ClosePanel()
+    {
+        PanelState.Close();
+        _ = JS.InvokeVoidAsync("cccPanel.unlock");
+    }
+
+    private void SetTab(int tab)
+    {
+        PanelState.ActiveTab = tab;
+        PanelState.NotifyChanged();
+    }
+
+    private async Task AddCommentAsync()
+    {
+        if (PanelState.OnAddComment is not null)
+            await PanelState.OnAddComment.Invoke();
+    }
+
+    private async Task DeleteCommentAsync(Comment c)
+    {
+        if (PanelState.OnDeleteComment is not null)
+            await PanelState.OnDeleteComment.Invoke(c);
+    }
+
+    private void RequestLogin() => PanelState.OnRequestLogin?.Invoke();
+
+    public void Dispose()
+    {
+        PanelState.OnChange -= HandlePanelChange;
+    }
+}

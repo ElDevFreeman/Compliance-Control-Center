@@ -1,23 +1,31 @@
 @* Menú desplegable de estado controlado desde Blazor (sin details/summary).
    Evita la race condition entre onfocusout y onclick que existía con el
    elemento <details> nativo: el click cerraba el dropdown antes de que
-   el evento onclick del botón de opción llegara a invocarse. *@
+   el evento onclick del botón de opción llegara a invocarse.
 
-<div class="relative" @ref="_container">
+   El popup usa `position: fixed` con coordenadas calculadas por JS
+   (`cccFixedPopover`) para escapar de contenedores con overflow (como el
+   scroll horizontal de la tabla del Checklist). *@
+
+@inject IJSRuntime JS
+
+<div class="inline-block">
     <button type="button"
             class="cursor-pointer"
             disabled="@Disabled"
             @onclick="ToggleAsync"
-            @onclick:stopPropagation>
+            @onclick:stopPropagation
+            @ref="_triggerRef">
         <StatusBadge Status="@Current" />
     </button>
 
     @if (_open)
     {
         <!-- Backdrop invisible para cerrar al click fuera -->
-        <div class="fixed inset-0 z-10" @onclick="CloseAsync" @onclick:stopPropagation></div>
+        <div class="fixed inset-0 z-40" @onclick="CloseAsync" @onclick:stopPropagation></div>
 
-        <ul class="absolute right-0 mt-1 menu bg-base-100 rounded-box z-20 w-44 p-2 shadow-lg border border-base-300">
+        <ul class="fixed menu bg-base-100 rounded-box z-50 w-44 p-2 shadow-lg border border-base-300 dropdown-in"
+            style="top:@(_top)px; left:@(_left)px;">
             @foreach (var status in AllStatuses)
             {
                 var s = status;
@@ -46,7 +54,15 @@
     [Parameter] public bool Disabled { get; set; }
 
     private bool _open;
-    private ElementReference _container;
+    private ElementReference _triggerRef;
+
+    // Coordenadas calculadas para position: fixed
+    private double _top;
+    private double _left;
+
+    // Dimensiones estimadas del popup (deben coincidir con las clases w-44 y ~5 items)
+    private const int PopoverWidthPx  = 176;  // w-44
+    private const int PopoverHeightPx = 220;  // 5 opciones × ~40px + padding
 
     private static readonly ComplianceStatus[] AllStatuses =
     [
@@ -57,15 +73,31 @@
         ComplianceStatus.NA,
     ];
 
-    private void ToggleAsync()
+    private async Task ToggleAsync()
     {
-        if (!Disabled) _open = !_open;
+        if (Disabled) return;
+        _open = !_open;
+        if (_open) await MeasurePlacementAsync();
     }
 
-    private void CloseAsync()
+    private async Task MeasurePlacementAsync()
     {
-        _open = false;
+        try
+        {
+            var r = await JS.InvokeAsync<Placement>(
+                "cccFixedPopover.getPlacement",
+                _triggerRef, PopoverHeightPx, PopoverWidthPx, "start");
+            _top  = r.Top;
+            _left = r.Left;
+        }
+        catch
+        {
+            _top  = 0;
+            _left = 0;
+        }
     }
+
+    private void CloseAsync() => _open = false;
 
     private async Task SelectAsync(ComplianceStatus s)
     {
@@ -73,4 +105,6 @@
         if (s == Current) return;
         await OnChange.InvokeAsync(s);
     }
+
+    private record Placement(double Top, double Left, bool OpenUp, bool OpenLeft);
 }

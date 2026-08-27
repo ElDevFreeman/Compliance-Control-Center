@@ -2,11 +2,13 @@
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.SignalR.Client
 @using ComplianceControlCenter.Web.Modules.Oea.Hubs
+@using ComplianceControlCenter.Web.Modules.Oea.State
 @inject IChecklistService ChecklistSvc
 @inject ICommentService CommentSvc
 @inject UserSessionState Session
 @inject NavigationManager Nav
 @inject LoginModalState LoginModal
+@inject OeaChecklistPanelState PanelState
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
@@ -227,233 +229,9 @@
 
 </div>
 
-<!-- =================== PANEL LATERAL DE DETALLE =================== -->
-@if (_panelActivity is not null)
-{
-    <div class="fixed inset-0 z-50 flex">
-        <!-- Backdrop -->
-        <div class="flex-1 bg-black/40 backdrop-blur-sm panel-backdrop-in" @onclick="ClosePanel"></div>
-
-        <!-- Panel -->
-        <div class="w-full max-w-2xl bg-base-100 shadow-2xl flex flex-col h-full overflow-hidden panel-slide-in">
-
-            <!-- Panel header -->
-            <div class="flex items-start gap-3 px-6 py-4 border-b border-base-300 bg-base-200/60">
-                <div class="flex-1 min-w-0">
-                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                        <span class="badge badge-neutral badge-sm font-mono">@_panelActivity.Item</span>
-                        <StatusBadge Status="@((_panelActivity.MonthlyStatuses.FirstOrDefault()?.Status) ?? ComplianceStatus.Pendiente)" />
-                    </div>
-                    <p class="text-sm font-medium leading-snug text-base-content line-clamp-2">
-                        @_panelActivity.Name
-                    </p>
-                    <p class="text-xs text-base-content/60 mt-0.5">@_panelActivity.Legal</p>
-                </div>
-                <button class="btn btn-ghost btn-sm btn-circle shrink-0" @onclick="ClosePanel" title="Cerrar">
-                    <span class="material-symbols-outlined text-[20px] leading-none">close</span>
-                </button>
-            </div>
-
-            <!-- Tabs -->
-            <div class="tabs tabs-border px-6 pt-3 bg-base-200/40 shrink-0">
-                <button class="tab @(_panelTab == 0 ? "tab-active" : "")" @onclick='() => _panelTab = 0'>
-                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">history</span>
-                    Historial
-                </button>
-                <button class="tab @(_panelTab == 1 ? "tab-active" : "")" @onclick='() => _panelTab = 1'>
-                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">chat</span>
-                    Comentarios
-                    @if (_panelComments.Count > 0)
-                    {
-                        <span class="badge badge-sm ml-1">@_panelComments.Count</span>
-                    }
-                </button>
-                <button class="tab @(_panelTab == 2 ? "tab-active" : "")" @onclick='() => _panelTab = 2'>
-                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">info</span>
-                    Datos
-                </button>
-            </div>
-
-            <!-- Tab content (scrollable) -->
-            <div class="flex-1 overflow-y-auto">
-
-                @if (_panelTab == 0)
-                {
-                    <!-- TAB: HISTORIAL -->
-                    <div class="px-6 py-5">
-                        <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
-                            Últimos 12 meses
-                        </p>
-                        @if (_panelLoadingHistory)
-                        {
-                            <TableSkeleton Rows="6" Columns="4" />
-                        }
-                        else if (_panelHistory.Count == 0)
-                        {
-                            <p class="text-base-content/50 text-sm">Sin historial aún.</p>
-                        }
-                        else
-                        {
-                            <div class="overflow-auto rounded-box border border-base-content/5">
-                                <table class="table table-sm table-zebra">
-                                    <thead>
-                                        <tr class="bg-base-200 text-base-content/70">
-                                            <th>Mes</th>
-                                            <th>Estado</th>
-                                            <th>Vencimiento</th>
-                                            <th>Actualizado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var m in _panelHistory)
-                                        {
-                                            <tr class="hover:bg-base-200/50">
-                                                <td class="font-mono text-xs">@($"{m.Year:0000}-{m.Month:00}")</td>
-                                                <td><StatusBadge Status="@m.Status" /></td>
-                                                <td class="text-xs">@(m.DueDate?.ToString("yyyy-MM-dd") ?? "—")</td>
-                                                <td class="text-xs text-base-content/60">
-                                                    @m.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-                                                    @if (!string.IsNullOrEmpty(m.UpdatedBy))
-                                                    {
-                                                        <span class="block opacity-70">@m.UpdatedBy</span>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                    </div>
-                }
-                else if (_panelTab == 1)
-                {
-                    <!-- TAB: COMENTARIOS -->
-                    <div class="px-6 py-5 space-y-4">
-                        @if (_canEdit)
-                        {
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Nuevo comentario</legend>
-                                <textarea class="textarea textarea-bordered textarea-sm w-full"
-                                          rows="3"
-                                          placeholder="Escribe un comentario..."
-                                          @bind="_panelNewComment"></textarea>
-                            </fieldset>
-                            <button class="btn btn-primary btn-sm w-full"
-                                    @onclick="AddPanelCommentAsync"
-                                    disabled="@(_panelSaving || string.IsNullOrWhiteSpace(_panelNewComment))">
-                                @if (_panelSaving)
-                                {
-                                    <span class="loading loading-spinner loading-xs"></span>
-                                }
-                                Publicar
-                            </button>
-                        }
-                        else
-                        {
-                            <div class="alert alert-info alert-soft text-sm">
-                                <span>
-                                    <button type="button" @onclick="() => LoginModal.Open()" class="link link-primary">Inicia sesión</button>
-                                    para publicar comentarios.
-                                </span>
-                            </div>
-                        }
-
-                        <div class="divider my-1"></div>
-
-                        @if (_panelComments.Count == 0)
-                        {
-                            <p class="text-base-content/50 text-sm text-center py-6">Sin comentarios.</p>
-                        }
-                        else
-                        {
-                            <div class="space-y-1">
-                                @foreach (var c in _panelComments)
-                                {
-                                    var isMine = c.AuthorUserId != null && c.AuthorUserId == _currentUserId;
-                                    var placement = isMine ? "chat-end" : "chat-start";
-                                    var bubbleColor = isMine ? "chat-bubble-primary" : "";
-                                    var initial = string.IsNullOrEmpty(c.Author) ? "?" : c.Author[0].ToString().ToUpper();
-
-                                    <div class="chat @placement">
-                                        <div class="chat-image avatar avatar-placeholder">
-                                            <div class="bg-neutral text-neutral-content rounded-full w-8">
-                                                <span class="text-xs">@initial</span>
-                                            </div>
-                                        </div>
-                                        <div class="chat-header text-xs text-base-content/70">
-                                            @c.Author
-                                            <time class="text-[10px] opacity-60 ml-1">
-                                                @c.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-                                            </time>
-                                        </div>
-                                        <div class="chat-bubble @bubbleColor whitespace-pre-wrap break-words text-sm">
-                                            @c.Text
-                                        </div>
-                                        @if (isMine || _isAdmin)
-                                        {
-                                            <div class="chat-footer text-[10px] opacity-60">
-                                                <button class="link link-hover text-error"
-                                                        @onclick="() => DeletePanelCommentAsync(c)">
-                                                    Eliminar
-                                                </button>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <!-- TAB: DATOS GENERALES -->
-                    <div class="px-6 py-5">
-                        <dl class="grid grid-cols-1 gap-y-3 text-sm">
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Descripción</dt>
-                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Description) ? "—" : _panelActivity.Description)</dd>
-                            </div>
-                            <div class="divider my-0"></div>
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Documentos</dt>
-                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Documents) ? "—" : _panelActivity.Documents)</dd>
-                            </div>
-                            <div class="divider my-0"></div>
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Responsable</dt>
-                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Owner) ? "—" : _panelActivity.Owner)</dd>
-                            </div>
-                            <div class="divider my-0"></div>
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Relacionados</dt>
-                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Related) ? "—" : _panelActivity.Related)</dd>
-                            </div>
-                            <div class="divider my-0"></div>
-                            <div>
-                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Frecuencia</dt>
-                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Frequency) ? "—" : _panelActivity.Frequency)</dd>
-                            </div>
-                        </dl>
-                    </div>
-                }
-
-            </div>
-
-            <!-- Panel footer -->
-            <div class="border-t border-base-300 px-6 py-3 flex items-center gap-3 bg-base-100 shrink-0">
-                <a href="/oea/activity/@_panelActivity.Id"
-                   class="btn btn-ghost btn-sm"
-                   title="Abrir página completa">
-                    <span class="material-symbols-outlined text-[18px] leading-none">open_in_new</span>
-                    Ver página completa
-                </a>
-                <div class="flex-1"></div>
-                <button class="btn btn-ghost btn-sm" @onclick="ClosePanel">Cerrar</button>
-            </div>
-        </div>
-    </div>
-}
+<!-- =================== PANEL LATERAL DE DETALLE ===================
+     Renderizado en MainLayout (fuera del drawer-content) para que
+     position:fixed se ancle al viewport real. Ver OeaChecklistPanel.razor. -->
 
 <AddActivityModal @ref="_addModal" OnCreate="CreateActivityAsync" />
 <ConfirmDialog @ref="_confirmDialog" />
@@ -479,14 +257,8 @@
     private Toast? _toast;
     private HubConnection? _hub;
 
-    // ── Panel lateral
-    private Activity? _panelActivity;
-    private int _panelTab = 0;
-    private bool _panelLoadingHistory;
-    private List<MonthlyStatus> _panelHistory = new();
-    private List<Comment> _panelComments = new();
-    private string _panelNewComment = "";
-    private bool _panelSaving;
+    // ── Panel lateral: el estado vive en OeaChecklistPanelState (scoped),
+    //    y el UI en OeaChecklistPanel.razor (renderizado en MainLayout).
 
     private string MonthValue => _month.ToString("yyyy-MM");
     private string CurrentUserName = "";
@@ -561,6 +333,13 @@
         _currentUserId = user.UserId ?? "";
         _canEdit = user.CanEdit;
         _isAdmin = user.IsAdmin;
+
+        // Registrar callbacks del panel lateral (vive en MainLayout).
+        PanelState.OnAddComment    = AddPanelCommentAsync;
+        PanelState.OnDeleteComment = DeletePanelCommentAsync;
+        PanelState.OnRequestLogin  = () => LoginModal.Open();
+        PanelState.OnClosed        = () => { _ = JS.InvokeVoidAsync("cccPanel.unlock"); };
+
         await LoadAsync();
         await ConnectHubAsync();
     }
@@ -609,6 +388,18 @@
 
     public async ValueTask DisposeAsync()
     {
+        // Cerrar el panel lateral y limpiar callbacks al abandonar la página,
+        // para evitar que quede visible cuando el usuario navega a otra ruta.
+        if (PanelState.IsOpen)
+        {
+            PanelState.Close();
+            try { await JS.InvokeVoidAsync("cccPanel.unlock"); } catch { }
+        }
+        PanelState.OnAddComment    = null;
+        PanelState.OnDeleteComment = null;
+        PanelState.OnRequestLogin  = null;
+        PanelState.OnClosed        = null;
+
         if (_hub is not null)
         {
             await _hub.DisposeAsync();
@@ -743,20 +534,21 @@
 
     private async Task OpenPanelAsync(Activity a)
     {
-        _panelActivity = a;
-        _panelTab = 0;
-        _panelNewComment = "";
-        _panelHistory = new();
-        _panelComments = new();
-        _panelLoadingHistory = true;
-        StateHasChanged();
+        // Sincronizar contexto del usuario en el estado compartido del panel.
+        PanelState.CurrentUserName = CurrentUserName;
+        PanelState.CurrentUserId   = _currentUserId;
+        PanelState.CanEdit         = _canEdit;
+        PanelState.IsAdmin         = _isAdmin;
+
+        // Abrir el panel (dispara re-render del OeaChecklistPanel en MainLayout).
+        PanelState.Open(a);
         try { await JS.InvokeVoidAsync("cccPanel.lock"); } catch { }
 
-        // Cargar historial y comentarios secuencialmente (mismo DbContext scoped, no es thread-safe)
-        _panelHistory = await LoadPanelHistoryAsync(a.Id);
-        _panelComments = (await CommentSvc.GetForActivityAsync(a.Id)).ToList();
-        _panelLoadingHistory = false;
-        StateHasChanged();
+        // Cargar historial y comentarios secuencialmente (mismo DbContext scoped, no es thread-safe).
+        var history  = await LoadPanelHistoryAsync(a.Id);
+        var comments = (await CommentSvc.GetForActivityAsync(a.Id)).ToList();
+        PanelState.SetHistory(history);
+        PanelState.SetComments(comments);
     }
 
     private async Task<List<MonthlyStatus>> LoadPanelHistoryAsync(int activityId)
@@ -772,22 +564,18 @@
         return result.OrderByDescending(m => m.Year).ThenByDescending(m => m.Month).ToList();
     }
 
-    private void ClosePanel()
-    {
-        _panelActivity = null;
-        _ = JS.InvokeVoidAsync("cccPanel.unlock");
-    }
-
     private async Task AddPanelCommentAsync()
     {
-        if (string.IsNullOrWhiteSpace(_panelNewComment) || _panelActivity is null) return;
-        _panelSaving = true;
+        var activity = PanelState.Activity;
+        if (string.IsNullOrWhiteSpace(PanelState.NewComment) || activity is null) return;
+        PanelState.Saving = true;
+        PanelState.NotifyChanged();
         try
         {
-            var c = await CommentSvc.AddAsync(_panelActivity.Id, CurrentUserName, _currentUserId, _panelNewComment.Trim());
-            _panelComments.Insert(0, c);
-            _panelActivity.Comments = _panelComments.ToList();
-            _panelNewComment = "";
+            var c = await CommentSvc.AddAsync(activity.Id, CurrentUserName, _currentUserId, PanelState.NewComment.Trim());
+            PanelState.Comments.Insert(0, c);
+            activity.Comments = PanelState.Comments.ToList();
+            PanelState.NewComment = "";
             await _toast!.ShowAsync("Comentario publicado", "success");
         }
         catch (Exception ex)
@@ -796,7 +584,8 @@
         }
         finally
         {
-            _panelSaving = false;
+            PanelState.Saving = false;
+            PanelState.NotifyChanged();
         }
     }
 
@@ -805,9 +594,10 @@
         try
         {
             await CommentSvc.DeleteAsync(c.Id);
-            _panelComments.Remove(c);
-            if (_panelActivity is not null)
-                _panelActivity.Comments = _panelComments.ToList();
+            PanelState.Comments.Remove(c);
+            if (PanelState.Activity is not null)
+                PanelState.Activity.Comments = PanelState.Comments.ToList();
+            PanelState.NotifyChanged();
             await _toast!.ShowAsync("Comentario eliminado", "success");
         }
         catch (Exception ex)

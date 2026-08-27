@@ -284,6 +284,49 @@
   }
 }
 
+/* ─────────────────────────────────────────────
+   Tablas con columna sticky a la derecha (Checklist OEA)
+   Necesitamos que las celdas sticky tengan un fondo sólido que tape las
+   columnas que pasan por debajo al hacer scroll horizontal. Como daisyUI
+   `table-zebra` aplica un color distinto a filas impares, sobreescribimos
+   ambos casos para que la columna sticky mantenga el color de su fila.
+   ───────────────────────────────────────────── */
+.table-zebra tbody tr .sticky-col-right {
+  background: var(--color-base-100);
+}
+.table-zebra tbody tr:nth-child(even) .sticky-col-right {
+  background: var(--color-base-200);
+}
+.table-zebra tbody tr:hover .sticky-col-right {
+  background: color-mix(in oklab, var(--color-base-200) 50%, var(--color-base-100));
+}
+/* Fila vencida — mantiene tinte rojo también en la columna sticky */
+.table-zebra tbody tr.row-overdue .sticky-col-right {
+  background: color-mix(in oklab, var(--color-error) 5%, var(--color-base-100));
+}
+.table-zebra tbody tr.row-overdue:nth-child(even) .sticky-col-right {
+  background: color-mix(in oklab, var(--color-error) 5%, var(--color-base-200));
+}
+
+/* ─────────────────────────────────────────────
+   Drag-to-scroll (contenedores con [data-drag-scroll="1"])
+   Cursor sugerente cuando hay overflow y feedback visual durante el drag.
+   ───────────────────────────────────────────── */
+.ccc-drag-scroll {
+  cursor: grab;
+  /* Evita "gomas" nativas al soltar el drag más allá del borde. */
+  overscroll-behavior-x: contain;
+}
+.ccc-drag-scroll.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;   /* smooth interferiría con el arrastre */
+  user-select: none;
+}
+.ccc-drag-scroll.is-dragging * {
+  /* Mientras se arrastra, evita que hovers/focus se disparen en las celdas. */
+  pointer-events: none;
+}
+
 /* Blazor error UI (defecto del template) */
 #blazor-error-ui {
     color-scheme: light only;

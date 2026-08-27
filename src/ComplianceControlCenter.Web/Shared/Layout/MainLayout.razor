@@ -3,6 +3,7 @@
 @inject ThemeState Theme
 @inject IJSRuntime JS
 @using ComplianceControlCenter.Web.Modules.Ctpat.Components.Shared
+@using ComplianceControlCenter.Web.Modules.Oea.Components.Shared
 
 <div class="drawer lg:drawer-open">
     <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" checked />
@@ -52,6 +53,9 @@
 
 @* Panel lateral CTPAT: vive fuera del drawer-content para que fixed inset-0 se ancle al viewport. *@
 <CtpatSlidePanel />
+
+@* Panel lateral OEA Checklist: idem — fuera del drawer-content para que fixed inset-0 se ancle al viewport. *@
+<OeaChecklistPanel />
 
 @* Modal global de login: se abre vía LoginModalState.Open() desde cualquier componente. *@
 <LoginModal @rendermode="InteractiveServer" />

@@ -75,6 +75,53 @@ window.cccPopover = {
     }
 };
 
+// Popover FIXED: calcula coordenadas absolutas de viewport para que el popup
+// use `position: fixed` y escape de contenedores con `overflow: hidden/auto`.
+// Devuelve { top, left, openUp, openLeft } que el componente aplica como
+// estilos inline al popup. Requerido para dropdowns dentro de la tabla del
+// Checklist (que tiene overflow-x-auto para el scroll horizontal).
+//
+// popoverH / popoverW: dimensiones estimadas del popup (px).
+// preferredAlign: "start" | "end" — lado preferido del popup respecto al trigger.
+window.cccFixedPopover = {
+    getPlacement: function (triggerEl, popoverH, popoverW, preferredAlign) {
+        try {
+            var rect = triggerEl.getBoundingClientRect();
+            var vh = window.innerHeight || document.documentElement.clientHeight;
+            var vw = window.innerWidth  || document.documentElement.clientWidth;
+
+            var spaceBelow = vh - rect.bottom;
+            var spaceAbove = rect.top;
+            var openUp = spaceBelow < (popoverH + 8) && spaceAbove >= spaceBelow;
+
+            // Alineación horizontal: si "end" el popup termina en rect.right;
+            // si "start" empieza en rect.left. Si no cabe, alternamos.
+            var alignEnd = preferredAlign === "end";
+            var leftIfStart = rect.left;
+            var leftIfEnd   = rect.right - popoverW;
+            var openLeft;
+            if (alignEnd) {
+                openLeft = leftIfEnd >= 8;
+            } else {
+                openLeft = (rect.left + popoverW > vw - 8) && (leftIfEnd >= 8);
+            }
+
+            var left = openLeft ? leftIfEnd : leftIfStart;
+            // Clamp para que nunca se salga del viewport.
+            left = Math.max(8, Math.min(left, vw - popoverW - 8));
+
+            var top = openUp
+                ? (rect.top - popoverH - 4)
+                : (rect.bottom + 4);
+            top = Math.max(8, Math.min(top, vh - popoverH - 8));
+
+            return { top: top, left: left, openUp: openUp, openLeft: openLeft };
+        } catch (e) {
+            return { top: 0, left: 0, openUp: false, openLeft: false };
+        }
+    }
+};
+
 // Panel lateral: bloquea/desbloquea el scroll del <main> mientras el panel está abierto.
 // Agrega overflow-hidden al <main> para que no se pueda hacer scroll debajo del overlay.
 window.cccPanel = {
@@ -91,6 +138,141 @@ window.cccPanel = {
         } catch (e) { }
     }
 };
+
+// Drag-to-scroll: permite hacer scroll horizontal arrastrando con el mouse
+// (como Trello o Google Sheets). Se activa en cualquier contenedor que tenga
+// [data-drag-scroll="1"]. Ignora clicks en elementos interactivos (inputs,
+// buttons, links, celdas editables) para no interferir con la edición normal.
+//
+// Uso: <div class="overflow-x-auto ccc-drag-scroll" data-drag-scroll="1">...</div>
+// El observer detecta contenedores nuevos automáticamente (útil con Blazor).
+window.cccDragScroll = {
+    _wired: false,
+    // Selectores que NO deben iniciar drag (permiten uso normal del control).
+    IGNORE_SELECTOR: 'input, textarea, select, button, a, label, ' +
+        '[contenteditable="true"], [role="button"], [data-no-drag]',
+    // Distancia mínima (px) que debe moverse el mouse antes de considerarlo drag.
+    // Debajo de esto es un click normal.
+    DRAG_THRESHOLD: 4,
+
+    _onPointerDown: function (e) {
+        // Solo botón principal (izquierdo) y no si viene de touch (los touches
+        // ya scrollean nativamente en dispositivos móviles).
+        if (e.button !== 0 || e.pointerType === 'touch') return;
+
+        var container = e.currentTarget;
+        // Si el click fue en un control interactivo, no interceptar.
+        if (e.target.closest(window.cccDragScroll.IGNORE_SELECTOR)) return;
+
+        // Si no hay overflow horizontal, no hay nada que scrollear.
+        if (container.scrollWidth <= container.clientWidth) return;
+
+        var state = {
+            startX: e.clientX,
+            startScrollLeft: container.scrollLeft,
+            dragging: false,   // se activa cuando se supera el threshold
+            pointerId: e.pointerId
+        };
+        container._dragState = state;
+
+        var onMove = function (ev) {
+            var s = container._dragState;
+            if (!s) return;
+            var dx = ev.clientX - s.startX;
+
+            if (!s.dragging) {
+                if (Math.abs(dx) < window.cccDragScroll.DRAG_THRESHOLD) return;
+                s.dragging = true;
+                container.classList.add('is-dragging');
+                container.setPointerCapture(s.pointerId);
+                // Evita que el navegador seleccione texto durante el drag.
+                document.body.style.userSelect = 'none';
+            }
+
+            container.scrollLeft = s.startScrollLeft - dx;
+            ev.preventDefault();
+        };
+
+        var cleanup = function () {
+            var s = container._dragState;
+            container._dragState = null;
+            container.removeEventListener('pointermove', onMove);
+            container.removeEventListener('pointerup', cleanup);
+            container.removeEventListener('pointercancel', cleanup);
+            if (s && s.dragging) {
+                container.classList.remove('is-dragging');
+                try { container.releasePointerCapture(s.pointerId); } catch (e) { }
+                document.body.style.userSelect = '';
+                // Bloquea el próximo `click` sintético para que un drag no
+                // dispare accidentalmente el click de una celda al soltar.
+                container._blockNextClick = true;
+                setTimeout(function () { container._blockNextClick = false; }, 0);
+            }
+        };
+
+        container.addEventListener('pointermove', onMove);
+        container.addEventListener('pointerup', cleanup);
+        container.addEventListener('pointercancel', cleanup);
+    },
+
+    _onClickCapture: function (e) {
+        // Si acabamos de terminar un drag, cancela el click asociado.
+        var container = e.currentTarget;
+        if (container._blockNextClick) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    },
+
+    attach: function (container) {
+        if (!container || container._dragScrollAttached) return;
+        container._dragScrollAttached = true;
+        container.addEventListener('pointerdown', this._onPointerDown);
+        // useCapture=true para interceptar antes que los handlers de las celdas.
+        container.addEventListener('click', this._onClickCapture, true);
+    },
+
+    scan: function (root) {
+        var scope = root || document;
+        var nodes = scope.querySelectorAll('[data-drag-scroll="1"]');
+        for (var i = 0; i < nodes.length; i++) {
+            window.cccDragScroll.attach(nodes[i]);
+        }
+    },
+
+    init: function () {
+        if (this._wired) return;
+        this._wired = true;
+
+        // Escaneo inicial de contenedores ya renderizados.
+        this.scan(document);
+
+        // Blazor renderiza async: observa mutaciones y engancha nuevos contenedores.
+        var observer = new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                var m = mutations[i];
+                for (var j = 0; j < m.addedNodes.length; j++) {
+                    var n = m.addedNodes[j];
+                    if (n.nodeType !== 1) continue;  // sólo elementos
+                    if (n.matches && n.matches('[data-drag-scroll="1"]')) {
+                        window.cccDragScroll.attach(n);
+                    }
+                    if (n.querySelectorAll) {
+                        window.cccDragScroll.scan(n);
+                    }
+                }
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+};
+
+// Auto-inicialización al cargar el DOM (funciona con Blazor Server).
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { window.cccDragScroll.init(); });
+} else {
+    window.cccDragScroll.init();
+}
 
 // Sidebar: sincroniza el checkbox del drawer con localStorage.
 // El checkbox se llama "sidebar-drawer" en MainLayout.
