@@ -3,9 +3,11 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using ComplianceControlCenter.Web.Modules.Oea.Hubs
 @inject IChecklistService ChecklistSvc
+@inject ICommentService CommentSvc
 @inject UserSessionState Session
 @inject NavigationManager Nav
 @inject LoginModalState LoginModal
+@inject IJSRuntime JS
 @implements IAsyncDisposable
 
 <PageTitle>Checklist OEA</PageTitle>
@@ -29,11 +31,7 @@
 @if (!_canEdit)
 {
     <div class="alert alert-info alert-soft shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+        <span class="material-symbols-outlined text-[20px] leading-none shrink-0">info</span>
         <span>
             Estás en modo <strong>solo lectura</strong>. Puedes ver los datos y descargar reportes.
             Para editar o agregar actividades,
@@ -61,11 +59,7 @@
     <div class="card-body p-3">
         <div class="flex flex-wrap gap-2 items-end">
             <label class="input input-bordered input-sm flex-1 min-w-[220px] gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <span class="material-symbols-outlined text-[18px] leading-none opacity-60">search</span>
                 <input type="text"
                        class="grow"
                        placeholder="Buscar item, actividad, descripción..."
@@ -121,10 +115,7 @@
                     @onclick="() => _addModal!.Show()"
                     disabled="@(!_canEdit)"
                     title="@(!_canEdit ? "Inicia sesión para agregar actividades" : "Agregar nueva actividad")">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                     viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
+                <span class="material-symbols-outlined text-[18px] leading-none">add</span>
                 Fila
             </button>
         </div>
@@ -204,11 +195,7 @@
                                 <button class="btn btn-ghost btn-xs"
                                         @onclick="() => OpenDrawer(a)"
                                         title="Comentarios y detalles">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
+                                    <span class="material-symbols-outlined text-[18px] leading-none">chat</span>
                                     @if (a.Comments.Count > 0)
                                     {
                                         <span class="badge badge-xs badge-primary badge-soft">@a.Comments.Count</span>
@@ -221,11 +208,7 @@
                                     <button class="btn btn-ghost btn-xs text-error"
                                             @onclick="() => ConfirmDeleteAsync(a)"
                                             title="Eliminar fila">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                             viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                                        </svg>
+                                        <span class="material-symbols-outlined text-[18px] leading-none">delete</span>
                                     </button>
                                 }
                             </td>
@@ -243,6 +226,234 @@
 </div>
 
 </div>
+
+<!-- =================== PANEL LATERAL DE DETALLE =================== -->
+@if (_panelActivity is not null)
+{
+    <div class="fixed inset-0 z-50 flex">
+        <!-- Backdrop -->
+        <div class="flex-1 bg-black/40 backdrop-blur-sm panel-backdrop-in" @onclick="ClosePanel"></div>
+
+        <!-- Panel -->
+        <div class="w-full max-w-2xl bg-base-100 shadow-2xl flex flex-col h-full overflow-hidden panel-slide-in">
+
+            <!-- Panel header -->
+            <div class="flex items-start gap-3 px-6 py-4 border-b border-base-300 bg-base-200/60">
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                        <span class="badge badge-neutral badge-sm font-mono">@_panelActivity.Item</span>
+                        <StatusBadge Status="@((_panelActivity.MonthlyStatuses.FirstOrDefault()?.Status) ?? ComplianceStatus.Pendiente)" />
+                    </div>
+                    <p class="text-sm font-medium leading-snug text-base-content line-clamp-2">
+                        @_panelActivity.Name
+                    </p>
+                    <p class="text-xs text-base-content/60 mt-0.5">@_panelActivity.Legal</p>
+                </div>
+                <button class="btn btn-ghost btn-sm btn-circle shrink-0" @onclick="ClosePanel" title="Cerrar">
+                    <span class="material-symbols-outlined text-[20px] leading-none">close</span>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs tabs-border px-6 pt-3 bg-base-200/40 shrink-0">
+                <button class="tab @(_panelTab == 0 ? "tab-active" : "")" @onclick='() => _panelTab = 0'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">history</span>
+                    Historial
+                </button>
+                <button class="tab @(_panelTab == 1 ? "tab-active" : "")" @onclick='() => _panelTab = 1'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">chat</span>
+                    Comentarios
+                    @if (_panelComments.Count > 0)
+                    {
+                        <span class="badge badge-sm ml-1">@_panelComments.Count</span>
+                    }
+                </button>
+                <button class="tab @(_panelTab == 2 ? "tab-active" : "")" @onclick='() => _panelTab = 2'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">info</span>
+                    Datos
+                </button>
+            </div>
+
+            <!-- Tab content (scrollable) -->
+            <div class="flex-1 overflow-y-auto">
+
+                @if (_panelTab == 0)
+                {
+                    <!-- TAB: HISTORIAL -->
+                    <div class="px-6 py-5">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-3">
+                            Últimos 12 meses
+                        </p>
+                        @if (_panelLoadingHistory)
+                        {
+                            <TableSkeleton Rows="6" Columns="4" />
+                        }
+                        else if (_panelHistory.Count == 0)
+                        {
+                            <p class="text-base-content/50 text-sm">Sin historial aún.</p>
+                        }
+                        else
+                        {
+                            <div class="overflow-auto rounded-box border border-base-content/5">
+                                <table class="table table-sm table-zebra">
+                                    <thead>
+                                        <tr class="bg-base-200 text-base-content/70">
+                                            <th>Mes</th>
+                                            <th>Estado</th>
+                                            <th>Vencimiento</th>
+                                            <th>Actualizado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var m in _panelHistory)
+                                        {
+                                            <tr class="hover:bg-base-200/50">
+                                                <td class="font-mono text-xs">@($"{m.Year:0000}-{m.Month:00}")</td>
+                                                <td><StatusBadge Status="@m.Status" /></td>
+                                                <td class="text-xs">@(m.DueDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                                                <td class="text-xs text-base-content/60">
+                                                    @m.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                                    @if (!string.IsNullOrEmpty(m.UpdatedBy))
+                                                    {
+                                                        <span class="block opacity-70">@m.UpdatedBy</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (_panelTab == 1)
+                {
+                    <!-- TAB: COMENTARIOS -->
+                    <div class="px-6 py-5 space-y-4">
+                        @if (_canEdit)
+                        {
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Nuevo comentario</legend>
+                                <textarea class="textarea textarea-bordered textarea-sm w-full"
+                                          rows="3"
+                                          placeholder="Escribe un comentario..."
+                                          @bind="_panelNewComment"></textarea>
+                            </fieldset>
+                            <button class="btn btn-primary btn-sm w-full"
+                                    @onclick="AddPanelCommentAsync"
+                                    disabled="@(_panelSaving || string.IsNullOrWhiteSpace(_panelNewComment))">
+                                @if (_panelSaving)
+                                {
+                                    <span class="loading loading-spinner loading-xs"></span>
+                                }
+                                Publicar
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info alert-soft text-sm">
+                                <span>
+                                    <button type="button" @onclick="() => LoginModal.Open()" class="link link-primary">Inicia sesión</button>
+                                    para publicar comentarios.
+                                </span>
+                            </div>
+                        }
+
+                        <div class="divider my-1"></div>
+
+                        @if (_panelComments.Count == 0)
+                        {
+                            <p class="text-base-content/50 text-sm text-center py-6">Sin comentarios.</p>
+                        }
+                        else
+                        {
+                            <div class="space-y-1">
+                                @foreach (var c in _panelComments)
+                                {
+                                    var isMine = c.AuthorUserId != null && c.AuthorUserId == _currentUserId;
+                                    var placement = isMine ? "chat-end" : "chat-start";
+                                    var bubbleColor = isMine ? "chat-bubble-primary" : "";
+                                    var initial = string.IsNullOrEmpty(c.Author) ? "?" : c.Author[0].ToString().ToUpper();
+
+                                    <div class="chat @placement">
+                                        <div class="chat-image avatar avatar-placeholder">
+                                            <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                                <span class="text-xs">@initial</span>
+                                            </div>
+                                        </div>
+                                        <div class="chat-header text-xs text-base-content/70">
+                                            @c.Author
+                                            <time class="text-[10px] opacity-60 ml-1">
+                                                @c.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                            </time>
+                                        </div>
+                                        <div class="chat-bubble @bubbleColor whitespace-pre-wrap break-words text-sm">
+                                            @c.Text
+                                        </div>
+                                        @if (isMine || _isAdmin)
+                                        {
+                                            <div class="chat-footer text-[10px] opacity-60">
+                                                <button class="link link-hover text-error"
+                                                        @onclick="() => DeletePanelCommentAsync(c)">
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <!-- TAB: DATOS GENERALES -->
+                    <div class="px-6 py-5">
+                        <dl class="grid grid-cols-1 gap-y-3 text-sm">
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Descripción</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Description) ? "—" : _panelActivity.Description)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Documentos</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Documents) ? "—" : _panelActivity.Documents)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Responsable</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Owner) ? "—" : _panelActivity.Owner)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Relacionados</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Related) ? "—" : _panelActivity.Related)</dd>
+                            </div>
+                            <div class="divider my-0"></div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-0.5">Frecuencia</dt>
+                                <dd class="text-base-content/80">@(string.IsNullOrWhiteSpace(_panelActivity.Frequency) ? "—" : _panelActivity.Frequency)</dd>
+                            </div>
+                        </dl>
+                    </div>
+                }
+
+            </div>
+
+            <!-- Panel footer -->
+            <div class="border-t border-base-300 px-6 py-3 flex items-center gap-3 bg-base-100 shrink-0">
+                <a href="/oea/activity/@_panelActivity.Id"
+                   class="btn btn-ghost btn-sm"
+                   title="Abrir página completa">
+                    <span class="material-symbols-outlined text-[18px] leading-none">open_in_new</span>
+                    Ver página completa
+                </a>
+                <div class="flex-1"></div>
+                <button class="btn btn-ghost btn-sm" @onclick="ClosePanel">Cerrar</button>
+            </div>
+        </div>
+    </div>
+}
 
 <AddActivityModal @ref="_addModal" OnCreate="CreateActivityAsync" />
 <ConfirmDialog @ref="_confirmDialog" />
@@ -268,9 +479,20 @@
     private Toast? _toast;
     private HubConnection? _hub;
 
+    // ── Panel lateral
+    private Activity? _panelActivity;
+    private int _panelTab = 0;
+    private bool _panelLoadingHistory;
+    private List<MonthlyStatus> _panelHistory = new();
+    private List<Comment> _panelComments = new();
+    private string _panelNewComment = "";
+    private bool _panelSaving;
+
     private string MonthValue => _month.ToString("yyyy-MM");
     private string CurrentUserName = "";
+    private string _currentUserId = "";
     private bool _canEdit;
+    private bool _isAdmin;
 
     // ── KPIs
     private int Total => _activities.Count;
@@ -336,7 +558,9 @@
     {
         var user = await Session.GetCurrentAsync();
         CurrentUserName = user.DisplayName;
+        _currentUserId = user.UserId ?? "";
         _canEdit = user.CanEdit;
+        _isAdmin = user.IsAdmin;
         await LoadAsync();
         await ConnectHubAsync();
     }
@@ -438,6 +662,7 @@
         {
             await ChecklistSvc.UpdateStatusAsync(a.Id, _month.Year, _month.Month, status, CurrentUserName);
             EnsureMonthly(a).Status = status;
+            StateHasChanged();
             await _toast!.ShowAsync("Estado actualizado", "success", 1200);
         }
         catch (Exception ex)
@@ -514,7 +739,82 @@
         }
     }
 
-    private void OpenDrawer(Activity a) => Nav.NavigateTo($"/oea/activity/{a.Id}");
+    private void OpenDrawer(Activity a) => _ = OpenPanelAsync(a);
+
+    private async Task OpenPanelAsync(Activity a)
+    {
+        _panelActivity = a;
+        _panelTab = 0;
+        _panelNewComment = "";
+        _panelHistory = new();
+        _panelComments = new();
+        _panelLoadingHistory = true;
+        StateHasChanged();
+        try { await JS.InvokeVoidAsync("cccPanel.lock"); } catch { }
+
+        // Cargar historial y comentarios secuencialmente (mismo DbContext scoped, no es thread-safe)
+        _panelHistory = await LoadPanelHistoryAsync(a.Id);
+        _panelComments = (await CommentSvc.GetForActivityAsync(a.Id)).ToList();
+        _panelLoadingHistory = false;
+        StateHasChanged();
+    }
+
+    private async Task<List<MonthlyStatus>> LoadPanelHistoryAsync(int activityId)
+    {
+        var result = new List<MonthlyStatus>();
+        var cur = DateTime.Today;
+        for (int i = 0; i < 12; i++)
+        {
+            var d = new DateTime(cur.Year, cur.Month, 1).AddMonths(-i);
+            var m = await ChecklistSvc.GetOrCreateMonthlyStatusAsync(activityId, d.Year, d.Month);
+            result.Add(m);
+        }
+        return result.OrderByDescending(m => m.Year).ThenByDescending(m => m.Month).ToList();
+    }
+
+    private void ClosePanel()
+    {
+        _panelActivity = null;
+        _ = JS.InvokeVoidAsync("cccPanel.unlock");
+    }
+
+    private async Task AddPanelCommentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_panelNewComment) || _panelActivity is null) return;
+        _panelSaving = true;
+        try
+        {
+            var c = await CommentSvc.AddAsync(_panelActivity.Id, CurrentUserName, _currentUserId, _panelNewComment.Trim());
+            _panelComments.Insert(0, c);
+            _panelActivity.Comments = _panelComments.ToList();
+            _panelNewComment = "";
+            await _toast!.ShowAsync("Comentario publicado", "success");
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+        finally
+        {
+            _panelSaving = false;
+        }
+    }
+
+    private async Task DeletePanelCommentAsync(Comment c)
+    {
+        try
+        {
+            await CommentSvc.DeleteAsync(c.Id);
+            _panelComments.Remove(c);
+            if (_panelActivity is not null)
+                _panelActivity.Comments = _panelComments.ToList();
+            await _toast!.ShowAsync("Comentario eliminado", "success");
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync($"Error: {ex.Message}", "error", 4000);
+        }
+    }
 
     private ComplianceStatus StatusOf(Activity a) =>
         a.MonthlyStatuses.FirstOrDefault()?.Status ?? ComplianceStatus.Pendiente;

@@ -4,6 +4,7 @@
    ValueChanged<string?>, SizeClass, Extra, Min, Max, Disabled) se mantiene. *@
 
 @using System.Globalization
+@inject IJSRuntime JS
 
 <div class="relative inline-block @Extra @(Disabled ? "opacity-60 pointer-events-none" : "")">
     <!-- Trigger -->
@@ -12,7 +13,8 @@
             disabled="@Disabled"
             @onclick="Toggle"
             @onclick:stopPropagation="true"
-            @onkeydown="HandleTriggerKeyDown">
+            @onkeydown="HandleTriggerKeyDown"
+            @ref="_triggerRef">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60 shrink-0" fill="none"
              viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -34,7 +36,7 @@
         <div class="fixed inset-0 z-40" @onclick="Close"></div>
 
         <!-- Popover -->
-        <div class="absolute z-50 mt-1 w-64 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none @PopoverAlignClass"
+        <div class="absolute z-50 w-64 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none @PopoverPositionClass"
              @onclick:stopPropagation="true"
              @onkeydown="HandlePopoverKeyDown">
 
@@ -129,14 +131,18 @@
     [Parameter] public string Placeholder { get; set; } = "Seleccionar mes…";
     [Parameter] public bool AllowClear { get; set; } = false;
     /// <summary>
-    /// Alineación del popover respecto al trigger: "start" (por defecto, alinea al borde
-    /// izquierdo del trigger, popover crece hacia la derecha) o "end" (alinea al borde
-    /// derecho del trigger, popover crece hacia la izquierda). Usa "end" cuando el trigger
-    /// esté cerca del borde derecho del viewport para evitar overflow.
+    /// Alineación preferida del popover: "start" (izquierda) o "end" (derecha).
+    /// Se ignora si la auto-detección de espacio indica lo contrario.
     /// </summary>
     [Parameter] public string Align { get; set; } = "start";
 
-    private string PopoverAlignClass => Align?.ToLowerInvariant() == "end" ? "right-0" : "left-0";
+    // Clases de posición calculadas tras medir el viewport
+    private string PopoverPositionClass =>
+        $"{(_openUp ? "bottom-full mb-1" : "top-full mt-1")} {(_openLeft ? "right-0" : "left-0")}";
+
+    private ElementReference _triggerRef;
+    private bool _openUp;
+    private bool _openLeft;
 
     private bool _isOpen;
     private DateTime? _selected;
@@ -177,12 +183,32 @@
     private static string FormatSelected(DateTime d) =>
         d.ToString("MMMM yyyy", CultureInfo.CurrentCulture);
 
-    private void Toggle()
+    private async Task Toggle()
     {
         if (Disabled) return;
         _isOpen = !_isOpen;
         if (_isOpen)
+        {
             _displayYear = (_selected ?? DateTime.Today).Year;
+            await MeasurePlacementAsync();
+        }
+    }
+
+    private async Task MeasurePlacementAsync()
+    {
+        try
+        {
+            // w-64 = 256px, altura estimada del grid de meses ~280px
+            var result = await JS.InvokeAsync<PlacementResult>(
+                "cccPopover.getPlacement", _triggerRef, 280, 256);
+            _openUp   = result.OpenUp;
+            _openLeft = result.OpenLeft || Align?.ToLowerInvariant() == "end";
+        }
+        catch
+        {
+            _openUp   = false;
+            _openLeft = Align?.ToLowerInvariant() == "end";
+        }
     }
 
     private void Close() => _isOpen = false;
@@ -224,11 +250,13 @@
     private void HandleTriggerKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Escape") _isOpen = false;
-        else if (e.Key is "Enter" or " ") Toggle();
+        else if (e.Key is "Enter" or " ") _ = Toggle();
     }
 
     private void HandlePopoverKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Escape") _isOpen = false;
     }
+
+    private record PlacementResult(bool OpenUp, bool OpenLeft);
 }

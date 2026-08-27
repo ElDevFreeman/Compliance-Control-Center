@@ -1,65 +1,368 @@
 @page "/"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Web
+@using ComplianceControlCenter.Web.Core.State
+@using ComplianceControlCenter.Web.Modules.Oea.Domain.Enums
+@using ComplianceControlCenter.Web.Modules.Ctpat.Domain.Enums
+@using ComplianceControlCenter.Web.Modules.Ctpat.Services
+@using ComplianceControlCenter.Web.Core.Data
+@using Microsoft.EntityFrameworkCore
+@inject UserSessionState UserSession
+@inject AppDbContext Db
+@inject ICtpatReviewService CtpatReviewService
+@inject ThemeState Theme
+@implements IDisposable
 
 <PageTitle>Compliance Control Center</PageTitle>
 
-<div class="p-6 lg:p-8 max-w-5xl mx-auto">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-base-content">Compliance Control Center</h1>
-        <p class="text-base-content/60 mt-2">
-            Portal centralizado de módulos de cumplimiento. Selecciona un módulo para empezar.
-        </p>
+@* ── Modal: logo a pantalla completa ────────────────────────── *@
+@if (_logoModalOpen)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+         @onclick="CloseLogo">
+        <div class="relative max-w-xl w-full mx-4" @onclick:stopPropagation>
+            <div class="rounded-2xl bg-black overflow-hidden shadow-2xl ring-1 ring-white/10">
+                <img src="img/TradeCompliance.png"
+                     alt="Trade Compliance"
+                     class="w-full h-auto" />
+            </div>
+            <button class="btn btn-sm btn-circle btn-ghost absolute -top-3 -right-3 bg-base-100"
+                    @onclick="CloseLogo">✕</button>
+        </div>
+    </div>
+}
+
+<div class="flex flex-col gap-6 max-w-5xl mx-auto">
+
+    @* ── Hero ─────────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+
+        @* Logo circular clickeable *@
+        <div class="shrink-0 flex justify-center sm:justify-start">
+            <button class="w-24 h-24 lg:w-28 lg:h-28 rounded-full bg-black overflow-hidden ring-2 ring-base-300 shadow-md cursor-pointer hover:ring-primary hover:ring-4 transition-all"
+                    @onclick="OpenLogo"
+                    title="Ver logo completo">
+                <img src="img/TradeCompliance.png"
+                     alt="Trade Compliance logo"
+                     class="w-full h-full object-cover" />
+            </button>
+        </div>
+
+        @* Texto *@
+        <div class="flex-1 min-w-0 text-center sm:text-left">
+            <p class="text-xs font-semibold uppercase tracking-widest text-base-content/50 mb-1">Panel de control</p>
+            <h1 class="text-3xl font-bold text-base-content leading-tight">
+                @if (!string.IsNullOrEmpty(_displayName))
+                {
+                    <span>Bienvenido, @_displayName</span>
+                }
+                else
+                {
+                    <span>Compliance Control Center</span>
+                }
+            </h1>
+            <p class="text-base-content/60 mt-1 text-sm">
+                Portal centralizado de módulos de cumplimiento — OEA y CTPAT.
+            </p>
+        </div>
+
+        @* Fecha *@
+        <div class="shrink-0 text-center sm:text-right hidden sm:block">
+            <p class="text-2xl font-semibold text-base-content">@_today.ToString("MMM yyyy")</p>
+            <p class="text-sm text-base-content/50">@_today.ToString("dddd d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))</p>
+        </div>
+
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        @foreach (var m in Modules)
-        {
-            @if (m.Enabled)
-            {
-                <a href="@m.Href"
-                   class="card bg-base-100 border border-base-300 hover:border-primary hover:shadow-md transition-all">
-                    <div class="card-body">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-lg @m.BadgeClass flex items-center justify-center shrink-0">
-                                <span class="font-bold text-lg">@m.Badge</span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <h2 class="card-title text-lg">@m.Title</h2>
-                                <p class="text-sm text-base-content/60 mt-1">@m.Description</p>
-                            </div>
+    @* ── Gráficas ─────────────────────────────────────────────── *@
+    @if (_loading)
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="card bg-base-100 border border-base-300">
+                <div class="card-body gap-3">
+                    <div class="skeleton h-4 w-32 rounded"></div>
+                    <div class="skeleton h-56 w-full rounded"></div>
+                </div>
+            </div>
+            <div class="card bg-base-100 border border-base-300">
+                <div class="card-body gap-3">
+                    <div class="skeleton h-4 w-32 rounded"></div>
+                    <div class="skeleton h-56 w-full rounded"></div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            @* Gráfica OEA — Donut de estatus del mes *@
+            <div class="card bg-base-100 border border-base-300">
+                <div class="card-body">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <h3 class="font-semibold text-base-content">OEA — Estatus del mes</h3>
+                            <p class="text-xs text-base-content/50">@_today.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-MX")) · @_oeaCompleted/@_oeaTotal completadas</p>
+                        </div>
+                        <span class="badge @(_oeaPct >= 80 ? "badge-success" : _oeaPct >= 50 ? "badge-warning" : "badge-error") badge-soft shrink-0">@_oeaPct%</span>
+                    </div>
+                    @* @key fuerza a Blazor a destruir/recrear el chart al cambiar el tema,
+                       garantizando repintado limpio de ejes, tooltips y labels en modo claro/oscuro. *@
+                    <ApexChart TItem="StatusPoint"
+                               Options="_oeaDonutOptions"
+                               @ref="_oeaChart"
+                               @key="@($"oea-donut-{Theme.Current}")">
+                        <ApexPointSeries TItem="StatusPoint"
+                                         Items="_oeaStatusData"
+                                         SeriesType="SeriesType.Donut"
+                                         XValue="p => p.Label"
+                                         YValue="p => p.Count" />
+                    </ApexChart>
+                </div>
+            </div>
+
+            @* Gráfica CTPAT — Barras por criterio *@
+            <div class="card bg-base-100 border border-base-300">
+                <div class="card-body">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <h3 class="font-semibold text-base-content">CTPAT — Avance por criterio</h3>
+                            <p class="text-xs text-base-content/50">Año @_today.Year · @_ctpatAnswered/139 revisadas · @_ctpatFiles archivos</p>
+                        </div>
+                        <span class="badge badge-secondary badge-soft shrink-0">@_ctpatAnswered/139</span>
+                    </div>
+                    <ApexChart TItem="CtpatCriterioStats"
+                               Options="_ctpatBarOptions"
+                               @ref="_ctpatChart"
+                               @key="@($"ctpat-bar-{Theme.Current}")">
+                        <ApexPointSeries TItem="CtpatCriterioStats"
+                                         Items="_ctpatStats"
+                                         Name="% Revisado"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="s => ShortCriterio(s.Criterio)"
+                                         YValue="s => (decimal)s.PctAvance" />
+                    </ApexChart>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    @* ── Módulos ──────────────────────────────────────────────── *@
+    <div>
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-base-content/50 mb-3">Módulos</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            @* OEA *@
+            <div class="card bg-base-100 border border-base-300 hover:border-primary hover:shadow-md transition-all">
+                <div class="card-body gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-primary text-primary-content flex items-center justify-center shrink-0 font-bold text-lg">
+                            OEA
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="card-title text-base">OEA — Checklist mensual</h3>
+                            <p class="text-sm text-base-content/60 mt-0.5">
+                                Seguimiento de cumplimiento OEA (RGCE 7.1.1, Perfil E3) con matriz mensual, adjuntos y auditoría.
+                            </p>
                         </div>
                     </div>
-                </a>
-            }
-            else
-            {
-                <div class="card bg-base-100 border border-base-300 opacity-60 cursor-not-allowed">
-                    <div class="card-body">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-lg bg-base-300 flex items-center justify-center shrink-0">
-                                <span class="font-bold text-lg text-base-content/40">@m.Badge</span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <h2 class="card-title text-lg">@m.Title</h2>
-                                    <span class="badge badge-ghost badge-sm">Próximamente</span>
-                                </div>
-                                <p class="text-sm text-base-content/60 mt-1">@m.Description</p>
-                            </div>
-                        </div>
+                    <div class="flex flex-wrap gap-2 pt-1 border-t border-base-200">
+                        <a href="oea" class="btn btn-sm btn-primary">Checklist</a>
+                        <a href="oea/matrix" class="btn btn-sm btn-ghost">Matriz &amp; Auditoría</a>
                     </div>
                 </div>
-            }
-        }
+            </div>
+
+            @* CTPAT *@
+            <div class="card bg-base-100 border border-base-300 hover:border-secondary hover:shadow-md transition-all">
+                <div class="card-body gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-secondary text-secondary-content flex items-center justify-center shrink-0 font-bold text-sm">
+                            CTPAT
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h3 class="card-title text-base">CTPAT — Revisión anual</h3>
+                            <p class="text-sm text-base-content/60 mt-0.5">
+                                Revisión anual del perfil CTPAT (139 preguntas) con carga de evidencias y dashboard de avance.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 pt-1 border-t border-base-200">
+                        <a href="ctpat" class="btn btn-sm btn-secondary">Revisión</a>
+                        <a href="ctpat/dashboard" class="btn btn-sm btn-ghost">Dashboard</a>
+                        <a href="ctpat/matrix" class="btn btn-sm btn-ghost">Matriz</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
+
 </div>
 
 @code {
-    private record ModuleCard(string Badge, string Title, string Description, string Href, string BadgeClass, bool Enabled);
+    // ── Estado general ─────────────────────────────────────────
+    private string? _displayName;
+    private DateTime _today = DateTime.Now;
+    private bool _loading = true;
+    private bool _logoModalOpen;
 
-    private static readonly ModuleCard[] Modules =
+    // ── Stats ──────────────────────────────────────────────────
+    private int _oeaCompleted;
+    private int _oeaTotal;
+    private int _oeaPct;
+    private int _ctpatAnswered;
+    private int _ctpatFiles;
+
+    // ── Chart: OEA donut ───────────────────────────────────────
+    private record StatusPoint(string Label, int Count, string Color);
+    private List<StatusPoint> _oeaStatusData = new();
+    private ApexChart<StatusPoint>? _oeaChart;
+    private ApexChartOptions<StatusPoint> _oeaDonutOptions = new();
+
+    // Colores fijos por estado — orden debe coincidir con _oeaStatusData
+    private static readonly Dictionary<string, string> StatusColors = new()
     {
-        new("OEA",   "OEA — Checklist mensual",       "Seguimiento de cumplimiento OEA (RGCE 7.1.1, Perfil E3) con matriz mensual, adjuntos y auditoría.", "oea",   "bg-primary text-primary-content",   Enabled: true),
-        new("CTPAT", "CTPAT — Revisión anual",        "Revisión anual del perfil CTPAT (139 preguntas) con carga de evidencias.",                          "ctpat", "bg-secondary text-secondary-content", Enabled: true),
+        ["Pendiente"]   = "#94a3b8",  // gris  — neutral, sin acción aún
+        ["En Progreso"] = "#3b82f6",  // azul  — en movimiento
+        ["Completado"]  = "#22c55e",  // verde — éxito
+        ["Vencido"]     = "#ef4444",  // rojo  — alerta crítica
+        ["N/A"]         = "#d1d5db",  // gris claro — excluido
     };
+
+    // ── Chart: CTPAT barras ────────────────────────────────────
+    private List<CtpatCriterioStats> _ctpatStats = new();
+    private ApexChart<CtpatCriterioStats>? _ctpatChart;
+    private ApexChartOptions<CtpatCriterioStats> _ctpatBarOptions = new();
+
+    // ── Lifecycle ─────────────────────────────────────────────
+    protected override void OnInitialized()
+    {
+        BuildChartOptions();
+        Theme.OnChange += OnThemeChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserSession.GetCurrentAsync();
+        _displayName = user?.DisplayName ?? user?.UserName;
+
+        var now = DateTime.Now;
+
+        // OEA stats
+        _oeaTotal = await Db.Activities.CountAsync(a => a.IsActive);
+
+        var oeaCounts = await Db.MonthlyStatuses
+            .Where(m => m.Year == now.Year && m.Month == now.Month)
+            .GroupBy(m => m.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        int pendiente  = oeaCounts.FirstOrDefault(x => x.Status == ComplianceStatus.Pendiente)?.Count  ?? 0;
+        int enProgreso = oeaCounts.FirstOrDefault(x => x.Status == ComplianceStatus.EnProgreso)?.Count ?? 0;
+        int completado = oeaCounts.FirstOrDefault(x => x.Status == ComplianceStatus.Completado)?.Count ?? 0;
+        int vencido    = oeaCounts.FirstOrDefault(x => x.Status == ComplianceStatus.Vencido)?.Count    ?? 0;
+        int na         = oeaCounts.FirstOrDefault(x => x.Status == ComplianceStatus.NA)?.Count         ?? 0;
+
+        // Activities sin registro cuentan como Pendiente
+        int sinRegistro = _oeaTotal - oeaCounts.Sum(x => x.Count);
+        pendiente += sinRegistro;
+
+        _oeaCompleted = completado;
+        _oeaPct = _oeaTotal > 0 ? (int)Math.Round(completado * 100.0 / _oeaTotal) : 0;
+
+        _oeaStatusData = new List<StatusPoint>
+        {
+            new("Pendiente",   pendiente,  StatusColors["Pendiente"]),
+            new("En Progreso", enProgreso, StatusColors["En Progreso"]),
+            new("Completado",  completado, StatusColors["Completado"]),
+            new("Vencido",     vencido,    StatusColors["Vencido"]),
+            new("N/A",         na,         StatusColors["N/A"]),
+        }.Where(p => p.Count > 0).ToList();
+
+        // CTPAT stats
+        _ctpatAnswered = await Db.CtpatReviews
+            .CountAsync(r => r.Year == now.Year && r.Status != CtpatReviewStatus.Pendiente);
+
+        _ctpatFiles = await Db.CtpatReviewFiles
+            .CountAsync(f => f.Review.Year == now.Year);
+
+        var allStats = await CtpatReviewService.GetStatsByCriterioAsync(now.Year);
+        _ctpatStats = allStats.OrderBy(s => s.PctAvance).ToList();
+
+        _loading = false;
+    }
+
+    // ── Opciones de gráficas ───────────────────────────────────
+    private void BuildChartOptions()
+    {
+        var mode = Theme.IsDark ? Mode.Dark : Mode.Light;
+
+        _oeaDonutOptions = new ApexChartOptions<StatusPoint>
+        {
+            Chart = new Chart
+            {
+                Type       = ChartType.Donut,
+                Background = "transparent",
+                Toolbar    = new Toolbar { Show = false },
+            },
+            Theme      = new ApexCharts.Theme { Mode = mode },
+            Colors     = _oeaStatusData.Count > 0
+                             ? _oeaStatusData.Select(p => p.Color).ToList()
+                             : StatusColors.Values.ToList(),
+            Legend     = new Legend { Position = LegendPosition.Bottom },
+            DataLabels = new DataLabels { Enabled = true },
+            Tooltip    = new Tooltip { Enabled = true },
+        };
+
+        _ctpatBarOptions = new ApexChartOptions<CtpatCriterioStats>
+        {
+            Chart = new Chart
+            {
+                Type       = ChartType.Bar,
+                Background = "transparent",
+                Toolbar    = new Toolbar { Show = false },
+                Height     = 280,
+            },
+            Theme       = new ApexCharts.Theme { Mode = mode },
+            PlotOptions = new PlotOptions
+            {
+                Bar = new PlotOptionsBar { Horizontal = true, BorderRadius = 3 }
+            },
+            Colors     = new List<string> { "#7c3aed" },
+            Xaxis      = new XAxis { Max = 100 },
+            DataLabels = new DataLabels
+            {
+                Enabled   = true,
+                Formatter = "function(val) { return val + '%' }"
+            },
+            Tooltip = new Tooltip { Enabled = true },
+        };
+    }
+
+    private async void OnThemeChanged()
+    {
+        // Reconstruye las opciones con el nuevo Mode (Dark/Light).
+        // El @key="Theme.Current" en cada <ApexChart> hará que Blazor destruya
+        // la instancia anterior y cree una nueva con estas opciones, garantizando
+        // que ejes, tooltips, leyenda y data labels se repinten con los colores correctos.
+        BuildChartOptions();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Theme.OnChange -= OnThemeChanged;
+    }
+
+    // ── Helpers ────────────────────────────────────────────────
+    private void OpenLogo()  => _logoModalOpen = true;
+    private void CloseLogo() => _logoModalOpen = false;
+
+    private static string ShortCriterio(string criterio)
+    {
+        // Acortar nombres largos para que quepan en el eje Y
+        return criterio.Length > 22 ? criterio[..22] + "…" : criterio;
+    }
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fondo verde (emerald-500) con esquinas redondeadas -->
+  <rect width="64" height="64" rx="12" ry="12" fill="#10b981"/>
+  <!-- Silueta de lobo en negro -->
+  <g fill="#000000">
+    <!-- Cabeza principal del lobo -->
+    <path d="M32 12
+             L20 16
+             L14 22
+             L12 30
+             L10 26
+             L8 34
+             L12 40
+             L14 46
+             L18 50
+             L24 52
+             L28 50
+             L28 46
+             L26 44
+             L28 42
+             L32 44
+             L36 42
+             L38 44
+             L36 46
+             L36 50
+             L40 52
+             L46 50
+             L50 46
+             L52 40
+             L56 34
+             L54 26
+             L52 30
+             L50 22
+             L44 16
+             Z"/>
+    <!-- Orejas puntiagudas separadas para dar más forma -->
+    <polygon points="16,20 12,10 20,16"/>
+    <polygon points="48,20 52,10 44,16"/>
+  </g>
+  <!-- Ojos verdes (para que resalten sobre el negro) -->
+  <circle cx="25" cy="30" r="2.2" fill="#10b981"/>
+  <circle cx="39" cy="30" r="2.2" fill="#10b981"/>
+  <!-- Hocico -->
+  <path d="M30 38 L32 42 L34 38 Z" fill="#10b981"/>
+</svg>

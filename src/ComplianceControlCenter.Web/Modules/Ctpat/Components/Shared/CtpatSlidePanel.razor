@@ -1,0 +1,456 @@
+@* CtpatSlidePanel.razor
+   Panel lateral slide-over de CTPAT.
+   Se renderiza en MainLayout.razor, FUERA del drawer-content, para que
+   "position: fixed" se ancle al viewport real y no a un contenedor con
+   overflow != visible. *@
+@rendermode InteractiveServer
+
+@inject CtpatPanelState PanelState
+@inject ICtpatFileService FileService
+@inject IJSRuntime JS
+@implements IDisposable
+
+@if (PanelState.IsOpen)
+{
+    var q      = PanelState.Question!;
+    var review = PanelState.Review!;
+
+    <div class="fixed inset-0 z-50 flex">
+
+        <!-- Backdrop -->
+        <div class="flex-1 bg-black/40 backdrop-blur-sm panel-backdrop-in"
+             @onclick="ClosePanel"></div>
+
+        <!-- Panel -->
+        <div class="w-full max-w-2xl bg-base-100 shadow-2xl flex flex-col h-full overflow-hidden panel-slide-in">
+
+            <!-- Panel header -->
+            <div class="flex items-start gap-3 px-6 py-4 border-b border-base-300 bg-base-200/60">
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                        <span class="badge badge-neutral badge-sm">@q.Criterio</span>
+                        <span class="badge badge-outline badge-sm font-mono">@q.ExternalId</span>
+                        @{
+                            var (badgeClass, label) = StatusBadge(PanelState.Draft.Status);
+                        }
+                        <span class="badge @badgeClass badge-sm">@label</span>
+                    </div>
+                    <p class="text-sm font-medium leading-snug text-base-content">@q.Pregunta</p>
+                </div>
+                <button class="btn btn-ghost btn-sm btn-circle shrink-0" @onclick="ClosePanel" title="Cerrar">
+                    <span class="material-symbols-outlined text-[20px] leading-none">close</span>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs tabs-border px-6 pt-3 bg-base-200/40 shrink-0">
+                <button class="tab @(PanelState.ActiveTab == 0 ? "tab-active" : "")"
+                        @onclick='() => SetTab(0)'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">edit_note</span>
+                    Revisión
+                </button>
+                <button class="tab @(PanelState.ActiveTab == 1 ? "tab-active" : "")"
+                        @onclick='() => SetTab(1)'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">menu_book</span>
+                    Guía
+                </button>
+                <button class="tab @(PanelState.ActiveTab == 2 ? "tab-active" : "")"
+                        @onclick='() => SetTab(2)'>
+                    <span class="material-symbols-outlined text-[16px] leading-none mr-1">attach_file</span>
+                    Archivos
+                    @if (review.Files is { Count: > 0 })
+                    {
+                        <span class="badge badge-sm ml-1">@review.Files.Count</span>
+                    }
+                </button>
+            </div>
+
+            <!-- Tab content (scrollable) -->
+            <div class="flex-1 overflow-y-auto">
+
+                @if (PanelState.ActiveTab == 0)
+                {
+                    <!-- ========== TAB: REVISION ========== -->
+                    <div class="px-6 py-5 space-y-5">
+
+                        <!-- Respuesta actual -->
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-1.5">
+                                <span class="material-symbols-outlined text-[14px] leading-none align-middle">history</span>
+                                Respuesta actual (Partner Response 2025)
+                            </p>
+                            <div class="bg-base-200 border border-base-300 rounded-box p-3 text-sm whitespace-pre-wrap max-h-48 overflow-auto text-base-content/80">
+                                @(string.IsNullOrWhiteSpace(q.Respuesta2025) ? "(Sin respuesta registrada)" : q.Respuesta2025)
+                            </div>
+                        </div>
+
+                        <div class="divider my-0"></div>
+
+                        <!-- Estado + Fecha + Revisor -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend text-xs">Estado</legend>
+                                <select class="select select-bordered select-sm w-full"
+                                        @bind="PanelState.Draft.Status">
+                                    <option value="@CtpatReviewStatus.Pendiente">Pendiente</option>
+                                    <option value="@CtpatReviewStatus.SinCambios">Sin cambios</option>
+                                    <option value="@CtpatReviewStatus.ConCambios">Con cambios</option>
+                                    <option value="@CtpatReviewStatus.Revisado">Revisado</option>
+                                </select>
+                            </fieldset>
+
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend text-xs">Fecha de revisión</legend>
+                                <input type="date" class="input input-bordered input-sm w-full"
+                                       value="@(PanelState.Draft.FechaRevision?.ToString("yyyy-MM-dd") ?? "")"
+                                       @onchange="e => PanelState.Draft.FechaRevision = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null" />
+                            </fieldset>
+
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend text-xs">Revisor</legend>
+                                <input type="text" class="input input-bordered input-sm w-full"
+                                       placeholder="Nombre del revisor"
+                                       @bind="PanelState.Draft.Revisor" />
+                            </fieldset>
+                        </div>
+
+                        <!-- Evidencia revisada -->
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend text-xs">
+                                <span class="material-symbols-outlined text-[14px] leading-none align-middle">folder</span>
+                                Evidencia revisada
+                            </legend>
+                            <textarea class="textarea textarea-bordered textarea-sm w-full min-h-20"
+                                      placeholder="Lista o descripción de documentos revisados…"
+                                      @bind="PanelState.Draft.EvidenciaRevisada"></textarea>
+                        </fieldset>
+
+                        <!-- Cambios detectados -->
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend text-xs">
+                                <span class="material-symbols-outlined text-[14px] leading-none align-middle">difference</span>
+                                Cambios detectados
+                            </legend>
+                            <textarea class="textarea textarea-bordered textarea-sm w-full min-h-20"
+                                      placeholder="Describe qué cambió respecto a la respuesta 2025…"
+                                      @bind="PanelState.Draft.CambiosDetectados"></textarea>
+                        </fieldset>
+
+                        <!-- Respuesta nueva -->
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend text-xs">
+                                <span class="material-symbols-outlined text-[14px] leading-none align-middle">edit</span>
+                                Respuesta nueva / actualizada
+                            </legend>
+                            <textarea class="textarea textarea-bordered textarea-sm w-full min-h-32"
+                                      placeholder="Redacta aquí la respuesta actualizada…"
+                                      @bind="PanelState.Draft.RespuestaNueva"></textarea>
+                        </fieldset>
+
+                        <!-- Comentarios internos -->
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend text-xs">
+                                <span class="material-symbols-outlined text-[14px] leading-none align-middle">chat_bubble</span>
+                                Comentarios internos
+                            </legend>
+                            <textarea class="textarea textarea-bordered textarea-sm w-full min-h-16"
+                                      placeholder="Notas para el equipo…"
+                                      @bind="PanelState.Draft.Comentarios"></textarea>
+                        </fieldset>
+
+                    </div>
+                }
+                else if (PanelState.ActiveTab == 1)
+                {
+                    <!-- ========== TAB: GUIA ========== -->
+                    <div class="px-6 py-5 space-y-4">
+                        @if (PanelState.Guidance is null)
+                        {
+                            <div class="flex justify-center py-10">
+                                <span class="loading loading-spinner loading-md"></span>
+                            </div>
+                        }
+                        else if (PanelState.Guidance.Count == 0)
+                        {
+                            <div class="alert">
+                                <span class="material-symbols-outlined">info</span>
+                                <span>No hay guía de revisión disponible para este criterio.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var g in PanelState.Guidance)
+                            {
+                                <div class="card bg-base-200 border border-base-300">
+                                    <div class="card-body p-4 space-y-3">
+                                        <h3 class="font-semibold text-sm text-base-content">@g.Criterio</h3>
+
+                                        @if (!string.IsNullOrWhiteSpace(g.RespTip))
+                                        {
+                                            <div>
+                                                <p class="text-xs font-semibold uppercase tracking-wide text-primary/80 mb-1">
+                                                    <span class="material-symbols-outlined text-[13px] leading-none align-middle">lightbulb</span>
+                                                    Respuesta esperada
+                                                </p>
+                                                <p class="text-sm text-base-content/80">@g.RespTip</p>
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(g.Revisar))
+                                        {
+                                            <div>
+                                                <p class="text-xs font-semibold uppercase tracking-wide text-warning/80 mb-1">
+                                                    <span class="material-symbols-outlined text-[13px] leading-none align-middle">search</span>
+                                                    Qué revisar
+                                                </p>
+                                                <p class="text-sm text-base-content/80 whitespace-pre-wrap">@g.Revisar</p>
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(g.Evidencia))
+                                        {
+                                            <div>
+                                                <p class="text-xs font-semibold uppercase tracking-wide text-success/80 mb-1">
+                                                    <span class="material-symbols-outlined text-[13px] leading-none align-middle">folder_open</span>
+                                                    Evidencia sugerida
+                                                </p>
+                                                <p class="text-sm text-base-content/80 whitespace-pre-wrap">@g.Evidencia</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <!-- ========== TAB: ARCHIVOS ========== -->
+                    <div class="px-6 py-5 space-y-4">
+
+                        <!-- Upload zone -->
+                        <div class="border-2 border-dashed border-base-300 rounded-box p-5 text-center space-y-2 hover:border-primary/50 transition-colors @(PanelState.IsDragging ? "border-primary bg-primary/5" : "")"
+                             @ondragover:preventDefault
+                             @ondragenter="() => { PanelState.IsDragging = true; }"
+                             @ondragleave="() => { PanelState.IsDragging = false; }"
+                             @ondrop="HandleFileDrop"
+                             @ondrop:preventDefault>
+                            <span class="material-symbols-outlined text-[36px] text-base-content/30">cloud_upload</span>
+                            <p class="text-sm text-base-content/60">
+                                Arrastra archivos aquí o
+                                <label class="text-primary font-medium cursor-pointer hover:underline">
+                                    selecciona desde tu equipo
+                                    <InputFile class="hidden" OnChange="HandleFileSelected" multiple />
+                                </label>
+                            </p>
+                            <p class="text-xs text-base-content/40">Máximo 25 MB por archivo</p>
+                        </div>
+
+                        <!-- Upload progress -->
+                        @if (PanelState.UploadingFiles.Count > 0)
+                        {
+                            <div class="space-y-2">
+                                @foreach (var u in PanelState.UploadingFiles)
+                                {
+                                    <div class="flex items-center gap-3 text-sm bg-base-200 rounded px-3 py-2">
+                                        <span class="material-symbols-outlined text-[16px] text-base-content/50">upload_file</span>
+                                        <span class="flex-1 truncate">@u.Name</span>
+                                        <span class="loading loading-spinner loading-xs"></span>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (PanelState.UploadError is not null)
+                        {
+                            <div class="alert alert-error text-sm py-2">
+                                <span class="material-symbols-outlined text-[16px]">error</span>
+                                @PanelState.UploadError
+                            </div>
+                        }
+
+                        <!-- File list -->
+                        @if (review.Files is { Count: > 0 })
+                        {
+                            <div class="space-y-1.5">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50">
+                                    Archivos adjuntos (@review.Files.Count)
+                                </p>
+                                @foreach (var f in review.Files)
+                                {
+                                    <div class="flex items-center gap-3 text-sm bg-base-100 border border-base-300 rounded-box px-3 py-2.5">
+                                        <span class="material-symbols-outlined text-[18px] text-base-content/50">@FileIcon(f.ContentType)</span>
+                                        <span class="font-medium truncate flex-1">@f.FileName</span>
+                                        <span class="text-xs text-base-content/40 shrink-0">@FormatSize(f.Size)</span>
+                                        <a class="btn btn-ghost btn-xs" href="/api/ctpat/files/@f.ExternalId" target="_blank" title="Ver">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">visibility</span>
+                                        </a>
+                                        <a class="btn btn-ghost btn-xs" href="/api/ctpat/files/@f.ExternalId" download="@f.FileName" title="Descargar">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">download</span>
+                                        </a>
+                                        <button class="btn btn-ghost btn-xs text-error" title="Eliminar"
+                                                @onclick="() => ConfirmDeleteFile(f.Id, f.FileName)">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">delete</span>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else if (PanelState.UploadingFiles.Count == 0)
+                        {
+                            <div class="text-center text-sm text-base-content/40 py-6">
+                                <span class="material-symbols-outlined text-[32px] block mb-1">folder_open</span>
+                                Sin archivos adjuntos
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+
+            <!-- Panel footer (actions) — solo en tab Revisión -->
+            @if (PanelState.ActiveTab == 0)
+            {
+                <div class="border-t border-base-300 px-6 py-4 flex items-center gap-3 bg-base-100 shrink-0">
+                    @if (PanelState.SaveSuccess)
+                    {
+                        <span class="text-success text-sm flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px] leading-none">check_circle</span>
+                            Guardado
+                        </span>
+                    }
+                    @if (PanelState.SaveError is not null)
+                    {
+                        <span class="text-error text-sm flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px] leading-none">error</span>
+                            @PanelState.SaveError
+                        </span>
+                    }
+                    <div class="flex-1"></div>
+                    <button class="btn btn-ghost btn-sm" @onclick="ClosePanel" disabled="@PanelState.Saving">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary btn-sm" @onclick="SavePanel" disabled="@PanelState.Saving">
+                        @if (PanelState.Saving)
+                        {
+                            <span class="loading loading-spinner loading-xs"></span>
+                        }
+                        else
+                        {
+                            <span class="material-symbols-outlined text-[16px] leading-none">save</span>
+                        }
+                        Guardar cambios
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Confirm delete file dialog -->
+    @if (PanelState.FileToDelete is not null)
+    {
+        <dialog class="modal modal-open">
+            <div class="modal-box max-w-sm">
+                <h3 class="font-bold text-base mb-1">Eliminar archivo</h3>
+                <p class="text-sm text-base-content/70 mb-4">
+                    ¿Seguro que deseas eliminar <strong>@PanelState.FileToDelete!.Value.Name</strong>?
+                    Esta acción no se puede deshacer.
+                </p>
+                <div class="modal-action gap-2">
+                    <button class="btn btn-ghost btn-sm"
+                            @onclick="() => PanelState.FileToDelete = null">Cancelar</button>
+                    <button class="btn btn-error btn-sm" @onclick="DeleteFileConfirmed">
+                        @if (PanelState.DeletingFile)
+                        {
+                            <span class="loading loading-spinner loading-xs"></span>
+                        }
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop">
+                <button @onclick="() => PanelState.FileToDelete = null">close</button>
+            </form>
+        </dialog>
+    }
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        PanelState.OnChange += HandlePanelChange;
+    }
+
+    private void HandlePanelChange() => InvokeAsync(StateHasChanged);
+
+    private void ClosePanel()
+    {
+        PanelState.Close();
+        _ = JS.InvokeVoidAsync("cccPanel.unlock");
+    }
+
+    private void SetTab(int tab)
+    {
+        PanelState.ActiveTab = tab;
+    }
+
+    private async Task SavePanel()
+    {
+        if (PanelState.OnSaveRequested is not null)
+            await PanelState.OnSaveRequested.Invoke();
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        if (PanelState.OnUploadFiles is not null)
+            await PanelState.OnUploadFiles.Invoke(e.GetMultipleFiles());
+    }
+
+    private void HandleFileDrop(DragEventArgs _)
+    {
+        PanelState.IsDragging = false;
+    }
+
+    private void ConfirmDeleteFile(int fileId, string fileName)
+    {
+        PanelState.FileToDelete = (fileId, fileName);
+    }
+
+    private async Task DeleteFileConfirmed()
+    {
+        if (PanelState.OnDeleteFileConfirmed is not null)
+            await PanelState.OnDeleteFileConfirmed.Invoke();
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    private static (string cssClass, string label) StatusBadge(CtpatReviewStatus s) => s switch
+    {
+        CtpatReviewStatus.Pendiente  => ("badge-warning",  "Pendiente"),
+        CtpatReviewStatus.SinCambios => ("badge-info",     "Sin cambios"),
+        CtpatReviewStatus.ConCambios => ("badge-error",    "Con cambios"),
+        CtpatReviewStatus.Revisado   => ("badge-success",  "Revisado"),
+        _ => ("badge-ghost", s.ToString())
+    };
+
+    private static string FileIcon(string? contentType) => contentType switch
+    {
+        { } t when t.StartsWith("image/") => "image",
+        "application/pdf"                 => "picture_as_pdf",
+        { } t when t.Contains("word")     => "description",
+        { } t when t.Contains("excel") || t.Contains("spreadsheet") => "table_chart",
+        { } t when t.Contains("zip") || t.Contains("rar") => "folder_zip",
+        _ => "attach_file"
+    };
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024d).ToString("0.0") + " KB";
+        return (bytes / (1024d * 1024)).ToString("0.0") + " MB";
+    }
+
+    public void Dispose()
+    {
+        PanelState.OnChange -= HandlePanelChange;
+    }
+}

@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject ThemeState Theme
 @inject IJSRuntime JS
+@using ComplianceControlCenter.Web.Modules.Ctpat.Components.Shared
 
 <div class="drawer lg:drawer-open">
     <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" checked />
@@ -24,7 +25,7 @@
             </div>
         </div>
 
-        <main class="flex-1 min-h-0 flex flex-col p-4 lg:p-6 fade-in min-w-0 overflow-hidden">
+        <main class="flex-1 min-h-0 flex flex-col p-4 lg:p-6 fade-in min-w-0 overflow-y-auto">
             @Body
         </main>
 
@@ -48,6 +49,9 @@
         <a href="" class="link">Recargar</a>
     </span>
 </div>
+
+@* Panel lateral CTPAT: vive fuera del drawer-content para que fixed inset-0 se ancle al viewport. *@
+<CtpatSlidePanel />
 
 @* Modal global de login: se abre vía LoginModalState.Open() desde cualquier componente. *@
 <LoginModal @rendermode="InteractiveServer" />

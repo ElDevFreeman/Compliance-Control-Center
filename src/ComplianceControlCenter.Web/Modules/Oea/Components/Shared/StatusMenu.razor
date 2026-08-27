@@ -1,63 +1,76 @@
-@* Menú desplegable de estado usando daisyUI details/summary + dropdown.
-   Se cierra automáticamente al seleccionar una opción via JS interop
-   (details.open = false), ya que el atributo open no se controla desde
-   Razor de forma reactiva por sí solo. *@
-@inject IJSRuntime JS
+@* Menú desplegable de estado controlado desde Blazor (sin details/summary).
+   Evita la race condition entre onfocusout y onclick que existía con el
+   elemento <details> nativo: el click cerraba el dropdown antes de que
+   el evento onclick del botón de opción llegara a invocarse. *@
 
-<details class="dropdown" @ref="_details" @onfocusout="OnFocusOutAsync">
-    <summary class="list-none cursor-pointer">
+<div class="relative" @ref="_container">
+    <button type="button"
+            class="cursor-pointer"
+            disabled="@Disabled"
+            @onclick="ToggleAsync"
+            @onclick:stopPropagation>
         <StatusBadge Status="@Current" />
-    </summary>
-    <ul class="dropdown-content menu bg-base-100 rounded-box z-20 w-44 p-2 shadow border border-base-300">
-        @foreach (var status in AllStatuses)
-        {
-            <li>
-                <button type="button"
-                        @onclick="() => SelectAsync(status)"
-                        class="justify-between rounded-md">
-                    <StatusBadge Status="@status" />
-                    @if (status == Current)
-                    {
-                        <span class="text-primary">✓</span>
-                    }
-                </button>
-            </li>
-        }
-    </ul>
-</details>
+    </button>
+
+    @if (_open)
+    {
+        <!-- Backdrop invisible para cerrar al click fuera -->
+        <div class="fixed inset-0 z-10" @onclick="CloseAsync" @onclick:stopPropagation></div>
+
+        <ul class="absolute right-0 mt-1 menu bg-base-100 rounded-box z-20 w-44 p-2 shadow-lg border border-base-300">
+            @foreach (var status in AllStatuses)
+            {
+                var s = status;
+                <li>
+                    <button type="button"
+                            class="justify-between rounded-md"
+                            @onclick="() => SelectAsync(s)"
+                            @onclick:stopPropagation>
+                        <StatusBadge Status="@s" />
+                        @if (s == Current)
+                        {
+                            <span class="text-primary">
+                                <span class="material-symbols-outlined text-[16px] leading-none">check</span>
+                            </span>
+                        }
+                    </button>
+                </li>
+            }
+        </ul>
+    }
+</div>
 
 @code {
     [Parameter, EditorRequired] public ComplianceStatus Current { get; set; }
     [Parameter, EditorRequired] public EventCallback<ComplianceStatus> OnChange { get; set; }
     [Parameter] public bool Disabled { get; set; }
 
-    private ElementReference _details;
+    private bool _open;
+    private ElementReference _container;
 
-    private static readonly ComplianceStatus[] AllStatuses = new[]
-    {
+    private static readonly ComplianceStatus[] AllStatuses =
+    [
         ComplianceStatus.Pendiente,
         ComplianceStatus.EnProgreso,
         ComplianceStatus.Completado,
         ComplianceStatus.Vencido,
-        ComplianceStatus.NA
-    };
+        ComplianceStatus.NA,
+    ];
+
+    private void ToggleAsync()
+    {
+        if (!Disabled) _open = !_open;
+    }
+
+    private void CloseAsync()
+    {
+        _open = false;
+    }
 
     private async Task SelectAsync(ComplianceStatus s)
     {
-        await CloseAsync();
-        if (Disabled || s == Current) return;
+        _open = false;
+        if (s == Current) return;
         await OnChange.InvokeAsync(s);
-    }
-
-    private async Task OnFocusOutAsync() => await CloseAsync();
-
-    private async Task CloseAsync()
-    {
-        try
-        {
-            // Quita el atributo `open` del <details> para colapsar el dropdown.
-            await JS.InvokeVoidAsync("cccDetails.close", _details);
-        }
-        catch { /* JS aún no disponible durante prerender; ignorar */ }
     }
 }

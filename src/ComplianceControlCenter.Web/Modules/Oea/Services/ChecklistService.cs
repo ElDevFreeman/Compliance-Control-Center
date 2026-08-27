@@ -44,6 +44,7 @@ public class ChecklistService : IChecklistService
     public async Task<MonthlyStatus> GetOrCreateMonthlyStatusAsync(int activityId, int year, int month, CancellationToken ct = default)
     {
         var existing = await _db.MonthlyStatuses
+            .AsNoTracking()
             .FirstOrDefaultAsync(m => m.ActivityId == activityId && m.Year == year && m.Month == month, ct);
         if (existing is not null) return existing;
 
@@ -63,39 +64,47 @@ public class ChecklistService : IChecklistService
     public async Task UpdateStatusAsync(int activityId, int year, int month, ComplianceStatus status, string user, CancellationToken ct = default)
     {
         var s = await GetOrCreateMonthlyStatusAsync(activityId, year, month, ct);
-        s.Status = status;
-        s.UpdatedAt = DateTime.UtcNow;
-        s.UpdatedBy = user;
-        await _db.SaveChangesAsync(ct);
+        await _db.MonthlyStatuses
+            .Where(m => m.Id == s.Id)
+            .ExecuteUpdateAsync(set => set
+                .SetProperty(m => m.Status, status)
+                .SetProperty(m => m.UpdatedAt, DateTime.UtcNow)
+                .SetProperty(m => m.UpdatedBy, user), ct);
         await _notifier.MonthlyStatusChangedAsync(activityId, year, month, user);
     }
 
     public async Task UpdateDueDateAsync(int activityId, int year, int month, DateOnly? dueDate, string user, CancellationToken ct = default)
     {
         var s = await GetOrCreateMonthlyStatusAsync(activityId, year, month, ct);
-        s.DueDate = dueDate;
-        s.UpdatedAt = DateTime.UtcNow;
-        s.UpdatedBy = user;
 
         // Regla: si vence en el pasado y no está Completado/NA -> Vencido.
+        var newStatus = s.Status;
         if (dueDate is { } d
             && d < DateOnly.FromDateTime(DateTime.Today)
             && s.Status is not ComplianceStatus.Completado and not ComplianceStatus.NA)
         {
-            s.Status = ComplianceStatus.Vencido;
+            newStatus = ComplianceStatus.Vencido;
         }
 
-        await _db.SaveChangesAsync(ct);
+        await _db.MonthlyStatuses
+            .Where(m => m.Id == s.Id)
+            .ExecuteUpdateAsync(set => set
+                .SetProperty(m => m.DueDate, dueDate)
+                .SetProperty(m => m.Status, newStatus)
+                .SetProperty(m => m.UpdatedAt, DateTime.UtcNow)
+                .SetProperty(m => m.UpdatedBy, user), ct);
         await _notifier.MonthlyStatusChangedAsync(activityId, year, month, user);
     }
 
     public async Task UpdateCorrectiveAsync(int activityId, int year, int month, string? corrective, string user, CancellationToken ct = default)
     {
         var s = await GetOrCreateMonthlyStatusAsync(activityId, year, month, ct);
-        s.CorrectiveActions = corrective;
-        s.UpdatedAt = DateTime.UtcNow;
-        s.UpdatedBy = user;
-        await _db.SaveChangesAsync(ct);
+        await _db.MonthlyStatuses
+            .Where(m => m.Id == s.Id)
+            .ExecuteUpdateAsync(set => set
+                .SetProperty(m => m.CorrectiveActions, corrective)
+                .SetProperty(m => m.UpdatedAt, DateTime.UtcNow)
+                .SetProperty(m => m.UpdatedBy, user), ct);
         await _notifier.MonthlyStatusChangedAsync(activityId, year, month, user);
     }
 

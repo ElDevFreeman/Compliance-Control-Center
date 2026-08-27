@@ -16,6 +16,21 @@ public interface ICtpatCatalogService
 }
 
 /// <summary>
+/// Estadísticas de avance por criterio para un año dado.
+/// </summary>
+public record CtpatCriterioStats(
+    string Criterio,
+    int Total,
+    int Pendiente,
+    int SinCambios,
+    int ConCambios,
+    int Revisado)
+{
+    public int Atendidas => Total - Pendiente;
+    public int PctAvance => Total == 0 ? 0 : (int)Math.Round(Atendidas * 100.0 / Total);
+}
+
+/// <summary>
 /// Servicio de acceso a las revisiones anuales del perfil CTPAT.
 /// </summary>
 public interface ICtpatReviewService
@@ -31,6 +46,12 @@ public interface ICtpatReviewService
 
     /// <summary>Actualiza el estado.</summary>
     Task UpdateStatusAsync(int reviewId, CtpatReviewStatus status, string user, CancellationToken ct = default);
+
+    /// <summary>Devuelve estadísticas de avance por criterio para un año dado.</summary>
+    Task<IReadOnlyList<CtpatCriterioStats>> GetStatsByCriterioAsync(int year, CancellationToken ct = default);
+
+    /// <summary>Obtiene todas las reviews de un año con la pregunta incluida, para la vista de Matriz.</summary>
+    Task<IReadOnlyList<CtpatReview>> GetReviewsWithQuestionsAsync(int year, CancellationToken ct = default);
 }
 
 /// <summary>

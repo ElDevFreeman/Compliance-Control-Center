@@ -8,32 +8,73 @@
 }
 
 @source "../Components/**/*.razor";
+@source "../Modules/**/*.razor";
 
 /* ─────────────────────────────────────────────
-   Utilidades custom
+   Utilidades custom — animaciones de entrada
    ───────────────────────────────────────────── */
 @utility fade-in {
-  animation: fadeSlideIn 0.3s ease-out;
+  animation: fadeSlideIn 0.3s ease-out both;
 }
 
 @utility fade-in-fast {
-  animation: fadeSlideIn 0.18s ease-out;
+  animation: fadeSlideIn 0.18s ease-out both;
 }
 
 @utility slide-in-right {
-  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @utility slide-in-left {
-  animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @utility scale-in {
-  animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @utility pop-in {
-  animation: popIn 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: popIn 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Entrada de modal: escala + fade suave */
+@utility modal-in {
+  animation: modalIn 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* Entrada del backdrop/overlay del modal */
+@utility modal-backdrop-in {
+  animation: modalBackdropIn 0.15s ease-out both;
+}
+
+/* Entrada de dropdown / flyout */
+@utility dropdown-in {
+  animation: dropdownOpen 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Fade + slide ligero hacia abajo (para cards, panels) */
+@utility report-fade-in {
+  animation: reportFadeIn 0.3s ease-out both;
+}
+
+/* Slide-up más pronunciado para secciones de contenido */
+@utility slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* Progreso indeterminado */
+@utility progress-indeterminate {
+  animation: progressIndeterminate 1.5s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+}
+
+/* Panel lateral — entra deslizando desde la derecha con muelle */
+@utility panel-slide-in {
+  animation: panelSlideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* Backdrop del panel lateral — fade suave */
+@utility panel-backdrop-in {
+  animation: panelBackdropIn 0.2s ease-out both;
 }
 
 /* Aplica una transición suave estándar a un elemento. */
@@ -43,6 +84,9 @@
               box-shadow 200ms ease, opacity 200ms ease;
 }
 
+/* ─────────────────────────────────────────────
+   @keyframes
+   ───────────────────────────────────────────── */
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
@@ -101,16 +145,117 @@
   }
 }
 
-/* Respeta la preferencia del sistema de reducir movimiento. */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes dropdownOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reportFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progressIndeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes panelBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────
+   Respeta la preferencia del sistema de reducir movimiento.
+   ───────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
   .fade-in-fast,
   .slide-in-right,
   .slide-in-left,
   .scale-in,
-  .pop-in {
+  .pop-in,
+  .modal-in,
+  .modal-backdrop-in,
+  .dropdown-in,
+  .report-fade-in,
+  .slide-up,
+  .progress-indeterminate,
+  .panel-slide-in,
+  .panel-backdrop-in {
     animation: none !important;
   }
+}
+
+/* ─────────────────────────────────────────────
+   Modo compacto — compensa Windows 125%/150%
+   Al reducir el font-size base del <html>, TODO lo que use `rem`
+   (tipografías, paddings, gaps, widths de Tailwind) escala junto.
+   Efecto: la UI luce como si el sistema estuviera al 100%.
+
+   Activación: se agrega la clase `compact-mode` al <html>.
+   El pre-boot script en App.razor lo aplica antes del primer paint.
+   ───────────────────────────────────────────── */
+html.compact-mode {
+  /* Tailwind por defecto asume 16px. 13px ≈ compensa una escala de ~123%,
+     un punto medio útil para pantallas a 125%–150%. */
+  font-size: 13px;
+}
+
+/* Los iconos de Material Symbols usan tamaño en px absoluto (text-[18px]),
+   así que también los reducimos ligeramente para acompañar la escala. */
+html.compact-mode .material-symbols-outlined {
+  font-size: 15px;
 }
 
 /* Blazor error UI (defecto del template) */

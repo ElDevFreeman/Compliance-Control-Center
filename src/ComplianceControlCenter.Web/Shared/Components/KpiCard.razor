@@ -1,5 +1,6 @@
 @* Tarjeta KPI estilo Southbound: fondo saturado con color de contenido + icono.
-   Variante "neutral" usa card estándar con card-border. *@
+   Variante "neutral" usa card estándar con card-border.
+   Soporta Icon (material-symbols-outlined) o IconPath (SVG path heredado). *@
 
 @{
     var (bgCls, textCls) = Variant switch
@@ -25,7 +26,13 @@
             <span class="text-sm font-medium @(isNeutral ? "text-base-content/60 uppercase tracking-wider text-xs" : "opacity-90")">
                 @Label
             </span>
-            @if (!string.IsNullOrEmpty(IconPath))
+            @if (!string.IsNullOrEmpty(Icon))
+            {
+                <span class="material-symbols-outlined text-[24px] leading-none shrink-0 @(isNeutral ? "text-base-content/40" : "opacity-80")">
+                    @Icon
+                </span>
+            }
+            else if (!string.IsNullOrEmpty(IconPath))
             {
                 <svg xmlns="http://www.w3.org/2000/svg"
                      class="h-6 w-6 shrink-0 @(isNeutral ? "text-base-content/40" : "opacity-80")"
@@ -48,6 +55,8 @@
     [Parameter] public string? SubText { get; set; }
     /// <summary>primary | success | warning | error | info | neutral</summary>
     [Parameter] public string Variant { get; set; } = "primary";
-    /// <summary>Path SVG opcional para el icono en la esquina superior derecha.</summary>
+    /// <summary>Nombre de icono material-symbols-outlined (preferido).</summary>
+    [Parameter] public string? Icon { get; set; }
+    /// <summary>Path SVG heredado (usar Icon en su lugar para nuevos componentes).</summary>
     [Parameter] public string? IconPath { get; set; }
 }

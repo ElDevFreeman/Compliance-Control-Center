@@ -30,6 +30,44 @@ window.cccTheme = {
     }
 };
 
+// Modo compacto — persiste el estado en localStorage + cookie.
+// La cookie 'ccc_compact' permite al servidor pintar la clase en <html>
+// durante SSR y evitar el flash al cargar la página.
+window.cccCompact = {
+    CLASS: "compact-mode",
+    STORAGE_KEY: "ccc_compact",
+    COOKIE_NAME: "ccc_compact",
+    _readCookie: function () {
+        var m = document.cookie.match(/(?:^|;\s*)ccc_compact=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : null;
+    },
+    _writeCookie: function (on) {
+        var maxAge = 60 * 60 * 24 * 365;
+        document.cookie = "ccc_compact=" + (on ? "1" : "0") +
+            "; Max-Age=" + maxAge + "; Path=/; SameSite=Lax";
+    },
+    get: function () {
+        try {
+            var v = localStorage.getItem(this.STORAGE_KEY);
+            if (v === null) v = this._readCookie();
+            return v === "1";
+        } catch (e) { return false; }
+    },
+    set: function (on) {
+        on = !!on;
+        try { localStorage.setItem(this.STORAGE_KEY, on ? "1" : "0"); } catch (e) { }
+        try { this._writeCookie(on); } catch (e) { }
+        var el = document.documentElement;
+        if (on) el.classList.add(this.CLASS);
+        else    el.classList.remove(this.CLASS);
+    },
+    toggle: function () {
+        var next = !this.get();
+        this.set(next);
+        return next;
+    }
+};
+
 window.cccSession = {
     get: function (key) {
         try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -50,6 +88,44 @@ window.cccDetails = {
             if (el && el.tagName === "DETAILS") {
                 el.removeAttribute("open");
             }
+        } catch (e) { }
+    }
+};
+
+// Popover: mide el trigger y devuelve si debe abrirse hacia arriba y/o hacia la izquierda.
+// popoverH: altura estimada del popover (px). popoverW: ancho estimado del popover (px).
+window.cccPopover = {
+    getPlacement: function (triggerEl, popoverH, popoverW) {
+        try {
+            var rect = triggerEl.getBoundingClientRect();
+            var vh = window.innerHeight || document.documentElement.clientHeight;
+            var vw = window.innerWidth  || document.documentElement.clientWidth;
+            var spaceBelow = vh - rect.bottom;
+            var spaceAbove = rect.top;
+            var spaceRight = vw - rect.left;
+            return {
+                openUp:   spaceBelow < (popoverH + 8) && spaceAbove >= spaceBelow,
+                openLeft: spaceRight < (popoverW + 8)
+            };
+        } catch (e) {
+            return { openUp: false, openLeft: false };
+        }
+    }
+};
+
+// Panel lateral: bloquea/desbloquea el scroll del <main> mientras el panel está abierto.
+// Agrega overflow-hidden al <main> para que no se pueda hacer scroll debajo del overlay.
+window.cccPanel = {
+    lock: function () {
+        try {
+            var main = document.querySelector("main");
+            if (main) main.classList.add("overflow-hidden");
+        } catch (e) { }
+    },
+    unlock: function () {
+        try {
+            var main = document.querySelector("main");
+            if (main) main.classList.remove("overflow-hidden");
         } catch (e) { }
     }
 };

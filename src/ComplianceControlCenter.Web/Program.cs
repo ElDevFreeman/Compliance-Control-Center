@@ -14,6 +14,7 @@ using ComplianceControlCenter.Web.Modules.Oea.Services;
 using ComplianceControlCenter.Web.Modules.Ctpat.Hubs;
 using ComplianceControlCenter.Web.Modules.Ctpat.Services;
 using ComplianceControlCenter.Web.Core.State;
+using ComplianceControlCenter.Web.Modules.Ctpat.State;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,14 +105,31 @@ builder.Services.AddScoped<ICtpatFileService,    CtpatFileService>();
 
 // State (scoped porque Blazor Server tiene un scope por circuit)
 builder.Services.AddScoped<ThemeState>();
+builder.Services.AddScoped<CompactModeState>();
 builder.Services.AddScoped<UserSessionState>();
 builder.Services.AddScoped<LoginModalState>();
+builder.Services.AddScoped<CtpatPanelState>();
 
 // Blazor-ApexCharts
 builder.Services.AddApexCharts();
 
 // ────────────────────────────────────────────────────────────────
 var app = builder.Build();
+
+// ────────────────────────────────────────────────────────────────
+// Path base (para despliegue en subruta de IIS, p. ej. "/CCC").
+// Se configura vía appsettings.json → "PathBase": "/CCC".
+// ────────────────────────────────────────────────────────────────
+var pathBase = app.Configuration["PathBase"];
+if (!string.IsNullOrWhiteSpace(pathBase))
+{
+    app.UsePathBase(pathBase);
+    app.Use((ctx, next) =>
+    {
+        ctx.Request.PathBase = pathBase;
+        return next();
+    });
+}
 
 // ────────────────────────────────────────────────────────────────
 // Middleware pipeline
@@ -126,7 +144,13 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// En IIS con HTTPS terminado en el frontend, evita el redirect que
+// puede romper la carga inicial detrás de un reverse-proxy.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();

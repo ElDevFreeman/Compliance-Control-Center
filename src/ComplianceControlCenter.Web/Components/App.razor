@@ -1,14 +1,21 @@
 @inject ComplianceControlCenter.Web.Core.State.ThemeState Theme
+@inject ComplianceControlCenter.Web.Core.State.CompactModeState Compact
+@inject IHttpContextAccessor Http
 <!DOCTYPE html>
-<html lang="es-MX" data-theme="@Theme.Current">
+<html lang="es-MX" data-theme="@Theme.Current" class="@(Compact.IsCompact ? "compact-mode" : "")">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
+    <base href="@BaseHref" />
     <link rel="stylesheet" href="css/site.css" />
     <link rel="stylesheet" href="ComplianceControlCenter.Web.styles.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <title>Compliance Control Center</title>
     <HeadOutlet />
     <script>
@@ -22,6 +29,16 @@
                 document.documentElement.setAttribute("data-theme", t);
             } catch (e) { }
         })();
+
+        // Aplica el modo compacto antes del primer paint (evita flash de tamaño).
+        (function () {
+            try {
+                var m = document.cookie.match(/(?:^|;\s*)ccc_compact=([^;]+)/);
+                var v = m ? decodeURIComponent(m[1]) : localStorage.getItem("ccc_compact");
+                if (v === "1") document.documentElement.classList.add("compact-mode");
+                else           document.documentElement.classList.remove("compact-mode");
+            } catch (e) { }
+        })();
     </script>
 </head>
 
@@ -32,3 +49,17 @@
 </body>
 
 </html>
+
+@code {
+    // Respeta el PathBase configurado (p. ej. "/CCC") para que todos los
+    // recursos relativos (css, js, _framework, hubs) resuelvan bajo la subruta.
+    private string BaseHref
+    {
+        get
+        {
+            var pb = Http.HttpContext?.Request.PathBase.Value;
+            if (string.IsNullOrEmpty(pb)) return "/";
+            return pb.EndsWith("/") ? pb : pb + "/";
+        }
+    }
+}

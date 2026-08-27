@@ -1,0 +1,469 @@
+@page "/ctpat/dashboard"
+@rendermode InteractiveServer
+@implements IDisposable
+
+@inject ICtpatCatalogService Catalog
+@inject ICtpatReviewService Reviews
+@inject ThemeState Theme
+
+<PageTitle>CTPAT · Dashboard</PageTitle>
+
+<div class="flex flex-col gap-4">
+
+    <!-- ── Encabezado ───────────────────────────────────────────── -->
+    <div class="flex flex-wrap items-end justify-between gap-3 shrink-0">
+        <div>
+            <h1 class="text-2xl font-bold text-base-content">CTPAT · Dashboard</h1>
+            <p class="text-sm text-base-content/60">
+                Revisión anual del perfil CTPAT · Ciclo <strong>@_year</strong>
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <fieldset class="fieldset py-0">
+                <legend class="fieldset-legend">Año</legend>
+                <input type="number" class="input input-bordered input-sm w-24"
+                       min="2020" max="2100" value="@_year"
+                       @onchange="OnYearChangedAsync" />
+            </fieldset>
+            <a href="/ctpat" class="btn btn-sm btn-primary">
+                <span class="material-symbols-outlined text-[16px] leading-none">edit_note</span>
+                Ir a revisión
+            </a>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="flex flex-col gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                @for (var i = 0; i < 4; i++) { <div class="skeleton h-28 rounded-box"></div> }
+            </div>
+            <div class="skeleton h-10 rounded-box"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <div class="skeleton h-64 rounded-box"></div>
+                <div class="skeleton h-64 rounded-box lg:col-span-2"></div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- ── Barra de progreso global ──────────────────────────── -->
+        <div class="card card-border bg-base-100 border-base-300 shrink-0">
+            <div class="card-body p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] leading-none text-primary">
+                            @(_progress >= 100 ? "verified" : "pending")
+                        </span>
+                        <span class="font-semibold text-base-content">Avance global del ciclo @_year</span>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-3xl font-bold tabular-nums @PctClass(_progress)">@_progress%</span>
+                        <span class="text-sm text-base-content/50">(@_atendidas / @_totalQuestions preguntas)</span>
+                    </div>
+                </div>
+                <div class="w-full bg-base-300 rounded-full h-3">
+                    <div class="h-3 rounded-full transition-all duration-700 @ProgressBarBg(_progress)"
+                         style="width: @_progress%"></div>
+                </div>
+                <!-- Mini leyenda de segmentos -->
+                <div class="flex flex-wrap gap-3 mt-2">
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2.5 h-2.5 rounded-full bg-success inline-block"></span>Revisado (@_countRevisado)
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2.5 h-2.5 rounded-full bg-info inline-block"></span>Sin cambios (@_countSinCambios)
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2.5 h-2.5 rounded-full bg-error inline-block"></span>Con cambios (@_countConCambios)
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2.5 h-2.5 rounded-full bg-base-content/20 inline-block"></span>Pendiente (@_countPendiente)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── KPIs ─────────────────────────────────────────────── -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+            <KpiCard Label="Total"       Value="@_totalQuestions.ToString()"   Variant="neutral"
+                     SubText="Preguntas CTPAT"
+                     Icon="quiz" />
+            <KpiCard Label="Revisado OK" Value="@_countRevisado.ToString()"    Variant="success"
+                     SubText="Cerrado por revisor"
+                     Icon="verified" />
+            <KpiCard Label="Sin cambios" Value="@_countSinCambios.ToString()"  Variant="info"
+                     SubText="Respuesta vigente"
+                     Icon="check_circle" />
+            <KpiCard Label="Con cambios" Value="@_countConCambios.ToString()"  Variant="warning"
+                     SubText="Requiere actualización"
+                     Icon="warning" />
+        </div>
+
+        <!-- ── Gráficas ──────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            <!-- Donut de estados -->
+            <div class="card card-border bg-base-100 border-base-300">
+                <div class="card-body p-4 gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">donut_large</span>
+                            Distribución de estados
+                        </span>
+                        @if (_countPendiente == 0)
+                        {
+                            <span class="badge badge-success badge-sm">
+                                <span class="material-symbols-outlined text-[12px] leading-none mr-0.5">verified</span>
+                                Completo
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning badge-sm">@_countPendiente pendientes</span>
+                        }
+                    </div>
+                    <div class="h-80 overflow-hidden">
+                        @* @key fuerza recrear el chart al cambiar de tema para repintar ejes/tooltips/labels. *@
+                        <ApexChart TItem="StatusPoint"
+                                   Options="_donutOptions"
+                                   @ref="_donutChart"
+                                   @key="@($"ctpat-donut-{Theme.Current}")">
+                            <ApexPointSeries TItem="StatusPoint"
+                                             Items="_donutData"
+                                             SeriesType="SeriesType.Donut"
+                                             XValue="p => p.Label"
+                                             YValue="p => p.Count" />
+                        </ApexChart>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra horizontal de avance por criterio -->
+            <div class="card card-border bg-base-100 border-base-300">
+                <div class="card-body p-4 gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">bar_chart</span>
+                            Avance por criterio
+                        </span>
+                        <span class="text-xs font-bold @PctClass(_progress)">@_progress% global</span>
+                    </div>
+                    <div class="h-80 overflow-hidden">
+                        <ApexChart TItem="CtpatCriterioStats"
+                                   Options="_barOptions"
+                                   @ref="_barChart"
+                                   @key="@($"ctpat-bar-{Theme.Current}")">
+                            <ApexPointSeries TItem="CtpatCriterioStats"
+                                             Items="_statsSorted"
+                                             Name="% Revisado"
+                                             SeriesType="SeriesType.Bar"
+                                             XValue="s => ShortName(s.Criterio)"
+                                             YValue="s => (decimal)s.PctAvance" />
+                        </ApexChart>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Panel inferior: criterios + actividad reciente ───── -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            <!-- Detalle por criterio -->
+            <div class="card card-border bg-base-100 border-base-300 lg:col-span-2">
+                <div class="card-body p-0">
+                    <div class="px-4 py-3 border-b border-base-300 flex items-center justify-between">
+                        <span class="text-sm font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">folder</span>
+                            Detalle por criterio
+                        </span>
+                        <div class="flex gap-2">
+                            <span class="badge badge-soft badge-success badge-xs">RV Revisado</span>
+                            <span class="badge badge-soft badge-info badge-xs">SC Sin cambios</span>
+                            <span class="badge badge-soft badge-error badge-xs">CC Con cambios</span>
+                        </div>
+                    </div>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="bg-base-200 text-base-content/70">
+                                <th>Criterio</th>
+                                <th class="w-16 text-center">Total</th>
+                                <th class="w-16 text-center">RV</th>
+                                <th class="w-16 text-center">SC</th>
+                                <th class="w-16 text-center">CC</th>
+                                <th class="w-16 text-center">Pend.</th>
+                                <th class="w-44">Avance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in _statsSorted)
+                            {
+                                <tr class="hover:bg-base-200/50">
+                                    <td class="text-sm font-medium">@s.Criterio</td>
+                                    <td class="text-center text-sm tabular-nums text-base-content/60">@s.Total</td>
+                                    <td class="text-center">
+                                        @if (s.Revisado > 0) { <span class="badge badge-soft badge-success badge-sm">@s.Revisado</span> }
+                                        else { <span class="text-base-content/20">—</span> }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (s.SinCambios > 0) { <span class="badge badge-soft badge-info badge-sm">@s.SinCambios</span> }
+                                        else { <span class="text-base-content/20">—</span> }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (s.ConCambios > 0) { <span class="badge badge-soft badge-error badge-sm">@s.ConCambios</span> }
+                                        else { <span class="text-base-content/20">—</span> }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (s.Pendiente > 0) { <span class="badge badge-soft badge-warning badge-sm">@s.Pendiente</span> }
+                                        else { <span class="material-symbols-outlined text-success text-[16px] leading-none">check</span> }
+                                    </td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-base-300 rounded-full h-1.5">
+                                                <div class="h-1.5 rounded-full transition-all duration-500 @ProgressBarBg(s.PctAvance)"
+                                                     style="width: @s.PctAvance%"></div>
+                                            </div>
+                                            <span class="text-xs font-bold @PctClass(s.PctAvance) w-9 text-right tabular-nums">
+                                                @s.PctAvance%
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Actividad reciente -->
+            <div class="card card-border bg-base-100 border-base-300">
+                <div class="card-body p-0">
+                    <div class="px-4 py-3 border-b border-base-300">
+                        <span class="text-sm font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">history</span>
+                            Revisiones recientes
+                        </span>
+                    </div>
+                    @if (_recentReviews.Count == 0)
+                    {
+                        <div class="flex flex-col items-center justify-center py-16 text-base-content/40 gap-2">
+                            <span class="material-symbols-outlined text-[40px]">inbox</span>
+                            <span class="text-sm">Sin revisiones registradas</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="divide-y divide-base-300">
+                            @foreach (var r in _recentReviews)
+                            {
+                                var (badgeCls, badgeLabel) = ReviewBadge(r.Status);
+                                <div class="px-4 py-3 hover:bg-base-200/50 transition-colors">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-mono text-primary font-semibold">@r.Question.ExternalId</p>
+                                            <p class="text-xs text-base-content/70 line-clamp-2 mt-0.5">@r.Question.Pregunta</p>
+                                        </div>
+                                        <span class="badge @badgeCls badge-sm shrink-0">@badgeLabel</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 mt-1.5 text-[11px] text-base-content/40">
+                                        @if (!string.IsNullOrEmpty(r.Revisor))
+                                        {
+                                            <span class="flex items-center gap-0.5">
+                                                <span class="material-symbols-outlined text-[12px] leading-none">person</span>
+                                                @r.Revisor
+                                            </span>
+                                        }
+                                        <span class="flex items-center gap-0.5">
+                                            <span class="material-symbols-outlined text-[12px] leading-none">schedule</span>
+                                            @r.UpdatedAt.ToLocalTime().ToString("dd MMM HH:mm")
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="px-4 py-2 border-t border-base-300">
+                            <a href="/ctpat" class="btn btn-ghost btn-xs w-full">
+                                Ver todas las revisiones
+                                <span class="material-symbols-outlined text-[14px] leading-none">arrow_forward</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    private int _year = DateTime.Now.Year;
+    private bool _loading = true;
+
+    private int _totalQuestions;
+    private int _atendidas;
+    private int _progress;
+    private int _countPendiente;
+    private int _countSinCambios;
+    private int _countConCambios;
+    private int _countRevisado;
+
+    private IReadOnlyList<CtpatCriterioStats> _stats       = Array.Empty<CtpatCriterioStats>();
+    private List<CtpatCriterioStats>          _statsSorted = new();
+    private List<StatusPoint>                 _donutData   = new();
+    private List<CtpatReview>                 _recentReviews = new();
+
+    private ApexChart<StatusPoint>?        _donutChart;
+    private ApexChart<CtpatCriterioStats>? _barChart;
+
+    private ApexChartOptions<StatusPoint>        _donutOptions = new();
+    private ApexChartOptions<CtpatCriterioStats> _barOptions   = new();
+
+    private record StatusPoint(string Label, int Count);
+
+    // ── Ciclo de vida ────────────────────────────────────────────
+    protected override void OnInitialized()
+    {
+        Theme.OnChange += OnThemeChanged;
+        BuildChartOptions();
+    }
+
+    public void Dispose() => Theme.OnChange -= OnThemeChanged;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async void OnThemeChanged()
+    {
+        // Reconstruye opciones con el nuevo Mode. El @key="Theme.Current" en cada <ApexChart>
+        // recrea las instancias para que ejes/tooltips/labels se repinten con colores correctos.
+        BuildChartOptions();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // ── Opciones de gráficas ────────────────────────────────────
+    private void BuildChartOptions()
+    {
+        var mode = Theme.IsDark ? Mode.Dark : Mode.Light;
+
+        // Pendiente=gris, SinCambios=info/cyan, ConCambios=error/rojo, Revisado=success/verde
+        _donutOptions = new ApexChartOptions<StatusPoint>
+        {
+            Chart = new Chart
+            {
+                Type       = ChartType.Donut,
+                Background = "transparent",
+                Toolbar    = new Toolbar { Show = false },
+                Height     = "320"
+            },
+            Theme      = new ApexCharts.Theme { Mode = mode },
+            Colors     = new List<string> { "#94a3b8", "#06b6d4", "#ef4444", "#22c55e" },
+            Legend     = new Legend { Position = LegendPosition.Bottom },
+            DataLabels = new DataLabels { Enabled = true },
+            Tooltip    = new Tooltip { Enabled = true },
+        };
+
+        _barOptions = new ApexChartOptions<CtpatCriterioStats>
+        {
+            Chart = new Chart
+            {
+                Type       = ChartType.Bar,
+                Background = "transparent",
+                Toolbar    = new Toolbar { Show = false },
+                Height     = "320"
+            },
+            Theme       = new ApexCharts.Theme { Mode = mode },
+            PlotOptions = new PlotOptions
+            {
+                Bar = new PlotOptionsBar { Horizontal = true, BorderRadius = 4 }
+            },
+            Colors     = new List<string> { "#2563eb" },
+            Xaxis      = new XAxis { Max = 100 },
+            DataLabels = new DataLabels
+            {
+                Enabled   = true,
+                Formatter = "function(val) { return val + '%' }"
+            },
+            Tooltip    = new Tooltip { Enabled = true },
+        };
+    }
+
+    // ── Carga de datos ───────────────────────────────────────────
+    private async Task OnYearChangedAsync(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var y) && y >= 2020 && y <= 2100)
+        {
+            _year = y;
+            await LoadAsync();
+        }
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        var questions = await Catalog.GetQuestionsAsync();
+        _stats        = await Reviews.GetStatsByCriterioAsync(_year);
+        _statsSorted  = _stats.OrderBy(s => s.PctAvance).ToList();
+
+        // Revisiones recientes: las últimas 10 modificadas (no pendientes)
+        var allReviews = await Reviews.GetReviewsWithQuestionsAsync(_year);
+        _recentReviews = allReviews
+            .Where(r => r.Status != CtpatReviewStatus.Pendiente)
+            .OrderByDescending(r => r.UpdatedAt)
+            .Take(10)
+            .ToList();
+
+        _totalQuestions  = questions.Count;
+        _countPendiente  = _stats.Sum(s => s.Pendiente);
+        _countSinCambios = _stats.Sum(s => s.SinCambios);
+        _countConCambios = _stats.Sum(s => s.ConCambios);
+        _countRevisado   = _stats.Sum(s => s.Revisado);
+        _atendidas       = _totalQuestions - _countPendiente;
+        _progress        = _totalQuestions == 0
+            ? 0
+            : (int)Math.Round(_atendidas * 100.0 / _totalQuestions);
+
+        _donutData = new List<StatusPoint>
+        {
+            new("Pendiente",   _countPendiente),
+            new("Sin cambios", _countSinCambios),
+            new("Con cambios", _countConCambios),
+            new("Revisado",    _countRevisado),
+        };
+
+        _loading = false;
+
+        if (_donutChart is not null)
+            try { await _donutChart.UpdateSeriesAsync(); } catch { }
+        if (_barChart is not null)
+            try { await _barChart.UpdateSeriesAsync(); } catch { }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
+    private static string ShortName(string criterio) =>
+        criterio.Length > 22 ? criterio[..20] + "…" : criterio;
+
+    private static string PctClass(double pct) => pct switch
+    {
+        >= 80 => "text-success",
+        >= 50 => "text-warning",
+        > 0   => "text-error",
+        _     => "text-base-content/40"
+    };
+
+    private static string ProgressBarBg(int pct) => pct switch
+    {
+        >= 80 => "bg-success",
+        >= 50 => "bg-warning",
+        > 0   => "bg-error",
+        _     => "bg-base-300"
+    };
+
+    private static (string css, string label) ReviewBadge(CtpatReviewStatus s) => s switch
+    {
+        CtpatReviewStatus.SinCambios => ("badge-info",    "Sin cambios"),
+        CtpatReviewStatus.ConCambios => ("badge-error",   "Con cambios"),
+        CtpatReviewStatus.Revisado   => ("badge-success", "Revisado"),
+        _                            => ("badge-ghost",   "Pendiente"),
+    };
+}

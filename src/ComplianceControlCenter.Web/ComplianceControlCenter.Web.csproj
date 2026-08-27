@@ -51,32 +51,19 @@
     </None>
   </ItemGroup>
 
-  <Target Name="EnsureNodeModules"
-          BeforeTargets="BuildTailwind"
-          Condition="!Exists('node_modules/.bin/tailwindcss') And !Exists('node_modules\.bin\tailwindcss.cmd')">
+  <Target Name="EnsureNodeModules" BeforeTargets="BuildTailwind" Condition="!Exists('node_modules/.bin/tailwindcss') And !Exists('node_modules\.bin\tailwindcss.cmd')">
     <Message Importance="high" Text="→ Instalando dependencias de npm (pnpm install)…" />
     <Exec Command="pnpm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 
-  <Target Name="BuildTailwind"
-          BeforeTargets="BeforeBuild"
-          Inputs="@(TailwindWatchInputs)"
-          Outputs="$(TailwindOutput)">
+  <Target Name="BuildTailwind" BeforeTargets="BeforeBuild" Inputs="@(TailwindWatchInputs)" Outputs="$(TailwindOutput)">
     <Message Importance="high" Text="→ Generando $(TailwindOutput) con Tailwind CSS ($(Configuration))…" />
 
     <!-- Windows: usa el .cmd; otros SO: usa el script sin extensión. -->
-    <Exec Command="&quot;$(TailwindCli).cmd&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot; --minify"
-          Condition="'$(OS)' == 'Windows_NT' And '$(Configuration)' == 'Release'"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <Exec Command="&quot;$(TailwindCli).cmd&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot;"
-          Condition="'$(OS)' == 'Windows_NT' And '$(Configuration)' != 'Release'"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <Exec Command="&quot;$(TailwindCli)&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot; --minify"
-          Condition="'$(OS)' != 'Windows_NT' And '$(Configuration)' == 'Release'"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <Exec Command="&quot;$(TailwindCli)&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot;"
-          Condition="'$(OS)' != 'Windows_NT' And '$(Configuration)' != 'Release'"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="&quot;$(TailwindCli).cmd&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot; --minify" Condition="'$(OS)' == 'Windows_NT' And '$(Configuration)' == 'Release'" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="&quot;$(TailwindCli).cmd&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot;" Condition="'$(OS)' == 'Windows_NT' And '$(Configuration)' != 'Release'" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="&quot;$(TailwindCli)&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot; --minify" Condition="'$(OS)' != 'Windows_NT' And '$(Configuration)' == 'Release'" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="&quot;$(TailwindCli)&quot; -i &quot;$(TailwindInput)&quot; -o &quot;$(TailwindOutput)&quot;" Condition="'$(OS)' != 'Windows_NT' And '$(Configuration)' != 'Release'" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 
   <Target Name="CleanTailwind" AfterTargets="Clean">

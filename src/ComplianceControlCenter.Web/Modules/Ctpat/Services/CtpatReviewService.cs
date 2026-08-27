@@ -28,7 +28,10 @@ public class CtpatReviewService : ICtpatReviewService
 
     public async Task<CtpatReview> GetOrCreateAsync(int questionId, int year, CancellationToken ct = default)
     {
+        // AsNoTracking evita conflictos con el ChangeTracker cuando el mismo DbContext
+        // ya tiene la entidad cargada sin Include(Files) desde GetReviewsForYearAsync.
         var review = await _db.CtpatReviews
+            .AsNoTracking()
             .Include(r => r.Files)
             .FirstOrDefaultAsync(r => r.QuestionId == questionId && r.Year == year, ct);
         if (review is not null) return review;
@@ -39,11 +42,16 @@ public class CtpatReviewService : ICtpatReviewService
             Year = year,
             Status = CtpatReviewStatus.Pendiente,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            Files = new List<CtpatReviewFile>()
         };
         _db.CtpatReviews.Add(review);
         await _db.SaveChangesAsync(ct);
-        return review;
+        // Re-leer para obtener el Id generado y Files inicializado correctamente
+        return await _db.CtpatReviews
+            .AsNoTracking()
+            .Include(r => r.Files)
+            .FirstAsync(r => r.Id == review.Id, ct);
     }
 
     public async Task UpdateFieldAsync(int reviewId, string fieldName, string? value, string user, CancellationToken ct = default)
@@ -83,5 +91,57 @@ public class CtpatReviewService : ICtpatReviewService
         if (string.IsNullOrEmpty(r.Revisor)) r.Revisor = user;
 
         await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<CtpatCriterioStats>> GetStatsByCriterioAsync(int year, CancellationToken ct = default)
+    {
+        // Carga preguntas ordenadas por criterio
+        var questions = await _db.CtpatQuestions
+            .AsNoTracking()
+            .OrderBy(q => q.Criterio).ThenBy(q => q.SortOrder)
+            .ToListAsync(ct);
+
+        // Carga reviews del año
+        var reviews = await _db.CtpatReviews
+            .AsNoTracking()
+            .Where(r => r.Year == year)
+            .ToListAsync(ct);
+
+        var reviewByQuestion = reviews.ToDictionary(r => r.QuestionId);
+
+        var grouped = questions
+            .GroupBy(q => q.Criterio)
+            .Select(g =>
+            {
+                int pendiente = 0, sinCambios = 0, conCambios = 0, revisado = 0;
+                foreach (var q in g)
+                {
+                    var status = reviewByQuestion.TryGetValue(q.Id, out var r)
+                        ? r.Status
+                        : CtpatReviewStatus.Pendiente;
+                    switch (status)
+                    {
+                        case CtpatReviewStatus.SinCambios: sinCambios++; break;
+                        case CtpatReviewStatus.ConCambios: conCambios++; break;
+                        case CtpatReviewStatus.Revisado:   revisado++;   break;
+                        default:                           pendiente++;  break;
+                    }
+                }
+                return new CtpatCriterioStats(g.Key, g.Count(), pendiente, sinCambios, conCambios, revisado);
+            })
+            .ToList();
+
+        return grouped;
+    }
+
+    public async Task<IReadOnlyList<CtpatReview>> GetReviewsWithQuestionsAsync(int year, CancellationToken ct = default)
+    {
+        return await _db.CtpatReviews
+            .AsNoTracking()
+            .Include(r => r.Question)
+            .Include(r => r.Files)
+            .Where(r => r.Year == year)
+            .OrderBy(r => r.Question.SortOrder)
+            .ToListAsync(ct);
     }
 }

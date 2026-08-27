@@ -2,13 +2,13 @@
 
 @if (_visible)
 {
-    <div class="modal modal-open" role="dialog" aria-modal="true">
-        <div class="modal-box border border-base-300">
+    <div class="modal modal-open modal-backdrop-in" role="dialog" aria-modal="true">
+        <div class="modal-box border border-base-300 modal-in">
             <h3 class="font-bold text-lg">@Title</h3>
             <p class="py-4 text-base-content/80">@Message</p>
             <div class="modal-action">
-                <button class="btn btn-ghost" @onclick="Cancel">@CancelText</button>
-                <button class="btn @ConfirmClass" @onclick="Confirm">@ConfirmText</button>
+                <button class="btn btn-ghost smooth" @onclick="Cancel">@CancelText</button>
+                <button class="btn @ConfirmClass smooth" @onclick="Confirm">@ConfirmText</button>
             </div>
         </div>
         <div class="modal-backdrop bg-black/40" @onclick="Cancel"></div>
