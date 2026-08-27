@@ -36,9 +36,11 @@
         <div class="fixed inset-0 z-40" @onclick="Close"></div>
 
         <!-- Popover del calendario: position: fixed para escapar de overflows.
-             Coordenadas calculadas por cccFixedPopover en JS. -->
-        <div class="fixed z-50 w-72 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none dropdown-in"
-             style="top:@(_top)px; left:@(_left)px;"
+             Se renderiza primero con visibility:hidden para medir su tamaño real
+             y luego se posiciona (evita clamp incorrecto por estimaciones). -->
+        <div @ref="_popoverRef"
+             class="fixed z-50 w-72 rounded-box border border-base-content/10 bg-base-100 shadow-lg p-3 select-none dropdown-in"
+             style="top:@(_top)px; left:@(_left)px; @(_measured ? "" : "visibility:hidden;")"
              @onclick:stopPropagation="true"
              @onkeydown="HandleCalendarKeyDown">
 
@@ -148,18 +150,21 @@
     /// <summary>Muestra botón "Limpiar" en el footer cuando hay valor seleccionado.</summary>
     [Parameter] public bool AllowClear { get; set; } = true;
     /// <summary>
-    /// Alineación preferida del popover: "start" (izquierda) o "end" (derecha).
-    /// Se ignora si la auto-detección de espacio indica lo contrario.
+    /// Alineación horizontal preferida del popover respecto al trigger:
+    /// "start" (izquierda), "center" (centrado, default) o "end" (derecha).
+    /// Se ajusta automáticamente si no hay espacio en el viewport.
     /// </summary>
-    [Parameter] public string Align { get; set; } = "start";
+    [Parameter] public string Align { get; set; } = "center";
 
     // Coordenadas fixed calculadas por cccFixedPopover.
     private double _top;
     private double _left;
 
     private ElementReference _triggerRef;
+    private ElementReference _popoverRef;
     private bool _openUp;
     private bool _openLeft;
+    private bool _measured;
 
     private bool _isOpen;
     private DateTime? _selected;
@@ -197,7 +202,7 @@
         (_minDate.HasValue && date < _minDate.Value) ||
         (_maxDate.HasValue && date > _maxDate.Value);
 
-    private async Task Toggle()
+    private void Toggle()
     {
         if (Disabled) return;
         _isOpen = !_isOpen;
@@ -206,36 +211,51 @@
             var anchor = _selected ?? DateTime.Today;
             _displayMonth = new DateTime(anchor.Year, anchor.Month, 1);
             BuildCells();
-            await MeasurePlacementAsync();
+            // Reset: se renderiza invisible; OnAfterRenderAsync mide y posiciona.
+            _measured = false;
+            _top = 0;
+            _left = 0;
+        }
+        else
+        {
+            _measured = false;
         }
     }
 
-    private async Task MeasurePlacementAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        // Cuando el calendario acaba de renderizarse (invisible), se mide su
+        // tamaño real y se posiciona. Un StateHasChanged final lo hace visible.
+        if (_isOpen && !_measured)
         {
-            // w-72 = 288px, altura estimada del calendario ~330px.
-            // Se usa cccFixedPopover para obtener coordenadas absolutas de viewport
-            // (position: fixed) porque el DatePicker puede estar dentro de un
-            // contenedor con overflow-x-auto (tabla del Checklist).
-            var pref = Align?.ToLowerInvariant() == "end" ? "end" : "start";
-            var result = await JS.InvokeAsync<PlacementResult>(
-                "cccFixedPopover.getPlacement", _triggerRef, 330, 288, pref);
-            _top      = result.Top;
-            _left     = result.Left;
-            _openUp   = result.OpenUp;
-            _openLeft = result.OpenLeft;
-        }
-        catch
-        {
-            _top      = 0;
-            _left     = 0;
-            _openUp   = false;
-            _openLeft = Align?.ToLowerInvariant() == "end";
+            try
+            {
+                var pref = (Align ?? "center").ToLowerInvariant();
+                if (pref != "start" && pref != "end" && pref != "center") pref = "center";
+                var result = await JS.InvokeAsync<PlacementResult>(
+                    "cccFixedPopover.measureAndPlace", _popoverRef, _triggerRef, pref, "bottom");
+                _top      = result.Top;
+                _left     = result.Left;
+                _openUp   = result.OpenUp;
+                _openLeft = result.OpenLeft;
+            }
+            catch
+            {
+                _top      = 0;
+                _left     = 0;
+                _openUp   = false;
+                _openLeft = false;
+            }
+            _measured = true;
+            StateHasChanged();
         }
     }
 
-    private void Close() => _isOpen = false;
+    private void Close()
+    {
+        _isOpen = false;
+        _measured = false;
+    }
 
     private void PrevMonth()
     {
@@ -254,6 +274,7 @@
         if (IsOutOfRange(date)) return;
         _selected = date;
         _isOpen = false;
+        _measured = false;
         var iso = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         Value = iso;
         await ValueChanged.InvokeAsync(iso);
@@ -276,6 +297,7 @@
     {
         _selected = null;
         _isOpen = false;
+        _measured = false;
         Value = null;
         await ValueChanged.InvokeAsync(null);
     }
@@ -296,13 +318,13 @@
 
     private void HandleTriggerKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape") _isOpen = false;
-        else if (e.Key is "Enter" or " ") _ = Toggle();
+        if (e.Key == "Escape") { _isOpen = false; _measured = false; }
+        else if (e.Key is "Enter" or " ") Toggle();
     }
 
     private void HandleCalendarKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape") _isOpen = false;
+        if (e.Key == "Escape") { _isOpen = false; _measured = false; }
     }
 
     private record PlacementResult(double Top, double Left, bool OpenUp, bool OpenLeft);

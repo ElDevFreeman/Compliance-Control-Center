@@ -4,8 +4,11 @@
    el evento onclick del botón de opción llegara a invocarse.
 
    El popup usa `position: fixed` con coordenadas calculadas por JS
-   (`cccFixedPopover`) para escapar de contenedores con overflow (como el
-   scroll horizontal de la tabla del Checklist). *@
+   (`cccFixedPopover.measureAndPlace`) para escapar de contenedores con
+   overflow (como el scroll horizontal de la tabla del Checklist).
+   Se renderiza primero con visibility:hidden para poder medir su tamaño
+   REAL antes de posicionarlo, evitando desplazamientos por estimaciones
+   incorrectas. *@
 
 @inject IJSRuntime JS
 
@@ -24,8 +27,9 @@
         <!-- Backdrop invisible para cerrar al click fuera -->
         <div class="fixed inset-0 z-40" @onclick="CloseAsync" @onclick:stopPropagation></div>
 
-        <ul class="fixed menu bg-base-100 rounded-box z-50 w-44 p-2 shadow-lg border border-base-300 dropdown-in"
-            style="top:@(_top)px; left:@(_left)px;">
+        <ul @ref="_popoverRef"
+            class="fixed menu bg-base-100 rounded-box z-50 w-44 p-2 shadow-lg border border-base-300 dropdown-in"
+            style="top:@(_top)px; left:@(_left)px; @(_measured ? "" : "visibility:hidden;")">
             @foreach (var status in AllStatuses)
             {
                 var s = status;
@@ -54,15 +58,13 @@
     [Parameter] public bool Disabled { get; set; }
 
     private bool _open;
+    private bool _measured;
     private ElementReference _triggerRef;
+    private ElementReference _popoverRef;
 
     // Coordenadas calculadas para position: fixed
     private double _top;
     private double _left;
-
-    // Dimensiones estimadas del popup (deben coincidir con las clases w-44 y ~5 items)
-    private const int PopoverWidthPx  = 176;  // w-44
-    private const int PopoverHeightPx = 220;  // 5 opciones × ~40px + padding
 
     private static readonly ComplianceStatus[] AllStatuses =
     [
@@ -73,35 +75,59 @@
         ComplianceStatus.NA,
     ];
 
-    private async Task ToggleAsync()
+    private Task ToggleAsync()
     {
-        if (Disabled) return;
-        _open = !_open;
-        if (_open) await MeasurePlacementAsync();
-    }
-
-    private async Task MeasurePlacementAsync()
-    {
-        try
+        if (Disabled) return Task.CompletedTask;
+        if (_open)
         {
-            var r = await JS.InvokeAsync<Placement>(
-                "cccFixedPopover.getPlacement",
-                _triggerRef, PopoverHeightPx, PopoverWidthPx, "start");
-            _top  = r.Top;
-            _left = r.Left;
+            _open = false;
+            _measured = false;
         }
-        catch
+        else
         {
-            _top  = 0;
+            // Reset: se abre invisible; OnAfterRenderAsync mide y posiciona.
+            _measured = false;
+            _top = 0;
             _left = 0;
+            _open = true;
+        }
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Cuando el popover acaba de renderizarse (invisible), lo medimos y
+        // aplicamos coordenadas. Un solo StateHasChanged final lo hace visible.
+        if (_open && !_measured)
+        {
+            try
+            {
+                var r = await JS.InvokeAsync<Placement>(
+                    "cccFixedPopover.measureAndPlace",
+                    _popoverRef, _triggerRef, "center", "bottom");
+                _top  = r.Top;
+                _left = r.Left;
+            }
+            catch
+            {
+                _top  = 0;
+                _left = 0;
+            }
+            _measured = true;
+            StateHasChanged();
         }
     }
 
-    private void CloseAsync() => _open = false;
+    private void CloseAsync()
+    {
+        _open = false;
+        _measured = false;
+    }
 
     private async Task SelectAsync(ComplianceStatus s)
     {
         _open = false;
+        _measured = false;
         if (s == Current) return;
         await OnChange.InvokeAsync(s);
     }

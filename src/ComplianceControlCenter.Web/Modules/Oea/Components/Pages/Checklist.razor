@@ -145,22 +145,26 @@
     }
     else
     {
-        <div class="flex-1 min-h-0 overflow-auto">
+        @* Drag-to-scroll horizontal via `ccc-drag-scroll` + [data-drag-scroll="1"]
+           (ver window.cccDragScroll en app.js). Ignora clicks en inputs/botones
+           para no interferir con la edición inline. *@
+        <div class="flex-1 min-h-0 overflow-auto ccc-drag-scroll" data-drag-scroll="1">
             <table class="table table-sm table-zebra table-pin-rows">
                 <thead>
                     <tr class="bg-base-200 text-base-content/70">
                         <th class="min-w-20">Item</th>
+                        <th class="min-w-36">Estado</th>
+                        <th class="min-w-40">Vencimiento</th>
                         <th class="min-w-36">Fundamento</th>
                         <th class="min-w-40">Actividad</th>
                         <th class="min-w-48">Descripción</th>
                         <th class="min-w-32">Documentos</th>
                         <th class="min-w-28">Responsable</th>
                         <th class="min-w-24">Frecuencia</th>
-                        <th class="min-w-28">Estado</th>
-                        <th class="min-w-36">Vencimiento</th>
                         <th class="min-w-48">Acción correctiva</th>
-                        <th class="w-12 text-center">Coment.</th>
-                        <th class="w-12"></th>
+                        <th class="sticky-col-right w-24 text-center sticky right-0 bg-base-200 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.15)] z-20">
+                            Acciones
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -168,14 +172,8 @@
                     {
                         var st = a.MonthlyStatuses.FirstOrDefault();
                         var isOverdue = st?.Status == ComplianceStatus.Vencido;
-                        <tr class="@(isOverdue ? "bg-error/5" : "") hover:bg-base-200/50">
+                        <tr class="@(isOverdue ? "row-overdue" : "") hover:bg-base-200/50">
                             <td class="font-mono text-xs text-primary font-semibold">@a.Item</td>
-                            <td><EditableCell Value="@a.Legal" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Legal), v)" /></td>
-                            <td><EditableCell Value="@a.Name" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Name), v)" /></td>
-                            <td><EditableCell Value="@a.Description" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Description), v)" /></td>
-                            <td><EditableCell Value="@a.Documents" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Documents), v)" /></td>
-                            <td><EditableCell Value="@a.Owner" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Owner), v)" /></td>
-                            <td><EditableCell Value="@a.Frequency" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Frequency), v)" /></td>
                             <td>
                                 <StatusMenu Current="@(st?.Status ?? ComplianceStatus.Pendiente)"
                                             Disabled="!_canEdit"
@@ -188,31 +186,37 @@
                                             Disabled="!_canEdit"
                                             ValueChanged="v => UpdateDueDateAsync(a, v)" />
                             </td>
+                            <td><EditableCell Value="@a.Legal" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Legal), v)" /></td>
+                            <td><EditableCell Value="@a.Name" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Name), v)" /></td>
+                            <td><EditableCell Value="@a.Description" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Description), v)" /></td>
+                            <td><EditableCell Value="@a.Documents" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Documents), v)" /></td>
+                            <td><EditableCell Value="@a.Owner" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Owner), v)" /></td>
+                            <td><EditableCell Value="@a.Frequency" Disabled="!_canEdit" OnSave="v => UpdateFieldAsync(a, nameof(Activity.Frequency), v)" /></td>
                             <td>
                                 <EditableCell Value="@(st?.CorrectiveActions)"
                                               Disabled="!_canEdit"
                                               OnSave="v => UpdateCorrectiveAsync(a, v)" />
                             </td>
-                            <td class="text-center">
-                                <button class="btn btn-ghost btn-xs"
-                                        @onclick="() => OpenDrawer(a)"
-                                        title="Comentarios y detalles">
-                                    <span class="material-symbols-outlined text-[18px] leading-none">chat</span>
-                                    @if (a.Comments.Count > 0)
-                                    {
-                                        <span class="badge badge-xs badge-primary badge-soft">@a.Comments.Count</span>
-                                    }
-                                </button>
-                            </td>
-                            <td>
-                                @if (_canEdit)
-                                {
-                                    <button class="btn btn-ghost btn-xs text-error"
-                                            @onclick="() => ConfirmDeleteAsync(a)"
-                                            title="Eliminar fila">
-                                        <span class="material-symbols-outlined text-[18px] leading-none">delete</span>
+                            <td class="sticky-col-right text-center sticky right-0 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.15)] z-10">
+                                <div class="inline-flex items-center gap-0.5">
+                                    <button class="btn btn-ghost btn-xs"
+                                            @onclick="() => OpenDrawer(a)"
+                                            title="Comentarios y detalles">
+                                        <span class="material-symbols-outlined text-[18px] leading-none">chat</span>
+                                        @if (a.Comments.Count > 0)
+                                        {
+                                            <span class="badge badge-xs badge-primary badge-soft">@a.Comments.Count</span>
+                                        }
                                     </button>
-                                }
+                                    @if (_canEdit)
+                                    {
+                                        <button class="btn btn-ghost btn-xs text-error"
+                                                @onclick="() => ConfirmDeleteAsync(a)"
+                                                title="Eliminar fila">
+                                            <span class="material-symbols-outlined text-[18px] leading-none">delete</span>
+                                        </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }

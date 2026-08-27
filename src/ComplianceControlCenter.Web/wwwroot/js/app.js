@@ -82,45 +82,107 @@ window.cccPopover = {
 // Checklist (que tiene overflow-x-auto para el scroll horizontal).
 //
 // popoverH / popoverW: dimensiones estimadas del popup (px).
-// preferredAlign: "start" | "end" — lado preferido del popup respecto al trigger.
-window.cccFixedPopover = {
-    getPlacement: function (triggerEl, popoverH, popoverW, preferredAlign) {
-        try {
-            var rect = triggerEl.getBoundingClientRect();
-            var vh = window.innerHeight || document.documentElement.clientHeight;
-            var vw = window.innerWidth  || document.documentElement.clientWidth;
+// preferredAlign: "start" | "center" | "end" — alineación horizontal preferida
+//                                                (aplica solo en side="bottom").
+// side: "bottom" (default) — el popup se abre debajo/arriba del trigger.
+//       "right"            — el popup se abre a la derecha/izquierda del trigger,
+//                             alineado verticalmente al mismo top.
+//
+// Además expone `measureAndPlace(popoverEl, triggerEl, preferredAlign, side)`
+// que mide el popover REAL ya renderizado en el DOM. Esto elimina errores
+// causados por estimaciones de altura/ancho: útil cuando la estimación en
+// px no coincide con el tamaño real y el clamp separa el popup del trigger.
+window.cccFixedPopover = (function () {
+    function compute(rect, popoverH, popoverW, preferredAlign, side) {
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        var vw = window.innerWidth  || document.documentElement.clientWidth;
+        var GAP = 4;
+        var MARGIN = 8;
 
-            var spaceBelow = vh - rect.bottom;
-            var spaceAbove = rect.top;
-            var openUp = spaceBelow < (popoverH + 8) && spaceAbove >= spaceBelow;
+        side = side === "right" ? "right" : "bottom";
 
-            // Alineación horizontal: si "end" el popup termina en rect.right;
-            // si "start" empieza en rect.left. Si no cabe, alternamos.
-            var alignEnd = preferredAlign === "end";
-            var leftIfStart = rect.left;
-            var leftIfEnd   = rect.right - popoverW;
-            var openLeft;
-            if (alignEnd) {
-                openLeft = leftIfEnd >= 8;
-            } else {
-                openLeft = (rect.left + popoverW > vw - 8) && (leftIfEnd >= 8);
-            }
+        if (side === "right") {
+            // Colocación lateral: preferimos a la derecha del trigger.
+            var spaceRight = vw - rect.right;
+            var spaceLeft  = rect.left;
+            var openLeft   = spaceRight < (popoverW + GAP) && spaceLeft >= spaceRight;
 
-            var left = openLeft ? leftIfEnd : leftIfStart;
-            // Clamp para que nunca se salga del viewport.
-            left = Math.max(8, Math.min(left, vw - popoverW - 8));
+            var left = openLeft
+                ? (rect.left - popoverW - GAP)
+                : (rect.right + GAP);
+            left = Math.max(MARGIN, Math.min(left, vw - popoverW - MARGIN));
 
-            var top = openUp
-                ? (rect.top - popoverH - 4)
-                : (rect.bottom + 4);
-            top = Math.max(8, Math.min(top, vh - popoverH - 8));
+            var top = rect.top;
+            top = Math.max(MARGIN, Math.min(top, vh - popoverH - MARGIN));
 
-            return { top: top, left: left, openUp: openUp, openLeft: openLeft };
-        } catch (e) {
-            return { top: 0, left: 0, openUp: false, openLeft: false };
+            return { top: top, left: left, openUp: false, openLeft: openLeft };
         }
+
+        // side === "bottom"
+        var spaceBelow = vh - rect.bottom;
+        var spaceAbove = rect.top;
+        // Preferir arriba solo si abajo no cabe Y arriba tiene más espacio.
+        var openUp = spaceBelow < (popoverH + GAP) && spaceAbove > spaceBelow;
+
+        // Alineación horizontal.
+        var leftIfStart  = rect.left;
+        var leftIfEnd    = rect.right - popoverW;
+        var leftIfCenter = rect.left + (rect.width - popoverW) / 2;
+
+        var openLeftB = false;
+        var leftB;
+        if (preferredAlign === "end") {
+            openLeftB = leftIfEnd >= MARGIN;
+            leftB = openLeftB ? leftIfEnd : leftIfStart;
+        } else if (preferredAlign === "center") {
+            leftB = leftIfCenter;
+        } else {
+            openLeftB = (rect.left + popoverW > vw - MARGIN) && (leftIfEnd >= MARGIN);
+            leftB = openLeftB ? leftIfEnd : leftIfStart;
+        }
+        leftB = Math.max(MARGIN, Math.min(leftB, vw - popoverW - MARGIN));
+
+        var topB = openUp
+            ? (rect.top - popoverH - GAP)
+            : (rect.bottom + GAP);
+        topB = Math.max(MARGIN, Math.min(topB, vh - popoverH - MARGIN));
+
+        return { top: topB, left: leftB, openUp: openUp, openLeft: openLeftB };
     }
-};
+
+    return {
+        // API antigua: usa estimaciones de tamaño.
+        getPlacement: function (triggerEl, popoverH, popoverW, preferredAlign, side) {
+            try {
+                var rect = triggerEl.getBoundingClientRect();
+                return compute(rect, popoverH, popoverW, preferredAlign, side);
+            } catch (e) {
+                return { top: 0, left: 0, openUp: false, openLeft: false };
+            }
+        },
+
+        // API preferida: mide el popover REAL ya renderizado (evita clamp
+        // agresivo cuando la altura/ancho estimados eran mayores al real).
+        // El popover debe estar en el DOM. Recomendación: render inicial con
+        // visibility:hidden para evitar el flash, luego aplicar top/left y
+        // quitar el hidden.
+        measureAndPlace: function (popoverEl, triggerEl, preferredAlign, side) {
+            try {
+                if (!popoverEl || !triggerEl) {
+                    return { top: 0, left: 0, openUp: false, openLeft: false };
+                }
+                var rect = triggerEl.getBoundingClientRect();
+                var pr   = popoverEl.getBoundingClientRect();
+                // Ancho/alto mínimos por si el popover aún no tiene tamaño.
+                var w = pr.width  > 0 ? pr.width  : popoverEl.offsetWidth;
+                var h = pr.height > 0 ? pr.height : popoverEl.offsetHeight;
+                return compute(rect, h, w, preferredAlign, side);
+            } catch (e) {
+                return { top: 0, left: 0, openUp: false, openLeft: false };
+            }
+        }
+    };
+})();
 
 // Panel lateral: bloquea/desbloquea el scroll del <main> mientras el panel está abierto.
 // Agrega overflow-hidden al <main> para que no se pueda hacer scroll debajo del overlay.

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +32,52 @@ builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 
 // ────────────────────────────────────────────────────────────────
+// Reverse proxy: aceptar X-Forwarded-For / Proto / Host de IIS/ARR.
+// Necesario para que Request.Scheme sea "https" cuando el TLS termina
+// en el front-end. Sin esto, las cookies "Secure" y la validación de
+// antiforgery fallan detrás del proxy (HTTP 400 en el POST del login).
+// ────────────────────────────────────────────────────────────────
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost;
+    // El proxy corre en el mismo host o en la LAN; se acepta cualquier proxy.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// ────────────────────────────────────────────────────────────────
+// Data Protection: persistir llaves fuera del perfil temporal del
+// AppPool. Si no, cada reciclaje invalida el token antiforgery y las
+// cookies → login devuelve HTTP 400. La ruta se toma de:
+//   appsettings.json → "DataProtection:KeysPath"
+// Fallback: <ContentRoot>\App_Data\dp-keys
+// ────────────────────────────────────────────────────────────────
+var keysPath = builder.Configuration["DataProtection:KeysPath"];
+if (string.IsNullOrWhiteSpace(keysPath))
+{
+    keysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "dp-keys");
+}
+Directory.CreateDirectory(keysPath);
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+    .SetApplicationName("ComplianceControlCenter");
+
+// ────────────────────────────────────────────────────────────────
+// Cookie policy: detrás de un proxy con TLS, "SameAsRequest" evita
+// que el navegador descarte la cookie cuando el server ve HTTP pero
+// el cliente usa HTTPS (mientras UseForwardedHeaders corrige el scheme).
+// ────────────────────────────────────────────────────────────────
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
+    options.Secure = CookieSecurePolicy.SameAsRequest;
+});
+
+// ────────────────────────────────────────────────────────────────
 // Authentication (ASP.NET Core Identity con roles)
 // ────────────────────────────────────────────────────────────────
 builder.Services.AddCascadingAuthenticationState();
@@ -42,6 +91,14 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
+
+// Ajusta las cookies de Identity para el reverse proxy + subruta.
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.HttpOnly = true;
+});
 
 builder.Services.AddAuthorization();
 
@@ -118,6 +175,14 @@ builder.Services.AddApexCharts();
 var app = builder.Build();
 
 // ────────────────────────────────────────────────────────────────
+// PRIMER middleware: aplicar cabeceras del reverse proxy (X-Forwarded-*).
+// Debe ejecutarse ANTES de UsePathBase / Authentication / Antiforgery
+// para que Request.Scheme, Request.Host y Request.IsHttps reflejen la
+// petición original del cliente (HTTPS 8443) y no el hop interno HTTP.
+// ────────────────────────────────────────────────────────────────
+app.UseForwardedHeaders();
+
+// ────────────────────────────────────────────────────────────────
 // Path base (para despliegue en subruta de IIS, p. ej. "/CCC").
 // Se configura vía appsettings.json → "PathBase": "/CCC".
 // ────────────────────────────────────────────────────────────────
@@ -153,6 +218,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
