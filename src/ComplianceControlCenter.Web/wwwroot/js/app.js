@@ -93,6 +93,65 @@ window.cccPopover = {
 // causados por estimaciones de altura/ancho: útil cuando la estimación en
 // px no coincide con el tamaño real y el clamp separa el popup del trigger.
 window.cccFixedPopover = (function () {
+    // ── Tracking de reposicionamiento continuo ────────────────────────
+    // Cuando un popover está abierto, escuchamos scroll/resize en el
+    // viewport Y en cada ancestro scrollable del trigger. Ante cualquier
+    // evento, recomponemos coordenadas para que el popover "siga" a su
+    // trigger. Requerido para tablas con overflow interno (Checklist OEA).
+    //
+    // Cada popover se identifica por un token entero devuelto por `track`;
+    // el componente Blazor debe llamar `untrack(token)` al cerrar/re-abrir.
+    var _trackers = new Map();
+    var _nextId = 1;
+
+    function getScrollableAncestors(el) {
+        var result = [];
+        var node = el && el.parentElement;
+        while (node && node !== document.body && node !== document.documentElement) {
+            var cs = window.getComputedStyle(node);
+            var oy = cs.overflowY;
+            var ox = cs.overflowX;
+            if (oy === "auto" || oy === "scroll" || ox === "auto" || ox === "scroll") {
+                result.push(node);
+            }
+            node = node.parentElement;
+        }
+        return result;
+    }
+
+    // Detecta si un elemento "rompe" position:fixed en sus descendientes,
+    // convirtiéndose en containing block según la spec CSS.
+    // Ver: https://developer.mozilla.org/en-US/docs/Web/CSS/position#fixed
+    function isFixedContainingBlock(el, cs) {
+        if (!cs) cs = window.getComputedStyle(el);
+        if (cs.transform && cs.transform !== "none") return true;
+        if (cs.perspective && cs.perspective !== "none") return true;
+        if (cs.filter && cs.filter !== "none") return true;
+        if (cs.backdropFilter && cs.backdropFilter !== "none") return true;
+        // will-change puede referirse a transform, perspective, filter...
+        var wc = cs.willChange || "";
+        if (wc.indexOf("transform") !== -1 ||
+            wc.indexOf("perspective") !== -1 ||
+            wc.indexOf("filter") !== -1) return true;
+        // contain: layout/paint/strict/content también crean containing block.
+        var ct = cs.contain || "";
+        if (ct.indexOf("layout") !== -1 ||
+            ct.indexOf("paint") !== -1 ||
+            ct === "strict" || ct === "content") return true;
+        return false;
+    }
+
+    // Busca el ancestor más cercano del popover que sea containing block
+    // para position:fixed. Devuelve null si el viewport es el containing block.
+    function findFixedContainingBlock(popoverEl) {
+        var node = popoverEl && popoverEl.parentElement;
+        while (node && node !== document.body && node !== document.documentElement) {
+            if (isFixedContainingBlock(node)) return node;
+            node = node.parentElement;
+        }
+        return null;
+    }
+
     function compute(rect, popoverH, popoverW, preferredAlign, side) {
         var vh = window.innerHeight || document.documentElement.clientHeight;
         var vw = window.innerWidth  || document.documentElement.clientWidth;
@@ -166,6 +225,12 @@ window.cccFixedPopover = (function () {
         // El popover debe estar en el DOM. Recomendación: render inicial con
         // visibility:hidden para evitar el flash, luego aplicar top/left y
         // quitar el hidden.
+        //
+        // Si un ancestor del popover es containing block para position:fixed
+        // (por tener transform/filter/perspective/will-change/contain), las
+        // coordenadas top/left se computan RELATIVAS a ese ancestor, no al
+        // viewport. Compensamos restando su rect para que el resultado sea
+        // consistente con el layout esperado del componente.
         measureAndPlace: function (popoverEl, triggerEl, preferredAlign, side) {
             try {
                 if (!popoverEl || !triggerEl) {
@@ -176,10 +241,123 @@ window.cccFixedPopover = (function () {
                 // Ancho/alto mínimos por si el popover aún no tiene tamaño.
                 var w = pr.width  > 0 ? pr.width  : popoverEl.offsetWidth;
                 var h = pr.height > 0 ? pr.height : popoverEl.offsetHeight;
-                return compute(rect, h, w, preferredAlign, side);
+                var p = compute(rect, h, w, preferredAlign, side);
+
+                var cb = findFixedContainingBlock(popoverEl);
+                if (cb) {
+                    var cbr = cb.getBoundingClientRect();
+                    p.top  -= cbr.top;
+                    p.left -= cbr.left;
+                }
+                return p;
             } catch (e) {
                 return { top: 0, left: 0, openUp: false, openLeft: false };
             }
+        },
+
+        // Empieza a "seguir" al trigger: reposiciona el popover en scroll
+        // (viewport + cada ancestro scrollable) y en resize.
+        //
+        // Aplica coordenadas directamente al DOM (popoverEl.style.top/left)
+        // sin invocar Blazor, para que sea inmediato y no consuma re-renders.
+        //
+        // Además, si el trigger sale del viewport visible del contenedor
+        // scrollable (ej. el usuario scrollea horizontal la tabla hasta que
+        // la fila queda fuera), el popover se oculta visualmente (pero
+        // permanece en el DOM). Vuelve al ser visible.
+        //
+        // Devuelve un token entero. El componente Blazor debe llamar
+        // `untrack(token)` al cerrar el popover o antes de re-track.
+        track: function (popoverEl, triggerEl, preferredAlign, side) {
+            try {
+                if (!popoverEl || !triggerEl) return 0;
+
+                var scrollables = getScrollableAncestors(triggerEl);
+                // Cache del containing block: raro que cambie durante la vida
+                // del popover, pero lo recalculamos por si el layout se mueve.
+                var reposition = function () {
+                    try {
+                        // Si el trigger fue removido del DOM, auto-untrack.
+                        if (!triggerEl.isConnected) {
+                            window.cccFixedPopover.untrack(id);
+                            return;
+                        }
+                        var rect = triggerEl.getBoundingClientRect();
+                        var pr   = popoverEl.getBoundingClientRect();
+                        var w = pr.width  > 0 ? pr.width  : popoverEl.offsetWidth;
+                        var h = pr.height > 0 ? pr.height : popoverEl.offsetHeight;
+                        var p = compute(rect, h, w, preferredAlign, side);
+
+                        // Compensar containing block distinto del viewport.
+                        var cb = findFixedContainingBlock(popoverEl);
+                        if (cb) {
+                            var cbr = cb.getBoundingClientRect();
+                            p.top  -= cbr.top;
+                            p.left -= cbr.left;
+                        }
+
+                        popoverEl.style.top  = p.top  + "px";
+                        popoverEl.style.left = p.left + "px";
+
+                        // Ocultar el popover si el trigger quedó fuera del
+                        // clip-rect de algún ancestro scrollable (evita que
+                        // "flote" desconectado sobre otras filas).
+                        var hidden = false;
+                        for (var i = 0; i < scrollables.length; i++) {
+                            var sc = scrollables[i].getBoundingClientRect();
+                            if (rect.bottom < sc.top || rect.top > sc.bottom ||
+                                rect.right  < sc.left || rect.left > sc.right) {
+                                hidden = true;
+                                break;
+                            }
+                        }
+                        popoverEl.style.visibility = hidden ? "hidden" : "";
+                    } catch (e) { }
+                };
+
+                // rAF-throttle: en scroll rápido no queremos recomputar en cada evento.
+                var rafPending = false;
+                var onEvent = function () {
+                    if (rafPending) return;
+                    rafPending = true;
+                    requestAnimationFrame(function () {
+                        rafPending = false;
+                        reposition();
+                    });
+                };
+
+                for (var i = 0; i < scrollables.length; i++) {
+                    scrollables[i].addEventListener("scroll", onEvent, { passive: true });
+                }
+                window.addEventListener("scroll", onEvent, { passive: true });
+                window.addEventListener("resize", onEvent, { passive: true });
+
+                var id = _nextId++;
+                _trackers.set(id, {
+                    scrollables: scrollables,
+                    onEvent: onEvent,
+                    popoverEl: popoverEl
+                });
+                return id;
+            } catch (e) {
+                return 0;
+            }
+        },
+
+        untrack: function (token) {
+            try {
+                if (!token) return;
+                var t = _trackers.get(token);
+                if (!t) return;
+                for (var i = 0; i < t.scrollables.length; i++) {
+                    t.scrollables[i].removeEventListener("scroll", t.onEvent);
+                }
+                window.removeEventListener("scroll", t.onEvent);
+                window.removeEventListener("resize", t.onEvent);
+                // Restaurar visibility por si quedó hidden.
+                if (t.popoverEl) t.popoverEl.style.visibility = "";
+                _trackers.delete(token);
+            } catch (e) { }
         }
     };
 })();

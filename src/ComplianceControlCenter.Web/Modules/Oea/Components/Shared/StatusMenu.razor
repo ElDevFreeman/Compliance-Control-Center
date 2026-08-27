@@ -11,6 +11,7 @@
    incorrectas. *@
 
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <div class="inline-block">
     <button type="button"
@@ -62,6 +63,9 @@
     private ElementReference _triggerRef;
     private ElementReference _popoverRef;
 
+    // Token del tracker de reposicionamiento (scroll/resize). 0 = sin track.
+    private int _trackToken;
+
     // Coordenadas calculadas para position: fixed
     private double _top;
     private double _left;
@@ -75,11 +79,12 @@
         ComplianceStatus.NA,
     ];
 
-    private Task ToggleAsync()
+    private async Task ToggleAsync()
     {
-        if (Disabled) return Task.CompletedTask;
+        if (Disabled) return;
         if (_open)
         {
+            await UntrackAsync();
             _open = false;
             _measured = false;
         }
@@ -91,7 +96,6 @@
             _left = 0;
             _open = true;
         }
-        return Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -114,22 +118,48 @@
                 _left = 0;
             }
             _measured = true;
+
+            // Empezar a "seguir" al trigger: reposiciona en scroll/resize.
+            try
+            {
+                _trackToken = await JS.InvokeAsync<int>(
+                    "cccFixedPopover.track",
+                    _popoverRef, _triggerRef, "center", "bottom");
+            }
+            catch { _trackToken = 0; }
+
             StateHasChanged();
         }
     }
 
-    private void CloseAsync()
+    private async Task UntrackAsync()
     {
+        if (_trackToken != 0)
+        {
+            try { await JS.InvokeVoidAsync("cccFixedPopover.untrack", _trackToken); } catch { }
+            _trackToken = 0;
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        await UntrackAsync();
         _open = false;
         _measured = false;
     }
 
     private async Task SelectAsync(ComplianceStatus s)
     {
+        await UntrackAsync();
         _open = false;
         _measured = false;
         if (s == Current) return;
         await OnChange.InvokeAsync(s);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await UntrackAsync();
     }
 
     private record Placement(double Top, double Left, bool OpenUp, bool OpenLeft);

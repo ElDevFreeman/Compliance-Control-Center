@@ -5037,6 +5037,9 @@
   .rotate-180 {
     rotate: 180deg;
   }
+  .transform {
+    transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  }
   @layer daisyui.l1.l2.l3 {
     .skeleton {
       border-radius: var(--radius-box);
@@ -5065,6 +5068,9 @@
   }
   .fade-in-fast {
     animation: fadeSlideIn 0.18s ease-out both;
+  }
+  .fade-in-safe {
+    animation: fadeOnly 0.3s ease-out both;
   }
   .modal-backdrop-in {
     animation: modalBackdropIn 0.15s ease-out both;
@@ -6833,6 +6839,14 @@
     transform: translateY(0);
   }
 }
+@keyframes fadeOnly {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @keyframes slideInRight {
   from {
     opacity: 0;
@@ -6951,7 +6965,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fade-in, .fade-in-fast, .slide-in-right, .slide-in-left, .scale-in, .pop-in, .modal-in, .modal-backdrop-in, .dropdown-in, .report-fade-in, .slide-up, .progress-indeterminate, .panel-slide-in, .panel-backdrop-in {
+  .fade-in, .fade-in-fast, .fade-in-safe, .slide-in-right, .slide-in-left, .scale-in, .pop-in, .modal-in, .modal-backdrop-in, .dropdown-in, .report-fade-in, .slide-up, .progress-indeterminate, .panel-slide-in, .panel-backdrop-in {
     animation: none !important;
   }
 }
@@ -7278,6 +7292,26 @@
     opacity: 0;
   }
 }
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
+}
 @property --tw-space-y-reverse {
   syntax: "*";
   inherits: false;
@@ -7505,6 +7539,11 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
       --tw-space-y-reverse: 0;
       --tw-divide-y-reverse: 0;
       --tw-border-style: solid;

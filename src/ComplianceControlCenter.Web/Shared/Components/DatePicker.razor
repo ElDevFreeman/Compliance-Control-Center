@@ -5,6 +5,7 @@
 
 @using System.Globalization
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <div class="inline-block @Extra @(Disabled ? "opacity-60 pointer-events-none" : "")">
     <!-- Trigger -->
@@ -166,6 +167,9 @@
     private bool _openLeft;
     private bool _measured;
 
+    // Token del tracker de reposicionamiento (scroll/resize). 0 = sin track.
+    private int _trackToken;
+
     private bool _isOpen;
     private DateTime? _selected;
     private DateTime _displayMonth = new(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -219,6 +223,7 @@
         else
         {
             _measured = false;
+            _ = UntrackAsync();
         }
     }
 
@@ -247,7 +252,28 @@
                 _openLeft = false;
             }
             _measured = true;
+
+            // Empezar a "seguir" al trigger: reposiciona en scroll/resize
+            // (viewport + cada ancestro scrollable).
+            try
+            {
+                var pref = (Align ?? "center").ToLowerInvariant();
+                if (pref != "start" && pref != "end" && pref != "center") pref = "center";
+                _trackToken = await JS.InvokeAsync<int>(
+                    "cccFixedPopover.track", _popoverRef, _triggerRef, pref, "bottom");
+            }
+            catch { _trackToken = 0; }
+
             StateHasChanged();
+        }
+    }
+
+    private async Task UntrackAsync()
+    {
+        if (_trackToken != 0)
+        {
+            try { await JS.InvokeVoidAsync("cccFixedPopover.untrack", _trackToken); } catch { }
+            _trackToken = 0;
         }
     }
 
@@ -255,6 +281,7 @@
     {
         _isOpen = false;
         _measured = false;
+        _ = UntrackAsync();
     }
 
     private void PrevMonth()
@@ -275,6 +302,7 @@
         _selected = date;
         _isOpen = false;
         _measured = false;
+        await UntrackAsync();
         var iso = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         Value = iso;
         await ValueChanged.InvokeAsync(iso);
@@ -298,6 +326,7 @@
         _selected = null;
         _isOpen = false;
         _measured = false;
+        await UntrackAsync();
         Value = null;
         await ValueChanged.InvokeAsync(null);
     }
@@ -318,13 +347,18 @@
 
     private void HandleTriggerKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape") { _isOpen = false; _measured = false; }
+        if (e.Key == "Escape") { _isOpen = false; _measured = false; _ = UntrackAsync(); }
         else if (e.Key is "Enter" or " ") Toggle();
     }
 
     private void HandleCalendarKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Escape") { _isOpen = false; _measured = false; }
+        if (e.Key == "Escape") { _isOpen = false; _measured = false; _ = UntrackAsync(); }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await UntrackAsync();
     }
 
     private record PlacementResult(double Top, double Left, bool OpenUp, bool OpenLeft);

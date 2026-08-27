@@ -21,6 +21,14 @@
   animation: fadeSlideIn 0.18s ease-out both;
 }
 
+/* Variante SIN `transform` — usar en ancestros de popovers/dropdowns con
+   position: fixed. Un transform aplicado (aunque sea el estado final de una
+   animación con fill-mode: both) convierte al elemento en containing block
+   y rompe fixed en sus descendientes. */
+@utility fade-in-safe {
+  animation: fadeOnly 0.3s ease-out both;
+}
+
 @utility slide-in-right {
   animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -143,6 +151,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Fade puro sin transform — para no crear un containing block que rompa
+   position: fixed en descendientes (popovers). */
+@keyframes fadeOnly {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideInRight {
@@ -268,6 +283,7 @@
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
   .fade-in-fast,
+  .fade-in-safe,
   .slide-in-right,
   .slide-in-left,
   .scale-in,
