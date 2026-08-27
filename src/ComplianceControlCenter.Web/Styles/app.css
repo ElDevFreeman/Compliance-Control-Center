@@ -85,6 +85,53 @@
 }
 
 /* ─────────────────────────────────────────────
+   Tipografías fluidas — clamp(min, preferred, max)
+   El `preferred` combina un valor base en rem + un porcentaje del ancho de
+   viewport (vw), lo que hace que el texto crezca/decrezca linealmente entre
+   los límites. Resultado: pantallas estrechas (o Windows a 150%) muestran
+   la versión pequeña; pantallas amplias muestran la grande. Todo sin JS.
+
+   Uso: aplica estas clases en vez de `text-2xl`, `text-3xl`, etc. cuando
+   el texto sea un título de página, un KPI o un header de card.
+   ───────────────────────────────────────────── */
+@utility text-fluid-sm {
+  font-size: clamp(0.8125rem, 0.72rem + 0.28vw, 0.9375rem);   /* 13→15 px */
+  line-height: 1.4;
+}
+@utility text-fluid-base {
+  font-size: clamp(0.875rem, 0.78rem + 0.35vw, 1.0625rem);    /* 14→17 px */
+  line-height: 1.45;
+}
+@utility text-fluid-lg {
+  font-size: clamp(1rem, 0.88rem + 0.42vw, 1.25rem);          /* 16→20 px */
+  line-height: 1.4;
+}
+@utility text-fluid-xl {
+  font-size: clamp(1.125rem, 0.95rem + 0.6vw, 1.5rem);        /* 18→24 px */
+  line-height: 1.35;
+}
+@utility text-fluid-2xl {
+  font-size: clamp(1.25rem, 1rem + 0.9vw, 1.75rem);           /* 20→28 px */
+  line-height: 1.3;
+}
+@utility text-fluid-3xl {
+  font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.25rem);         /* 24→36 px */
+  line-height: 1.2;
+}
+@utility text-fluid-4xl {
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 3rem);            /* 28→48 px */
+  line-height: 1.15;
+}
+
+/* Números grandes de KPI/dashboards (avance, porcentaje, etc.). */
+@utility kpi-number {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.5rem);           /* 24→40 px */
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* ─────────────────────────────────────────────
    @keyframes
    ───────────────────────────────────────────── */
 @keyframes fadeSlideIn {
@@ -235,27 +282,6 @@
   .panel-backdrop-in {
     animation: none !important;
   }
-}
-
-/* ─────────────────────────────────────────────
-   Modo compacto — compensa Windows 125%/150%
-   Al reducir el font-size base del <html>, TODO lo que use `rem`
-   (tipografías, paddings, gaps, widths de Tailwind) escala junto.
-   Efecto: la UI luce como si el sistema estuviera al 100%.
-
-   Activación: se agrega la clase `compact-mode` al <html>.
-   El pre-boot script en App.razor lo aplica antes del primer paint.
-   ───────────────────────────────────────────── */
-html.compact-mode {
-  /* Tailwind por defecto asume 16px. 13px ≈ compensa una escala de ~123%,
-     un punto medio útil para pantallas a 125%–150%. */
-  font-size: 13px;
-}
-
-/* Los iconos de Material Symbols usan tamaño en px absoluto (text-[18px]),
-   así que también los reducimos ligeramente para acompañar la escala. */
-html.compact-mode .material-symbols-outlined {
-  font-size: 15px;
 }
 
 /* Blazor error UI (defecto del template) */

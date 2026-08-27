@@ -8,7 +8,6 @@
 @implements IDisposable
 @inject IJSRuntime JS
 @inject ThemeState Theme
-@inject CompactModeState Compact
 @inject NavigationManager Nav
 @inject LoginModalState LoginModal
 
@@ -120,22 +119,6 @@
         <div class="border-t border-base-300 my-2"></div>
 
         <ul class="menu w-full gap-1">
-            <!-- Modo compacto: reduce el tamaño base para compensar Windows a 125%/150%. -->
-            <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                data-tip="@(Compact.IsCompact ? "Vista normal" : "Vista compacta")">
-                <button type="button"
-                        @onclick="OnCompactToggle"
-                        class="rounded-lg is-drawer-close:justify-center is-drawer-close:px-0"
-                        aria-pressed="@(Compact.IsCompact ? "true" : "false")">
-                    <span class="material-symbols-outlined text-[18px] leading-none shrink-0">
-                        @(Compact.IsCompact ? "zoom_out_map" : "zoom_in_map")
-                    </span>
-                    <span class="is-drawer-close:hidden truncate">
-                        @(Compact.IsCompact ? "Vista normal" : "Vista compacta")
-                    </span>
-                </button>
-            </li>
-
             <!-- Theme toggle: usa daisyUI theme-controller (CSS puro).
                  El checkbox nativo aplica el tema por CSS sin depender de JS.
                  El @onchange sólo persiste el valor y sincroniza el estado C#. -->
@@ -219,26 +202,14 @@
     protected override void OnInitialized()
     {
         Theme.OnChange += StateHasChanged;
-        Compact.OnChange += StateHasChanged;
     }
 
     public void Dispose()
     {
         Theme.OnChange -= StateHasChanged;
-        Compact.OnChange -= StateHasChanged;
     }
 
     private void OpenLoginModal() => LoginModal.Open();
-
-    private async Task OnCompactToggle()
-    {
-        Compact.Toggle();
-        try
-        {
-            await JS.InvokeVoidAsync("cccCompact.set", Compact.IsCompact);
-        }
-        catch { /* JS no disponible; el CSS se aplicará en el próximo render */ }
-    }
 
     private async Task OnThemeToggleChanged(ChangeEventArgs e)
     {

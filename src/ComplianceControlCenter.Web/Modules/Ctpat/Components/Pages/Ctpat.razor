@@ -16,9 +16,9 @@
 
     <!-- Header -->
     <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="text-2xl font-bold text-base-content">CTPAT — Revisión anual del perfil</h1>
-            <p class="text-sm text-base-content/60">
+        <div class="min-w-0 flex-1">
+            <h1 class="text-fluid-2xl font-bold text-base-content">CTPAT — Revisión anual del perfil</h1>
+            <p class="text-fluid-sm text-base-content/60">
                 @if (_questions is null)
                 {
                     <span>Cargando catálogo…</span>
@@ -29,7 +29,7 @@
                 }
             </p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
             <fieldset class="fieldset py-0">
                 <legend class="fieldset-legend text-xs">Año</legend>
                 <input type="number" class="input input-bordered input-sm w-24"
@@ -44,59 +44,64 @@
     }
     else
     {
-        <!-- KPI + Filtros en una sola fila -->
+        <!-- KPI + Filtros: se apila en pantallas estrechas, en fila cuando hay espacio -->
         <div class="card bg-base-100 border border-base-300">
-            <div class="card-body px-5 py-3 flex-row flex-wrap items-center gap-4 lg:gap-6">
+            <div class="card-body px-5 py-3 gap-4">
 
-                <!-- Número central de avance -->
-                <div class="flex flex-col items-center shrink-0">
-                    <span class="text-4xl font-black @ProgressTextColor(Progress) leading-none tabular-nums">@Progress<span class="text-xl font-bold">%</span></span>
-                    <span class="text-[11px] text-base-content/40 mt-0.5 whitespace-nowrap">@Atendidas / @_questions.Count</span>
-                    <div class="w-16 bg-base-300 rounded-full h-1 mt-1.5">
-                        <div class="@ProgressBarColor(Progress) h-1 rounded-full transition-all duration-500" style="width:@Progress%"></div>
+                <!-- Fila 1: KPI de progreso + contadores de estado -->
+                <div class="flex flex-wrap items-center gap-4 lg:gap-6">
+
+                    <!-- Número central de avance -->
+                    <div class="flex flex-col items-center shrink-0">
+                        <span class="kpi-number @ProgressTextColor(Progress) tabular-nums">@Progress<span class="text-fluid-lg font-bold">%</span></span>
+                        <span class="text-[11px] text-base-content/40 mt-0.5 whitespace-nowrap">@Atendidas / @_questions.Count</span>
+                        <div class="w-16 bg-base-300 rounded-full h-1 mt-1.5">
+                            <div class="@ProgressBarColor(Progress) h-1 rounded-full transition-all duration-500" style="width:@Progress%"></div>
+                        </div>
                     </div>
+
+                    <!-- Separador -->
+                    <div class="w-px self-stretch bg-base-300 hidden sm:block"></div>
+
+                    <!-- Contadores de estado (fluyen libremente) -->
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-2 h-2 rounded-full bg-base-300 shrink-0"></div>
+                            <div>
+                                <div class="text-base font-bold text-base-content/60 leading-none tabular-nums">@CountBy(CtpatReviewStatus.Pendiente)</div>
+                                <div class="text-[11px] text-base-content/40 leading-none">Pendiente</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-2 h-2 rounded-full bg-info shrink-0"></div>
+                            <div>
+                                <div class="text-base font-bold text-info leading-none tabular-nums">@CountBy(CtpatReviewStatus.SinCambios)</div>
+                                <div class="text-[11px] text-base-content/40 leading-none">Sin cambios</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-2 h-2 rounded-full bg-error shrink-0"></div>
+                            <div>
+                                <div class="text-base font-bold text-error leading-none tabular-nums">@CountBy(CtpatReviewStatus.ConCambios)</div>
+                                <div class="text-[11px] text-base-content/40 leading-none">Con cambios</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-2 h-2 rounded-full bg-success shrink-0"></div>
+                            <div>
+                                <div class="text-base font-bold text-success leading-none tabular-nums">@CountBy(CtpatReviewStatus.Revisado)</div>
+                                <div class="text-[11px] text-base-content/40 leading-none">Revisado</div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Separador -->
-                <div class="w-px self-stretch bg-base-300 hidden sm:block shrink-0"></div>
+                <!-- Divisor horizontal -->
+                <div class="h-px bg-base-300"></div>
 
-                <!-- Contadores de estado -->
-                <div class="flex flex-wrap items-center gap-4 shrink-0">
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-2 h-2 rounded-full bg-base-300 shrink-0"></div>
-                        <div>
-                            <div class="text-base font-bold text-base-content/60 leading-none tabular-nums">@CountBy(CtpatReviewStatus.Pendiente)</div>
-                            <div class="text-[11px] text-base-content/40 leading-none">Pendiente</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-2 h-2 rounded-full bg-info shrink-0"></div>
-                        <div>
-                            <div class="text-base font-bold text-info leading-none tabular-nums">@CountBy(CtpatReviewStatus.SinCambios)</div>
-                            <div class="text-[11px] text-base-content/40 leading-none">Sin cambios</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-2 h-2 rounded-full bg-error shrink-0"></div>
-                        <div>
-                            <div class="text-base font-bold text-error leading-none tabular-nums">@CountBy(CtpatReviewStatus.ConCambios)</div>
-                            <div class="text-[11px] text-base-content/40 leading-none">Con cambios</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-2 h-2 rounded-full bg-success shrink-0"></div>
-                        <div>
-                            <div class="text-base font-bold text-success leading-none tabular-nums">@CountBy(CtpatReviewStatus.Revisado)</div>
-                            <div class="text-[11px] text-base-content/40 leading-none">Revisado</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Separador -->
-                <div class="w-px self-stretch bg-base-300 hidden lg:block shrink-0"></div>
-
-                <!-- Filtros -->
-                <div class="flex flex-wrap items-end gap-2 flex-1 min-w-0">
+                <!-- Fila 2: Filtros -->
+                <div class="flex flex-wrap items-end gap-2">
                     <fieldset class="fieldset py-0 flex-1 min-w-36 max-w-xs">
                         <legend class="fieldset-legend text-xs">Criterio</legend>
                         <select class="select select-bordered select-sm w-full"

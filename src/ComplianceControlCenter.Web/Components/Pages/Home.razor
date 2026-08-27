@@ -32,14 +32,14 @@
     </div>
 }
 
-<div class="flex flex-col gap-6 max-w-5xl mx-auto">
+<div class="flex flex-col gap-6 max-w-5xl mx-auto w-full">
 
     @* ── Hero ─────────────────────────────────────────────────── *@
-    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
 
         @* Logo circular clickeable *@
         <div class="shrink-0 flex justify-center sm:justify-start">
-            <button class="w-24 h-24 lg:w-28 lg:h-28 rounded-full bg-black overflow-hidden ring-2 ring-base-300 shadow-md cursor-pointer hover:ring-primary hover:ring-4 transition-all"
+            <button class="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full bg-black overflow-hidden ring-2 ring-base-300 shadow-md cursor-pointer hover:ring-primary hover:ring-4 transition-all"
                     @onclick="OpenLogo"
                     title="Ver logo completo">
                 <img src="img/TradeCompliance.png"
@@ -51,7 +51,7 @@
         @* Texto *@
         <div class="flex-1 min-w-0 text-center sm:text-left">
             <p class="text-xs font-semibold uppercase tracking-widest text-base-content/50 mb-1">Panel de control</p>
-            <h1 class="text-3xl font-bold text-base-content leading-tight">
+            <h1 class="text-fluid-3xl font-bold text-base-content leading-tight">
                 @if (!string.IsNullOrEmpty(_displayName))
                 {
                     <span>Bienvenido, @_displayName</span>
@@ -61,15 +61,15 @@
                     <span>Compliance Control Center</span>
                 }
             </h1>
-            <p class="text-base-content/60 mt-1 text-sm">
+            <p class="text-base-content/60 mt-1 text-fluid-sm">
                 Portal centralizado de módulos de cumplimiento — OEA y CTPAT.
             </p>
         </div>
 
         @* Fecha *@
-        <div class="shrink-0 text-center sm:text-right hidden sm:block">
-            <p class="text-2xl font-semibold text-base-content">@_today.ToString("MMM yyyy")</p>
-            <p class="text-sm text-base-content/50">@_today.ToString("dddd d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))</p>
+        <div class="shrink-0 text-center sm:text-right hidden md:block">
+            <p class="text-fluid-xl font-semibold text-base-content">@_today.ToString("MMM yyyy")</p>
+            <p class="text-fluid-sm text-base-content/50">@_today.ToString("dddd d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))</p>
         </div>
 
     </div>
@@ -77,7 +77,7 @@
     @* ── Gráficas ─────────────────────────────────────────────── *@
     @if (_loading)
     {
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
             <div class="card bg-base-100 border border-base-300">
                 <div class="card-body gap-3">
                     <div class="skeleton h-4 w-32 rounded"></div>
@@ -94,15 +94,15 @@
     }
     else
     {
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
             @* Gráfica OEA — Donut de estatus del mes *@
-            <div class="card bg-base-100 border border-base-300">
+            <div class="card bg-base-100 border border-base-300 min-w-0">
                 <div class="card-body">
                     <div class="flex items-start justify-between gap-2">
-                        <div>
-                            <h3 class="font-semibold text-base-content">OEA — Estatus del mes</h3>
-                            <p class="text-xs text-base-content/50">@_today.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-MX")) · @_oeaCompleted/@_oeaTotal completadas</p>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-base-content truncate">OEA — Estatus del mes</h3>
+                            <p class="text-xs text-base-content/50 truncate">@_today.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-MX")) · @_oeaCompleted/@_oeaTotal completadas</p>
                         </div>
                         <span class="badge @(_oeaPct >= 80 ? "badge-success" : _oeaPct >= 50 ? "badge-warning" : "badge-error") badge-soft shrink-0">@_oeaPct%</span>
                     </div>
@@ -122,12 +122,12 @@
             </div>
 
             @* Gráfica CTPAT — Barras por criterio *@
-            <div class="card bg-base-100 border border-base-300">
+            <div class="card bg-base-100 border border-base-300 min-w-0">
                 <div class="card-body">
                     <div class="flex items-start justify-between gap-2">
-                        <div>
-                            <h3 class="font-semibold text-base-content">CTPAT — Avance por criterio</h3>
-                            <p class="text-xs text-base-content/50">Año @_today.Year · @_ctpatAnswered/139 revisadas · @_ctpatFiles archivos</p>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-base-content truncate">CTPAT — Avance por criterio</h3>
+                            <p class="text-xs text-base-content/50 truncate">Año @_today.Year · @_ctpatAnswered/139 revisadas · @_ctpatFiles archivos</p>
                         </div>
                         <span class="badge badge-secondary badge-soft shrink-0">@_ctpatAnswered/139</span>
                     </div>

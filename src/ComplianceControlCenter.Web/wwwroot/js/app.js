@@ -30,44 +30,6 @@ window.cccTheme = {
     }
 };
 
-// Modo compacto — persiste el estado en localStorage + cookie.
-// La cookie 'ccc_compact' permite al servidor pintar la clase en <html>
-// durante SSR y evitar el flash al cargar la página.
-window.cccCompact = {
-    CLASS: "compact-mode",
-    STORAGE_KEY: "ccc_compact",
-    COOKIE_NAME: "ccc_compact",
-    _readCookie: function () {
-        var m = document.cookie.match(/(?:^|;\s*)ccc_compact=([^;]+)/);
-        return m ? decodeURIComponent(m[1]) : null;
-    },
-    _writeCookie: function (on) {
-        var maxAge = 60 * 60 * 24 * 365;
-        document.cookie = "ccc_compact=" + (on ? "1" : "0") +
-            "; Max-Age=" + maxAge + "; Path=/; SameSite=Lax";
-    },
-    get: function () {
-        try {
-            var v = localStorage.getItem(this.STORAGE_KEY);
-            if (v === null) v = this._readCookie();
-            return v === "1";
-        } catch (e) { return false; }
-    },
-    set: function (on) {
-        on = !!on;
-        try { localStorage.setItem(this.STORAGE_KEY, on ? "1" : "0"); } catch (e) { }
-        try { this._writeCookie(on); } catch (e) { }
-        var el = document.documentElement;
-        if (on) el.classList.add(this.CLASS);
-        else    el.classList.remove(this.CLASS);
-    },
-    toggle: function () {
-        var next = !this.get();
-        this.set(next);
-        return next;
-    }
-};
-
 window.cccSession = {
     get: function (key) {
         try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -136,27 +98,72 @@ window.cccPanel = {
 // - collapsed=false => checkbox marcado    => is-drawer-open:*
 window.cccSidebar = {
     STORAGE_KEY: "ccc_sidebar_collapsed",
+    AUTO_KEY: "ccc_sidebar_auto",   // "1" si nunca ha sido tocado manualmente
+    // Debajo de este ancho de viewport, el sidebar se colapsa automáticamente
+    // en la primera visita (evita que consuma demasiado espacio en pantallas
+    // pequeñas o con Windows a 125-150%). El usuario puede sobreescribirlo.
+    AUTO_COLLAPSE_BELOW_PX: 1400,
     _wired: false,
 
     applyInitial: function (checkboxId) {
         try {
             var cb = document.getElementById(checkboxId);
             if (!cb) return;
-            var collapsed = localStorage.getItem(this.STORAGE_KEY) === "true";
+
+            // 1) Decidir estado inicial.
+            var stored = localStorage.getItem(this.STORAGE_KEY);
+            var isAuto = localStorage.getItem(this.AUTO_KEY) !== "0";  // por defecto en modo auto
+            var collapsed;
+
+            if (stored === null || isAuto) {
+                // Modo automático: colapsar en pantallas estrechas.
+                collapsed = window.innerWidth < this.AUTO_COLLAPSE_BELOW_PX;
+                localStorage.setItem(this.STORAGE_KEY, collapsed ? "true" : "false");
+            } else {
+                // El usuario tomó una decisión manual — respetarla.
+                collapsed = stored === "true";
+            }
+
             cb.checked = !collapsed;
 
-            // Registra un listener 'change' UNA sola vez para persistir cualquier
-            // cambio del checkbox, sin importar qué <label> o script lo dispare.
+            // 2) Registra 'change' UNA sola vez para persistir cambios manuales.
+            //    Al cambiar manualmente, salimos del modo auto para no reasignar
+            //    en próximas cargas.
             if (!this._wired) {
                 var self = this;
                 cb.addEventListener("change", function () {
                     try {
-                        // checked=true  => drawer abierto  => collapsed=false
-                        // checked=false => drawer cerrado  => collapsed=true
                         localStorage.setItem(self.STORAGE_KEY, cb.checked ? "false" : "true");
+                        localStorage.setItem(self.AUTO_KEY, "0");  // decisión manual
                     } catch (e) { }
                 });
                 this._wired = true;
+            }
+
+            // 3) Si sigue en auto, re-evaluar al redimensionar la ventana
+            //    (por si el usuario mueve la ventana entre monitores).
+            if (isAuto) {
+                var self = this;
+                var lastCollapsed = collapsed;
+                window.addEventListener("resize", function () {
+                    // Solo re-evaluamos si aún estamos en modo auto.
+                    if (localStorage.getItem(self.AUTO_KEY) === "0") return;
+                    var shouldCollapse = window.innerWidth < self.AUTO_COLLAPSE_BELOW_PX;
+                    if (shouldCollapse === lastCollapsed) return;
+                    lastCollapsed = shouldCollapse;
+                    var el = document.getElementById(checkboxId);
+                    if (!el) return;
+                    el.checked = !shouldCollapse;
+                    localStorage.setItem(self.STORAGE_KEY, shouldCollapse ? "true" : "false");
+                    // Dispara evento 'change' sintético para que otros listeners
+                    // reaccionen si los hay. Marcamos con un flag para evitar
+                    // que nuestro propio handler ponga AUTO_KEY=0.
+                    var ev = new Event("change", { bubbles: true });
+                    ev._cccAuto = true;
+                    el.dispatchEvent(ev);
+                    // Restaurar AUTO_KEY porque el handler anterior lo puso a 0.
+                    localStorage.setItem(self.AUTO_KEY, "1");
+                });
             }
         } catch (e) { }
     }

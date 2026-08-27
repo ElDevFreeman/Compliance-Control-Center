@@ -105,7 +105,6 @@ builder.Services.AddScoped<ICtpatFileService,    CtpatFileService>();
 
 // State (scoped porque Blazor Server tiene un scope por circuit)
 builder.Services.AddScoped<ThemeState>();
-builder.Services.AddScoped<CompactModeState>();
 builder.Services.AddScoped<UserSessionState>();
 builder.Services.AddScoped<LoginModalState>();
 builder.Services.AddScoped<CtpatPanelState>();
