@@ -1,0 +1,424 @@
+@page "/ctpat/admin/guidance"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@inject ICtpatCatalogService Catalog
+@inject AuthenticationStateProvider AuthState
+
+<PageTitle>CTPAT — Admin · Guías</PageTitle>
+
+@* =====================================================================
+   Página admin de las guías de revisión (CtpatGuidance).
+
+   Las guías se enlazan con las preguntas por coincidencia exacta de
+   string entre CtpatGuidance.GroupName y CtpatQuestion.Criterio, por
+   eso el campo Grupo usa un <datalist> con los nombres ya presentes
+   en el catálogo para evitar typos que rompan el enlace.
+   ===================================================================== *@
+
+<div class="flex flex-col gap-4">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="min-w-0">
+            <div class="text-xs text-base-content/50 flex items-center gap-1 mb-1">
+                <span class="material-symbols-outlined text-[14px] leading-none">shield</span>
+                CTPAT · Admin
+            </div>
+            <h1 class="text-fluid-2xl font-bold text-base-content">Guías de revisión</h1>
+            <p class="text-fluid-sm text-base-content/60">
+                @if (_rows is null) { <span>Cargando…</span> }
+                else { <span>@_rows.Count guías (@_rows.Count(r => r.IsActive) activas)</span> }
+            </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="/ctpat/admin/questions" class="btn btn-ghost btn-sm">
+                <span class="material-symbols-outlined text-[18px] leading-none">quiz</span>
+                Preguntas
+            </a>
+            <button class="btn btn-primary btn-sm" @onclick="ShowCreateModal">
+                <span class="material-symbols-outlined text-[18px] leading-none">add</span>
+                Nueva guía
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card bg-base-100 border border-base-300">
+        <div class="card-body px-5 py-3">
+            <div class="flex flex-wrap items-end gap-2">
+                <fieldset class="fieldset py-0 flex-1 min-w-40 max-w-xs">
+                    <legend class="fieldset-legend text-xs">Grupo</legend>
+                    <select class="select select-bordered select-sm w-full"
+                            @bind="_filterGroup" @bind:after="StateHasChanged">
+                        <option value="">Todos</option>
+                        @foreach (var g in Groups)
+                        {
+                            <option value="@g">@g</option>
+                        }
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset py-0 min-w-32">
+                    <legend class="fieldset-legend text-xs">Estado</legend>
+                    <select class="select select-bordered select-sm w-full"
+                            @bind="_filterActive" @bind:after="StateHasChanged">
+                        <option value="">Todas</option>
+                        <option value="1">Activas</option>
+                        <option value="0">Inactivas</option>
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset py-0 flex-1 min-w-40">
+                    <legend class="fieldset-legend text-xs">Buscar</legend>
+                    <input type="search" class="input input-bordered input-sm w-full"
+                           placeholder="Texto, criterio…"
+                           @bind="_filterText" @bind:event="oninput" />
+                </fieldset>
+                <div class="text-xs text-base-content/40 self-end pb-1 whitespace-nowrap">
+                    @Filtered.Count / @(_rows?.Count ?? 0)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla agrupada -->
+    <div class="rounded-box border border-base-300 bg-base-100 overflow-hidden">
+        @if (_rows is null)
+        {
+            <TableSkeleton Rows="8" Columns="4" />
+        }
+        else if (Filtered.Count == 0)
+        {
+            <div class="text-center py-16 text-base-content/60">Sin resultados.</div>
+        }
+        else
+        {
+            <div class="overflow-auto max-h-[70vh]">
+                <table class="table table-sm table-pin-rows">
+                    <thead>
+                        <tr class="bg-base-200 text-base-content/70">
+                            <th class="w-56">Grupo · Criterio</th>
+                            <th>Contenido</th>
+                            <th class="w-24">Estado</th>
+                            <th class="w-28">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @{ CtpatGuidance? prev = null; }
+                    @foreach (var g in Filtered)
+                    {
+                        var isFirstOfGroup = prev is null || prev.GroupName != g.GroupName;
+                        prev = g;
+                        <tr class="hover:bg-base-200/40 @(g.IsActive ? "" : "opacity-60")">
+                            <td>
+                                @if (isFirstOfGroup)
+                                {
+                                    <div class="font-semibold text-xs text-primary mb-1">@g.GroupName</div>
+                                }
+                                <div class="text-xs">@g.Criterio</div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(g.RespTip))
+                                {
+                                    <div class="text-xs mb-0.5">
+                                        <span class="badge badge-outline badge-xs mr-1">Respuesta tipo</span>
+                                        <span class="text-base-content/70">@Truncate(g.RespTip!, 140)</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(g.Revisar))
+                                {
+                                    <div class="text-xs mb-0.5">
+                                        <span class="badge badge-outline badge-xs mr-1">Revisar</span>
+                                        <span class="text-base-content/70">@Truncate(g.Revisar!, 140)</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(g.Evidencia))
+                                {
+                                    <div class="text-xs">
+                                        <span class="badge badge-outline badge-xs mr-1">Evidencia</span>
+                                        <span class="text-base-content/70">@Truncate(g.Evidencia!, 140)</span>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (g.IsActive)
+                                {
+                                    <span class="badge badge-success badge-sm">Activa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-ghost badge-sm">Inactiva</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="flex gap-1">
+                                    <button class="btn btn-ghost btn-xs" title="Editar"
+                                            @onclick="() => ShowEditModal(g)">
+                                        <span class="material-symbols-outlined text-[16px] leading-none">edit</span>
+                                    </button>
+                                    @if (g.IsActive)
+                                    {
+                                        <button class="btn btn-ghost btn-xs text-warning" title="Desactivar"
+                                                @onclick="() => ToggleActiveAsync(g, false)">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">visibility_off</span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-ghost btn-xs text-success" title="Reactivar"
+                                                @onclick="() => ToggleActiveAsync(g, true)">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">visibility</span>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── Modal crear/editar ─────────────────────────────────────── -->
+@if (_editorVisible)
+{
+    <div class="modal modal-open" role="dialog" aria-modal="true">
+        <div class="modal-box max-w-2xl border border-base-300">
+            <h3 class="font-bold text-lg mb-4">
+                @(_editing is null ? "Nueva guía" : "Editar guía")
+            </h3>
+
+            <div class="grid grid-cols-1 gap-3">
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">
+                        Grupo <span class="text-error">*</span>
+                    </legend>
+                    <input list="groups-list"
+                           class="input input-bordered input-sm w-full"
+                           placeholder="Ej: Physical Security"
+                           @bind="_draft.GroupName" />
+                    <datalist id="groups-list">
+                        @foreach (var g in _allGroupNames)
+                        {
+                            <option value="@g"></option>
+                        }
+                    </datalist>
+                    <p class="fieldset-label text-xs text-base-content/50">
+                        Debe coincidir con el <em>Criterio</em> de las preguntas para que la guía se muestre en el panel.
+                    </p>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">
+                        Criterio <span class="text-error">*</span>
+                    </legend>
+                    <input class="input input-bordered input-sm w-full"
+                           placeholder="Ej: 1.1.7 Declaración de apoyo"
+                           @bind="_draft.Criterio" />
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Respuesta tipo</legend>
+                    <textarea class="textarea textarea-bordered w-full min-h-20"
+                              placeholder="Respuesta esperada / de referencia"
+                              @bind="_draft.RespTip"></textarea>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Qué revisar</legend>
+                    <textarea class="textarea textarea-bordered w-full min-h-20"
+                              placeholder="Qué debe verificar el auditor"
+                              @bind="_draft.Revisar"></textarea>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Evidencia sugerida</legend>
+                    <textarea class="textarea textarea-bordered w-full min-h-20"
+                              placeholder="Documentos, políticas, registros…"
+                              @bind="_draft.Evidencia"></textarea>
+                </fieldset>
+            </div>
+
+            @if (!string.IsNullOrEmpty(_editorError))
+            {
+                <div class="alert alert-error alert-soft mt-3 text-sm">@_editorError</div>
+            }
+
+            <div class="modal-action">
+                <button type="button" class="btn btn-ghost" @onclick="() => _editorVisible = false">Cancelar</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_saving">
+                    @if (_saving) { <span class="loading loading-spinner loading-xs"></span> }
+                    Guardar
+                </button>
+            </div>
+        </div>
+        <div class="modal-backdrop bg-black/40" @onclick="() => _editorVisible = false"></div>
+    </div>
+}
+
+<Toast @ref="_toast" />
+<ConfirmDialog @ref="_confirmDialog" />
+
+@code {
+    private List<CtpatGuidance>? _rows;
+    private List<string> _allGroupNames = new();
+    private string _currentUser = "anonymous";
+
+    // Filtros
+    private string _filterGroup  = "";
+    private string _filterActive = "";
+    private string _filterText   = "";
+
+    // Editor
+    private bool _editorVisible;
+    private bool _saving;
+    private string _editorError = "";
+    private CtpatGuidance? _editing;
+    private GuidanceDraft _draft = new();
+
+    private Toast? _toast;
+    private ConfirmDialog? _confirmDialog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _currentUser = auth.User.FindFirst("DisplayName")?.Value
+                       ?? auth.User.Identity?.Name
+                       ?? "anonymous";
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _rows = (await Catalog.GetAllGuidanceForAdminAsync()).ToList();
+        _allGroupNames = (await Catalog.GetAllGroupNamesAsync()).ToList();
+        StateHasChanged();
+    }
+
+    private IReadOnlyList<string> Groups =>
+        _rows is null
+            ? Array.Empty<string>()
+            : _rows.Select(r => r.GroupName).Distinct().OrderBy(g => g).ToList();
+
+    private List<CtpatGuidance> Filtered
+    {
+        get
+        {
+            if (_rows is null) return new();
+            IEnumerable<CtpatGuidance> q = _rows;
+            if (!string.IsNullOrEmpty(_filterGroup))
+                q = q.Where(x => x.GroupName == _filterGroup);
+            if (_filterActive == "1") q = q.Where(x => x.IsActive);
+            else if (_filterActive == "0") q = q.Where(x => !x.IsActive);
+            if (!string.IsNullOrWhiteSpace(_filterText))
+            {
+                var t = _filterText.Trim().ToLowerInvariant();
+                q = q.Where(x =>
+                    x.Criterio.ToLowerInvariant().Contains(t) ||
+                    (x.RespTip   ?? "").ToLowerInvariant().Contains(t) ||
+                    (x.Revisar   ?? "").ToLowerInvariant().Contains(t) ||
+                    (x.Evidencia ?? "").ToLowerInvariant().Contains(t));
+            }
+            return q.ToList();
+        }
+    }
+
+    private static string Truncate(string s, int max)
+        => s.Length <= max ? s : s.Substring(0, max) + "…";
+
+    // ── Editor ──────────────────────────────────────────────────
+    private void ShowCreateModal()
+    {
+        _editing = null;
+        _draft = new GuidanceDraft();
+        _editorError = "";
+        _editorVisible = true;
+    }
+
+    private void ShowEditModal(CtpatGuidance g)
+    {
+        _editing = g;
+        _draft = new GuidanceDraft
+        {
+            GroupName = g.GroupName,
+            Criterio  = g.Criterio,
+            RespTip   = g.RespTip,
+            Revisar   = g.Revisar,
+            Evidencia = g.Evidencia
+        };
+        _editorError = "";
+        _editorVisible = true;
+    }
+
+    private async Task SaveAsync()
+    {
+        _editorError = "";
+        _saving = true;
+        try
+        {
+            var input = new CtpatGuidanceInput(
+                GroupName: _draft.GroupName ?? "",
+                Criterio:  _draft.Criterio ?? "",
+                RespTip:   _draft.RespTip,
+                Revisar:   _draft.Revisar,
+                Evidencia: _draft.Evidencia);
+
+            if (_editing is null)
+            {
+                await Catalog.CreateGuidanceAsync(input, _currentUser);
+                await _toast!.ShowAsync("Guía creada", "success");
+            }
+            else
+            {
+                await Catalog.UpdateGuidanceAsync(_editing.Id, input, _currentUser);
+                await _toast!.ShowAsync("Guía actualizada", "success");
+            }
+
+            _editorVisible = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _editorError = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    // ── Activar / desactivar ────────────────────────────────────
+    private async Task ToggleActiveAsync(CtpatGuidance g, bool newActive)
+    {
+        if (!newActive)
+        {
+            var ok = await _confirmDialog!.ShowAsync(
+                "Desactivar guía",
+                $"Esta guía dejará de mostrarse en el panel de revisión. Se conserva en base y se puede reactivar. ¿Continuar?",
+                "Desactivar",
+                "btn-warning");
+            if (!ok) return;
+        }
+
+        try
+        {
+            await Catalog.SetGuidanceActiveAsync(g.Id, newActive, _currentUser);
+            await _toast!.ShowAsync(newActive ? "Guía reactivada" : "Guía desactivada", "success");
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync(ex.Message, "error", 4000);
+        }
+    }
+
+    private class GuidanceDraft
+    {
+        public string? GroupName { get; set; }
+        public string? Criterio { get; set; }
+        public string? RespTip { get; set; }
+        public string? Revisar { get; set; }
+        public string? Evidencia { get; set; }
+    }
+}

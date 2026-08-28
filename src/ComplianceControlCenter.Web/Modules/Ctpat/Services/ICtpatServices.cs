@@ -5,15 +5,55 @@ namespace ComplianceControlCenter.Web.Modules.Ctpat.Services;
 
 /// <summary>
 /// Servicio de acceso al catálogo CTPAT (preguntas + guía).
-/// El catálogo se considera lectura (sembrado desde JSON).
+///
+/// El catálogo se siembra desde JSON pero se puede editar en runtime desde las
+/// páginas admin. Los métodos de lectura (GetQuestionsAsync / GetGuidance…)
+/// devuelven <b>sólo elementos activos</b> por default (uso desde la revisión anual);
+/// los métodos <c>*ForAdminAsync</c> devuelven todo (activos + inactivos) para las
+/// pantallas de administración.
 /// </summary>
 public interface ICtpatCatalogService
 {
+    // ── Lectura pública (revisión anual) ───────────────────────────────
     Task<IReadOnlyList<CtpatQuestion>> GetQuestionsAsync(CancellationToken ct = default);
     Task<CtpatQuestion?> GetQuestionByIdAsync(int id, CancellationToken ct = default);
     Task<IReadOnlyList<string>> GetCriteriosAsync(CancellationToken ct = default);
     Task<IReadOnlyList<CtpatGuidance>> GetGuidanceForGroupAsync(string groupName, CancellationToken ct = default);
+
+    // ── Lectura admin (incluye inactivos) ──────────────────────────────
+    Task<IReadOnlyList<CtpatQuestion>> GetQuestionsForAdminAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<CtpatGuidance>> GetAllGuidanceForAdminAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<string>> GetAllGroupNamesAsync(CancellationToken ct = default);
+
+    // ── CRUD Preguntas ─────────────────────────────────────────────────
+    Task<CtpatQuestion> CreateQuestionAsync(CtpatQuestionInput input, string user, CancellationToken ct = default);
+    Task UpdateQuestionAsync(int id, CtpatQuestionInput input, string user, CancellationToken ct = default);
+    Task SetQuestionActiveAsync(int id, bool isActive, string user, CancellationToken ct = default);
+    Task MoveQuestionAsync(int id, int delta, string user, CancellationToken ct = default);
+
+    // ── CRUD Guías ─────────────────────────────────────────────────────
+    Task<CtpatGuidance> CreateGuidanceAsync(CtpatGuidanceInput input, string user, CancellationToken ct = default);
+    Task UpdateGuidanceAsync(int id, CtpatGuidanceInput input, string user, CancellationToken ct = default);
+    Task SetGuidanceActiveAsync(int id, bool isActive, string user, CancellationToken ct = default);
 }
+
+/// <summary>
+/// DTO de entrada para crear/actualizar una <see cref="CtpatQuestion"/>.
+/// <c>ExternalId</c> es opcional: si viene vacío se autogenera (<c>custom_&lt;guid16&gt;</c>).
+/// </summary>
+public record CtpatQuestionInput(
+    string? ExternalId,
+    string Criterio,
+    string Pregunta,
+    string? Respuesta2025);
+
+/// <summary>DTO de entrada para crear/actualizar una <see cref="CtpatGuidance"/>.</summary>
+public record CtpatGuidanceInput(
+    string GroupName,
+    string Criterio,
+    string? RespTip,
+    string? Revisar,
+    string? Evidencia);
 
 /// <summary>
 /// Estadísticas de avance por criterio para un año dado.

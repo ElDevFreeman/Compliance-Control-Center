@@ -26,6 +26,21 @@ public class CtpatQuestion
     /// <summary>Orden estable para presentación (deducido del orden en el JSON).</summary>
     public int SortOrder { get; set; }
 
+    /// <summary>
+    /// Soft-delete flag. Cuando es <c>false</c>, la pregunta se oculta de la revisión anual
+    /// pero se conservan sus <see cref="CtpatReview"/> históricos. Permite reactivarla luego.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>Fecha UTC de creación de la fila.</summary>
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Fecha UTC del último cambio de contenido.</summary>
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>Usuario (DisplayName o UserName) que hizo el último cambio.</summary>
+    public string? UpdatedBy { get; set; }
+
     /// <summary>Reviews que se han hecho a esta pregunta (una por ciclo/año).</summary>
     public ICollection<CtpatReview> Reviews { get; set; } = new List<CtpatReview>();
 }

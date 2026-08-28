@@ -102,6 +102,70 @@
         }
 
         <AuthorizeView Roles="Admin">
+            @* Grupo admin del catálogo CTPAT — solo visible para Admin. *@
+            <li class="menu-none is-drawer-open:block is-drawer-close:hidden">
+                <details open="@_openGroups.Contains("ctpat-admin")">
+                    <summary class="rounded-lg font-medium"
+                             @onclick:preventDefault="false"
+                             @onclick='() => ToggleGroup("ctpat-admin")'>
+                        <span class="material-symbols-outlined text-[18px] leading-none shrink-0">admin_panel_settings</span>
+                        <span class="truncate">CTPAT · Admin</span>
+                    </summary>
+                    <ul>
+                        <li>
+                            <NavLink href="ctpat/admin/questions"
+                                     Match="NavLinkMatch.All"
+                                     ActiveClass="menu-active"
+                                     class="rounded-lg">
+                                <span class="material-symbols-outlined text-[18px] leading-none shrink-0">quiz</span>
+                                <span class="truncate">Preguntas</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="ctpat/admin/guidance"
+                                     Match="NavLinkMatch.All"
+                                     ActiveClass="menu-active"
+                                     class="rounded-lg">
+                                <span class="material-symbols-outlined text-[18px] leading-none shrink-0">menu_book</span>
+                                <span class="truncate">Guías</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </details>
+            </li>
+
+            <li class="is-drawer-open:hidden is-drawer-close:block">
+                <div class="dropdown dropdown-right">
+                    <div tabindex="0" role="button"
+                         class="rounded-lg justify-center px-0 tooltip tooltip-right"
+                         data-tip="CTPAT · Admin">
+                        <span class="material-symbols-outlined text-[18px] leading-none shrink-0">admin_panel_settings</span>
+                    </div>
+                    <ul tabindex="0"
+                        class="dropdown-content menu bg-base-100 rounded-box border border-base-300 shadow-lg w-56 ml-2 z-50 p-2 dropdown-in">
+                        <li class="menu-title"><span>CTPAT · Admin</span></li>
+                        <li>
+                            <NavLink href="ctpat/admin/questions"
+                                     Match="NavLinkMatch.All"
+                                     ActiveClass="menu-active"
+                                     class="rounded-lg">
+                                <span class="material-symbols-outlined text-[18px] leading-none shrink-0">quiz</span>
+                                <span class="truncate">Preguntas</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink href="ctpat/admin/guidance"
+                                     Match="NavLinkMatch.All"
+                                     ActiveClass="menu-active"
+                                     class="rounded-lg">
+                                <span class="material-symbols-outlined text-[18px] leading-none shrink-0">menu_book</span>
+                                <span class="truncate">Guías</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
             <li class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Usuarios">
                 <NavLink href="users"
                          Match="NavLinkMatch.Prefix"

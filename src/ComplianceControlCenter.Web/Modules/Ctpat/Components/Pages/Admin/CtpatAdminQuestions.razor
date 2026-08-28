@@ -1,0 +1,427 @@
+@page "/ctpat/admin/questions"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@inject ICtpatCatalogService Catalog
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+
+<PageTitle>CTPAT — Admin · Preguntas</PageTitle>
+
+@* =====================================================================
+   Página admin del catálogo de preguntas CTPAT.
+
+   Permite crear, editar, reordenar (↑/↓ dentro de su criterio) y activar/
+   desactivar preguntas. El borrado es soft (IsActive = false) para no
+   romper el historial de CtpatReview: al desactivarse, la pregunta deja
+   de aparecer en /ctpat pero sus reviews previas permanecen intactas.
+
+   Sólo accesible para el rol Admin (ver [Authorize] arriba).
+   ===================================================================== *@
+
+<div class="flex flex-col gap-4">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="min-w-0">
+            <div class="text-xs text-base-content/50 flex items-center gap-1 mb-1">
+                <span class="material-symbols-outlined text-[14px] leading-none">shield</span>
+                CTPAT · Admin
+            </div>
+            <h1 class="text-fluid-2xl font-bold text-base-content">Catálogo de preguntas</h1>
+            <p class="text-fluid-sm text-base-content/60">
+                @if (_rows is null) { <span>Cargando…</span> }
+                else { <span>@_rows.Count preguntas (@_rows.Count(r => r.IsActive) activas)</span> }
+            </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="/ctpat/admin/guidance" class="btn btn-ghost btn-sm">
+                <span class="material-symbols-outlined text-[18px] leading-none">menu_book</span>
+                Guías
+            </a>
+            <button class="btn btn-primary btn-sm" @onclick="ShowCreateModal">
+                <span class="material-symbols-outlined text-[18px] leading-none">add</span>
+                Nueva pregunta
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card bg-base-100 border border-base-300">
+        <div class="card-body px-5 py-3">
+            <div class="flex flex-wrap items-end gap-2">
+                <fieldset class="fieldset py-0 flex-1 min-w-40 max-w-xs">
+                    <legend class="fieldset-legend text-xs">Criterio</legend>
+                    <select class="select select-bordered select-sm w-full"
+                            @bind="_filterCriterio" @bind:after="StateHasChanged">
+                        <option value="">Todos</option>
+                        @foreach (var c in Criterios)
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset py-0 min-w-32">
+                    <legend class="fieldset-legend text-xs">Estado</legend>
+                    <select class="select select-bordered select-sm w-full"
+                            @bind="_filterActive" @bind:after="StateHasChanged">
+                        <option value="">Todas</option>
+                        <option value="1">Activas</option>
+                        <option value="0">Inactivas</option>
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset py-0 flex-1 min-w-40">
+                    <legend class="fieldset-legend text-xs">Buscar</legend>
+                    <input type="search" class="input input-bordered input-sm w-full"
+                           placeholder="Texto, ID…"
+                           @bind="_filterText" @bind:event="oninput" />
+                </fieldset>
+                <div class="text-xs text-base-content/40 self-end pb-1 whitespace-nowrap">
+                    @Filtered.Count / @(_rows?.Count ?? 0)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="rounded-box border border-base-300 bg-base-100 overflow-hidden">
+        @if (_rows is null)
+        {
+            <TableSkeleton Rows="8" Columns="5" />
+        }
+        else if (Filtered.Count == 0)
+        {
+            <div class="text-center py-16 text-base-content/60">Sin resultados.</div>
+        }
+        else
+        {
+            <div class="overflow-auto max-h-[70vh]">
+                <table class="table table-sm table-pin-rows">
+                    <thead>
+                        <tr class="bg-base-200 text-base-content/70">
+                            <th class="w-24">ID</th>
+                            <th class="w-56">Criterio</th>
+                            <th>Pregunta</th>
+                            <th class="w-24">Estado</th>
+                            <th class="w-40">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @{ CtpatQuestion? prev = null; }
+                    @foreach (var q in Filtered)
+                    {
+                        var isFirstOfGroup = prev is null || prev.Criterio != q.Criterio;
+                        prev = q;
+                        <tr class="hover:bg-base-200/40 @(q.IsActive ? "" : "opacity-60")">
+                            <td class="font-mono text-xs text-primary">@q.ExternalId</td>
+                            <td>
+                                @if (isFirstOfGroup)
+                                {
+                                    <span class="badge badge-ghost badge-sm">@q.Criterio</span>
+                                }
+                                else
+                                {
+                                    <span class="text-xs text-base-content/30">↳</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="line-clamp-2 text-sm">@q.Pregunta</div>
+                                @if (!string.IsNullOrWhiteSpace(q.Respuesta2025))
+                                {
+                                    <div class="text-xs text-base-content/40 line-clamp-1 mt-0.5">
+                                        <span class="material-symbols-outlined text-[11px] leading-none align-middle">history_edu</span>
+                                        @q.Respuesta2025
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (q.IsActive)
+                                {
+                                    <span class="badge badge-success badge-sm">Activa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-ghost badge-sm">Inactiva</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="flex gap-1">
+                                    <button class="btn btn-ghost btn-xs" title="Subir"
+                                            @onclick="() => MoveAsync(q, -1)">
+                                        <span class="material-symbols-outlined text-[16px] leading-none">arrow_upward</span>
+                                    </button>
+                                    <button class="btn btn-ghost btn-xs" title="Bajar"
+                                            @onclick="() => MoveAsync(q, +1)">
+                                        <span class="material-symbols-outlined text-[16px] leading-none">arrow_downward</span>
+                                    </button>
+                                    <button class="btn btn-ghost btn-xs" title="Editar"
+                                            @onclick="() => ShowEditModal(q)">
+                                        <span class="material-symbols-outlined text-[16px] leading-none">edit</span>
+                                    </button>
+                                    @if (q.IsActive)
+                                    {
+                                        <button class="btn btn-ghost btn-xs text-warning" title="Desactivar"
+                                                @onclick="() => ToggleActiveAsync(q, false)">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">visibility_off</span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-ghost btn-xs text-success" title="Reactivar"
+                                                @onclick="() => ToggleActiveAsync(q, true)">
+                                            <span class="material-symbols-outlined text-[16px] leading-none">visibility</span>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── Modal crear/editar ─────────────────────────────────────── -->
+@if (_editorVisible)
+{
+    <div class="modal modal-open" role="dialog" aria-modal="true">
+        <div class="modal-box max-w-2xl border border-base-300">
+            <h3 class="font-bold text-lg mb-4">
+                @(_editing is null ? "Nueva pregunta" : $"Editar pregunta {_editing.ExternalId}")
+            </h3>
+            <div class="grid grid-cols-1 gap-3">
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">
+                        Criterio <span class="text-error">*</span>
+                    </legend>
+                    <input list="criterios-list"
+                           class="input input-bordered input-sm w-full"
+                           placeholder="Ej: Physical Security"
+                           @bind="_draft.Criterio" />
+                    <datalist id="criterios-list">
+                        @foreach (var c in Criterios)
+                        {
+                            <option value="@c"></option>
+                        }
+                    </datalist>
+                    <p class="fieldset-label text-xs text-base-content/50">
+                        Debe coincidir exactamente con el <em>GroupName</em> de las guías para que se enlacen (se sugiere de la lista).
+                    </p>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">
+                        Pregunta <span class="text-error">*</span>
+                    </legend>
+                    <textarea class="textarea textarea-bordered w-full min-h-24"
+                              placeholder="Texto de la pregunta…"
+                              @bind="_draft.Pregunta"></textarea>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Respuesta base (baseline)</legend>
+                    <textarea class="textarea textarea-bordered w-full min-h-20"
+                              placeholder="Respuesta de referencia contra la que se revisa cada año"
+                              @bind="_draft.Respuesta2025"></textarea>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">
+                        ID externo
+                        <span class="text-xs text-base-content/40 font-normal">(opcional, se autogenera)</span>
+                    </legend>
+                    <input class="input input-bordered input-sm w-full font-mono"
+                           placeholder="custom_..."
+                           @bind="_draft.ExternalId" />
+                </fieldset>
+            </div>
+
+            @if (!string.IsNullOrEmpty(_editorError))
+            {
+                <div class="alert alert-error alert-soft mt-3 text-sm">@_editorError</div>
+            }
+
+            <div class="modal-action">
+                <button type="button" class="btn btn-ghost" @onclick="() => _editorVisible = false">Cancelar</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveAsync" disabled="@_saving">
+                    @if (_saving) { <span class="loading loading-spinner loading-xs"></span> }
+                    Guardar
+                </button>
+            </div>
+        </div>
+        <div class="modal-backdrop bg-black/40" @onclick="() => _editorVisible = false"></div>
+    </div>
+}
+
+<Toast @ref="_toast" />
+<ConfirmDialog @ref="_confirmDialog" />
+
+@code {
+    private List<CtpatQuestion>? _rows;
+    private string _currentUser = "anonymous";
+
+    // Filtros
+    private string _filterCriterio = "";
+    private string _filterActive   = "";
+    private string _filterText     = "";
+
+    // Editor
+    private bool _editorVisible;
+    private bool _saving;
+    private string _editorError = "";
+    private CtpatQuestion? _editing;
+    private QuestionDraft _draft = new();
+
+    private Toast? _toast;
+    private ConfirmDialog? _confirmDialog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthState.GetAuthenticationStateAsync();
+        _currentUser = auth.User.FindFirst("DisplayName")?.Value
+                       ?? auth.User.Identity?.Name
+                       ?? "anonymous";
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _rows = (await Catalog.GetQuestionsForAdminAsync()).ToList();
+        StateHasChanged();
+    }
+
+    private IReadOnlyList<string> Criterios =>
+        _rows is null
+            ? Array.Empty<string>()
+            : _rows.Select(r => r.Criterio).Distinct().OrderBy(c => c).ToList();
+
+    private List<CtpatQuestion> Filtered
+    {
+        get
+        {
+            if (_rows is null) return new();
+            IEnumerable<CtpatQuestion> q = _rows;
+            if (!string.IsNullOrEmpty(_filterCriterio))
+                q = q.Where(x => x.Criterio == _filterCriterio);
+            if (_filterActive == "1") q = q.Where(x => x.IsActive);
+            else if (_filterActive == "0") q = q.Where(x => !x.IsActive);
+            if (!string.IsNullOrWhiteSpace(_filterText))
+            {
+                var t = _filterText.Trim().ToLowerInvariant();
+                q = q.Where(x =>
+                    x.Pregunta.ToLowerInvariant().Contains(t) ||
+                    (x.Respuesta2025 ?? "").ToLowerInvariant().Contains(t) ||
+                    x.ExternalId.ToLowerInvariant().Contains(t));
+            }
+            return q.ToList();
+        }
+    }
+
+    // ── Editor ──────────────────────────────────────────────────
+    private void ShowCreateModal()
+    {
+        _editing = null;
+        _draft = new QuestionDraft();
+        _editorError = "";
+        _editorVisible = true;
+    }
+
+    private void ShowEditModal(CtpatQuestion q)
+    {
+        _editing = q;
+        _draft = new QuestionDraft
+        {
+            ExternalId    = q.ExternalId,
+            Criterio      = q.Criterio,
+            Pregunta      = q.Pregunta,
+            Respuesta2025 = q.Respuesta2025
+        };
+        _editorError = "";
+        _editorVisible = true;
+    }
+
+    private async Task SaveAsync()
+    {
+        _editorError = "";
+        _saving = true;
+        try
+        {
+            var input = new CtpatQuestionInput(
+                ExternalId:    string.IsNullOrWhiteSpace(_draft.ExternalId) ? null : _draft.ExternalId,
+                Criterio:      _draft.Criterio ?? "",
+                Pregunta:      _draft.Pregunta ?? "",
+                Respuesta2025: _draft.Respuesta2025);
+
+            if (_editing is null)
+            {
+                await Catalog.CreateQuestionAsync(input, _currentUser);
+                await _toast!.ShowAsync("Pregunta creada", "success");
+            }
+            else
+            {
+                await Catalog.UpdateQuestionAsync(_editing.Id, input, _currentUser);
+                await _toast!.ShowAsync("Pregunta actualizada", "success");
+            }
+
+            _editorVisible = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _editorError = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    // ── Activar / desactivar ────────────────────────────────────
+    private async Task ToggleActiveAsync(CtpatQuestion q, bool newActive)
+    {
+        if (!newActive)
+        {
+            var ok = await _confirmDialog!.ShowAsync(
+                "Desactivar pregunta",
+                $"La pregunta {q.ExternalId} dejará de aparecer en la revisión anual. Los reviews históricos se conservan intactos. ¿Continuar?",
+                "Desactivar",
+                "btn-warning");
+            if (!ok) return;
+        }
+
+        try
+        {
+            await Catalog.SetQuestionActiveAsync(q.Id, newActive, _currentUser);
+            await _toast!.ShowAsync(newActive ? "Pregunta reactivada" : "Pregunta desactivada", "success");
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync(ex.Message, "error", 4000);
+        }
+    }
+
+    // ── Reordenar ───────────────────────────────────────────────
+    private async Task MoveAsync(CtpatQuestion q, int delta)
+    {
+        try
+        {
+            await Catalog.MoveQuestionAsync(q.Id, delta, _currentUser);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            await _toast!.ShowAsync(ex.Message, "error", 4000);
+        }
+    }
+
+    private class QuestionDraft
+    {
+        public string? ExternalId { get; set; }
+        public string? Criterio { get; set; }
+        public string? Pregunta { get; set; }
+        public string? Respuesta2025 { get; set; }
+    }
+}

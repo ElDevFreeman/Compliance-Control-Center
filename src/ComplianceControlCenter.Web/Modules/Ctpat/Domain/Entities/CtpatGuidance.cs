@@ -27,4 +27,19 @@ public class CtpatGuidance
 
     /// <summary>Evidencia sugerida que el revisor debe pedir.</summary>
     public string? Evidencia { get; set; }
+
+    /// <summary>
+    /// Soft-delete flag. Cuando es <c>false</c>, la guía deja de aparecer en el panel
+    /// de la revisión anual pero se conserva en la tabla (permite reactivarla).
+    /// </summary>
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>Fecha UTC de creación de la fila.</summary>
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Fecha UTC del último cambio de contenido.</summary>
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>Usuario (DisplayName o UserName) que hizo el último cambio.</summary>
+    public string? UpdatedBy { get; set; }
 }

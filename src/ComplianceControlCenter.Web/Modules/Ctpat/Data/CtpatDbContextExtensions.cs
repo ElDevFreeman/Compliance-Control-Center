@@ -21,14 +21,17 @@ public static class CtpatDbContextExtensions
         {
             b.ToTable("CCC_CTPAT_Questions");
             b.HasKey(x => x.Id);
-            b.Property(x => x.ExternalId).HasMaxLength(32).IsRequired();
+            b.Property(x => x.ExternalId).HasMaxLength(64).IsRequired();
             b.Property(x => x.Criterio).HasMaxLength(128).IsRequired();
             b.Property(x => x.Pregunta).IsRequired();
             b.Property(x => x.Respuesta2025);
+            b.Property(x => x.IsActive).HasDefaultValue(true);
+            b.Property(x => x.UpdatedBy).HasMaxLength(128);
 
             b.HasIndex(x => x.ExternalId).IsUnique();
             b.HasIndex(x => x.Criterio);
             b.HasIndex(x => x.SortOrder);
+            b.HasIndex(x => x.IsActive);
         });
 
         // ────────────────────────────────────────────────────────────────
@@ -40,9 +43,12 @@ public static class CtpatDbContextExtensions
             b.HasKey(x => x.Id);
             b.Property(x => x.GroupName).HasMaxLength(128).IsRequired();
             b.Property(x => x.Criterio).HasMaxLength(256).IsRequired();
+            b.Property(x => x.IsActive).HasDefaultValue(true);
+            b.Property(x => x.UpdatedBy).HasMaxLength(128);
 
             b.HasIndex(x => x.GroupName);
             b.HasIndex(x => x.Criterio);
+            b.HasIndex(x => x.IsActive);
         });
 
         // ────────────────────────────────────────────────────────────────

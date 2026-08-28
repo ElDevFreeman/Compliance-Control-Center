@@ -4666,6 +4666,12 @@
       --cardtitle-fs: 1.375rem;
     }
   }
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;
@@ -4807,6 +4813,9 @@
   }
   .min-h-20 {
     min-height: calc(var(--spacing) * 20);
+  }
+  .min-h-24 {
+    min-height: calc(var(--spacing) * 24);
   }
   .min-h-32 {
     min-height: calc(var(--spacing) * 32);
@@ -6232,6 +6241,11 @@
       --btn-p: 0.75rem;
       --size: calc(var(--size-field, 0.25rem) * 8);
     }
+    .btn-warning {
+      --btn-color: var(--color-warning);
+      --btn-fg: var(--color-warning-content);
+      --btn-soft-bg: initial;
+    }
     .btn-xs {
       --fontsize: 0.6875rem;
       --btn-p: 0.5rem;
@@ -6341,6 +6355,14 @@
     }
     .hover\:bg-base-200:hover {
       background-color: var(--color-base-200);
+    }
+    .hover\:bg-base-200\/40:hover {
+      background-color: var(--color-base-200);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-base-200\/40:hover {
+        background-color: color-mix(in oklab, var(--color-base-200) 40%, transparent);
+      }
     }
     .hover\:bg-base-200\/50:hover {
       background-color: var(--color-base-200);

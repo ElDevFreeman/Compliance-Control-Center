@@ -95,9 +95,11 @@ public class CtpatReviewService : ICtpatReviewService
 
     public async Task<IReadOnlyList<CtpatCriterioStats>> GetStatsByCriterioAsync(int year, CancellationToken ct = default)
     {
-        // Carga preguntas ordenadas por criterio
+        // Carga preguntas activas ordenadas por criterio (las inactivas se ocultan
+        // del dashboard aunque conserven reviews históricos en DB).
         var questions = await _db.CtpatQuestions
             .AsNoTracking()
+            .Where(q => q.IsActive)
             .OrderBy(q => q.Criterio).ThenBy(q => q.SortOrder)
             .ToListAsync(ct);
 
