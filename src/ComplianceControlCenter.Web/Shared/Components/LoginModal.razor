@@ -2,148 +2,69 @@
    Se abre por cualquier componente vía LoginModalState.Open().
    Vive en MainLayout, escucha el evento y renderiza el diálogo.
 
-   El submit hace POST HTTP nativo a /Account/Login (la página SSR de Identity),
-   que procesa las credenciales, setea la cookie, y redirige a ReturnUrl.
-   data-enhance="false" evita que Blazor intercepte el submit vía fetch, así
-   la cookie de auth se aplica con recarga completa y AuthorizeView se refresca.
+   ESTRATEGIA (post-diagnóstico HTTP 400 en producción):
+   No hacemos POST directo desde el modal a /Account/Login porque el token
+   antiforgery generado en el prerender se pierde en el ciclo interactivo
+   (HttpContext no está disponible en InteractiveServer), y el POST llega
+   sin token válido → 400.
 
-   El token antiforgery se obtiene vía IAntiforgery durante el prerender (único
-   momento en que HttpContext está disponible en un componente InteractiveServer).
-   Esto evita el error "A valid antiforgery token was not provided" que ocurre
-   cuando se usa <AntiforgeryToken /> dentro de un componente interactivo, ya que
-   en ese contexto el token no coincide con el que espera UseAntiforgery(). *@
+   En su lugar, al abrir el modal simplemente redirigimos a /Account/Login
+   con ReturnUrl. Esa página usa EditForm con antiforgery estándar de
+   Blazor 8, que funciona correctamente porque su prerender ES el que
+   emite el token justo antes del render final. *@
 
-@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.WebUtilities
 @implements IDisposable
 @inject LoginModalState State
 @inject NavigationManager Nav
-@inject IAntiforgery Antiforgery
-@inject IHttpContextAccessor HttpContextAccessor
 
-@if (_visible)
-{
-    <div class="modal modal-open modal-backdrop-in" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
-        <div class="modal-box w-11/12 max-w-md border border-base-300 modal-in">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                    <span class="text-primary-content font-bold text-sm">CC</span>
-                </div>
-                <div>
-                    <h3 id="login-modal-title" class="font-bold text-lg leading-tight">Iniciar sesión</h3>
-                    <p class="text-xs text-base-content/60 leading-tight">
-                        Requerido para editar o agregar actividades.
-                    </p>
-                </div>
-            </div>
-
-            @if (_showError)
-            {
-                <div class="alert alert-error alert-soft text-sm mb-2">
-                    Número de empleado o contraseña incorrectos.
-                </div>
-            }
-
-            <form method="post" action="Account/Login" data-enhance="false" @formname="login" class="space-y-2">
-                @* Token antiforgery obtenido en el prerender vía IAntiforgery; válido para UseAntiforgery(). *@
-                <input type="hidden" name="@_antiforgeryFieldName" value="@_antiforgeryToken" />
-                <input type="hidden" name="_handler" value="login" />
-                <input type="hidden" name="ReturnUrl" value="@_returnUrl" />
-                <input type="hidden" name="Input.FromModal" value="true" />
-
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Número de empleado</legend>
-                    <input type="text"
-                           name="Input.EmployeeNumber"
-                           class="input input-bordered w-full"
-                           autocomplete="username"
-                           inputmode="numeric"
-                           pattern="[0-9]*"
-                           maxlength="20"
-                           required
-                           autofocus
-                           placeholder="Ej: 12345" />
-                </fieldset>
-
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Contraseña</legend>
-                    <input type="password"
-                           name="Input.Password"
-                           class="input input-bordered w-full"
-                           autocomplete="current-password"
-                           minlength="6"
-                           maxlength="20"
-                           required
-                           placeholder="••••••••" />
-                </fieldset>
-
-                <label class="label cursor-pointer justify-start gap-2 mt-1">
-                    <input type="checkbox"
-                           name="Input.RememberMe"
-                           value="true"
-                           class="checkbox checkbox-sm checkbox-primary" />
-                    <span class="label-text">Recordarme</span>
-                </label>
-
-                <div class="modal-action mt-3">
-                    <button type="button" class="btn btn-ghost btn-sm" @onclick="Close">Cancelar</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Iniciar sesión</button>
-                </div>
-            </form>
-        </div>
-        <div class="modal-backdrop bg-black/40" @onclick="Close"></div>
-    </div>
-}
+@* El modal ya no renderiza UI. Solo escucha el evento y navega a /Account/Login. *@
 
 @code {
-    private bool _visible;
-    private bool _showError;
-    private string _returnUrl = "";
-
-    // Token antiforgery obtenido en OnInitialized (prerender tiene HttpContext disponible).
-    private string _antiforgeryToken = "";
-    private string _antiforgeryFieldName = "";
-
     protected override void OnInitialized()
     {
         State.OnOpenRequested += HandleOpenRequested;
-
-        // Obtener el token antiforgery mientras tenemos HttpContext (prerender / SSR).
-        // En la fase interactiva posterior HttpContext ya no está disponible, pero el
-        // token ya quedó almacenado y se emite como hidden input en el HTML del modal.
-        var httpContext = HttpContextAccessor.HttpContext;
-        if (httpContext is not null)
-        {
-            var tokens = Antiforgery.GetAndStoreTokens(httpContext);
-            _antiforgeryFieldName = tokens.FormFieldName;
-            _antiforgeryToken     = tokens.RequestToken ?? "";
-        }
-
-        // Si venimos de un intento fallido de login vía modal, re-abrir con error.
-        var uri = new Uri(Nav.Uri);
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        if (query.TryGetValue("loginError", out var val) && val == "1")
-        {
-            _showError = true;
-            _returnUrl = Nav.ToBaseRelativePath(Nav.Uri.Split('?')[0]);
-            _visible = true;
-        }
     }
 
     private void HandleOpenRequested(string? returnUrl)
     {
-        // Si no se pasó returnUrl, usa la URL actual (relativa) para que tras login
-        // el usuario regrese exactamente donde estaba.
-        _returnUrl = returnUrl ?? Nav.ToBaseRelativePath(Nav.Uri);
-        _showError = false;
-        _visible = true;
-        InvokeAsync(StateHasChanged);
+        // Determinar la URL destino tras login (relativa al PathBase).
+        var target = returnUrl ?? Nav.ToBaseRelativePath(Nav.Uri);
+        target = StripModalQueryParams(target);
+
+        // Construir URL absoluta a /Account/Login con ReturnUrl.
+        // Nav.BaseUri respeta el PathBase (/CCC/), así que "Account/Login"
+        // relativo resuelve a /CCC/Account/Login correctamente.
+        var loginUri = Nav.ToAbsoluteUri("Account/Login").ToString();
+
+        if (!string.IsNullOrWhiteSpace(target))
+        {
+            loginUri = QueryHelpers.AddQueryString(loginUri, "ReturnUrl", target);
+        }
+
+        // forceLoad: true para que la navegación sea un GET HTTP real, no un
+        // enhanced-nav de Blazor (que en algunos casos comparte estado con la
+        // sesión actual y no re-renderiza el prerender de forma limpia).
+        Nav.NavigateTo(loginUri, forceLoad: true);
     }
 
-    private void Close()
+    private static string StripModalQueryParams(string relativeOrAbs)
     {
-        _visible = false;
-        _showError = false;
-        StateHasChanged();
+        if (string.IsNullOrEmpty(relativeOrAbs)) return relativeOrAbs;
+
+        var qIdx = relativeOrAbs.IndexOf('?');
+        if (qIdx < 0) return relativeOrAbs;
+
+        var path = relativeOrAbs.Substring(0, qIdx);
+        var q    = QueryHelpers.ParseQuery(relativeOrAbs.Substring(qIdx));
+
+        q.Remove("openLogin");
+        q.Remove("loginError");
+
+        var kept = new Dictionary<string, string?>();
+        foreach (var kv in q) kept[kv.Key] = kv.Value.ToString();
+
+        return kept.Count == 0 ? path : QueryHelpers.AddQueryString(path, kept);
     }
 
     public void Dispose()

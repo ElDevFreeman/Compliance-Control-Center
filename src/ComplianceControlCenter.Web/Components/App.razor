@@ -8,7 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="@BaseHref" />
     <link rel="stylesheet" href="css/site.css" />
-    <link rel="stylesheet" href="ComplianceControlCenter.Web.styles.css" />
+    @* No se referencia "ComplianceControlCenter.Web.styles.css" porque el
+       proyecto no tiene ningún archivo *.razor.css (scoped CSS), y por lo
+       tanto ASP.NET Core no genera ese bundle → daría 404 en la consola. *@
     <link rel="icon" type="image/png" href="img/lobo.png?v=1" />
     @* Atribución del icono del lobo (requerida por licencia Flaticon) *@
     <!-- Lobo iconos creados por AbtoCreative - Flaticon: https://www.flaticon.es/iconos-gratis/lobo -->

@@ -32,35 +32,85 @@ builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 
 // ────────────────────────────────────────────────────────────────
-// Reverse proxy: aceptar X-Forwarded-For / Proto / Host de IIS/ARR.
-// Necesario para que Request.Scheme sea "https" cuando el TLS termina
-// en el front-end. Sin esto, las cookies "Secure" y la validación de
-// antiforgery fallan detrás del proxy (HTTP 400 en el POST del login).
+// Reverse proxy: X-Forwarded-* headers.
+//
+// DESACTIVADO en base a la comparación con FDS.Web (proyecto
+// hermano Blazor Server que se despliega igual en /FDS bajo el
+// mismo servidor IIS y funciona sin este middleware).
+//
+// Con ANCM en modo InProcess, IIS y Kestrel comparten proceso y
+// los headers X-Forwarded-* típicamente no se envían (IIS ya
+// informa el scheme correcto vía la conexión interna). Registrar
+// UseForwardedHeaders en este escenario puede REESCRIBIR
+// Request.Scheme basándose en headers de un proxy externo (F5,
+// ARR) que ponen "X-Forwarded-Proto: http" en el hop interno,
+// haciendo que Request.IsHttps quede en false durante el POST
+// del login y disparando validaciones de antiforgery que
+// terminan en HTTP 400.
+//
+// Si se necesita re-habilitar en el futuro (p. ej. Kestrel
+// standalone detrás de nginx), pasar KnownProxies explícitamente.
 // ────────────────────────────────────────────────────────────────
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders =
-        ForwardedHeaders.XForwardedFor |
-        ForwardedHeaders.XForwardedProto |
-        ForwardedHeaders.XForwardedHost;
-    // El proxy corre en el mismo host o en la LAN; se acepta cualquier proxy.
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
+// builder.Services.Configure<ForwardedHeadersOptions>(options =>
+// {
+//     options.ForwardedHeaders =
+//         ForwardedHeaders.XForwardedFor |
+//         ForwardedHeaders.XForwardedProto |
+//         ForwardedHeaders.XForwardedHost;
+//     options.KnownNetworks.Clear();
+//     options.KnownProxies.Clear();
+// });
 
 // ────────────────────────────────────────────────────────────────
-// Data Protection: persistir llaves fuera del perfil temporal del
-// AppPool. Si no, cada reciclaje invalida el token antiforgery y las
-// cookies → login devuelve HTTP 400. La ruta se toma de:
-//   appsettings.json → "DataProtection:KeysPath"
-// Fallback: <ContentRoot>\App_Data\dp-keys
+// Data Protection: persistir llaves de encriptación.
+//
+// SIN esto, cada reciclaje del AppPool (o incluso cada worker
+// process nuevo dentro del mismo pool) genera llaves distintas.
+// Consecuencia: la cookie antiforgery emitida en el prerender NO
+// puede descifrarse en el POST → HTTP 400. Es LA causa más
+// común de "login funciona local, falla en producción con IIS".
+//
+// Estrategia:
+//   1. Ruta se toma de appsettings.json → "DataProtection:KeysPath".
+//   2. Fallback: %PROGRAMDATA%\ComplianceControlCenter\dp-keys
+//      (fuera del sitio publicado; escritura garantizada al
+//      AppPool si se dieron permisos correctos).
+//   3. Si NO se puede escribir en la ruta elegida, la app FALLA AL
+//      ARRANCAR con un mensaje claro (mejor eso que quedar
+//      silenciosamente con llaves en memoria que se pierden).
+//
+// Permisos requeridos en producción (una sola vez):
+//   icacls "C:\ProgramData\ComplianceControlCenter\dp-keys" ^
+//     /grant "IIS AppPool\<NombreDelAppPool>:(OI)(CI)F" /T
 // ────────────────────────────────────────────────────────────────
 var keysPath = builder.Configuration["DataProtection:KeysPath"];
 if (string.IsNullOrWhiteSpace(keysPath))
 {
-    keysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "dp-keys");
+    var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+    keysPath = Path.Combine(programData, "ComplianceControlCenter", "dp-keys");
 }
-Directory.CreateDirectory(keysPath);
+
+try
+{
+    Directory.CreateDirectory(keysPath);
+
+    // Prueba real de escritura: crear y eliminar un archivo canario.
+    // Directory.CreateDirectory NO falla si la carpeta ya existe pero
+    // no tenemos permisos de escritura dentro.
+    var canary = Path.Combine(keysPath, $".write-test-{Guid.NewGuid():N}.tmp");
+    File.WriteAllText(canary, "ok");
+    File.Delete(canary);
+}
+catch (Exception ex)
+{
+    throw new InvalidOperationException(
+        $"No se puede escribir en la carpeta de DataProtection '{keysPath}'. " +
+        $"Sin permisos de escritura, las llaves se generan en memoria y se " +
+        $"pierden al reciclar el AppPool, causando HTTP 400 en el login. " +
+        $"Ejecuta en el servidor: " +
+        $"icacls \"{keysPath}\" /grant \"IIS AppPool\\<NombreDelAppPool>:(OI)(CI)F\" /T",
+        ex);
+}
 
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
@@ -93,11 +143,37 @@ builder.Services.AddAuthentication(options =>
     .AddIdentityCookies();
 
 // Ajusta las cookies de Identity para el reverse proxy + subruta.
+// IMPORTANTE: NO fijamos Cookie.Path aquí. ASP.NET Core lo establece
+// automáticamente al PathBase actual del request (p. ej. "/CCC"), lo
+// cual es correcto. LoginPath/AccessDeniedPath/LogoutPath se resuelven
+// contra el PathBase también (el framework los prefija con el PathBase
+// del request en el redirect 302), por eso se dejan como rutas
+// relativas al pathbase (empezando en "/").
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.HttpOnly = true;
+
+    options.LoginPath        = "/Account/Login";
+    options.LogoutPath       = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
+// ────────────────────────────────────────────────────────────────
+// Antiforgery: alineamos la cookie con el reverse-proxy + subruta.
+// - Cookie.SameSite = Lax  para permitir el POST del form de login.
+// - Cookie.SecurePolicy = SameAsRequest para no perder la cookie
+//   cuando el server ve HTTP interno pero el cliente usa HTTPS.
+// NO se fija Cookie.Path: el framework la emite con Path = PathBase
+// actual (p. ej. "/CCC/"), lo cual es lo correcto para que el
+// navegador la reenvíe SOLO en el POST a /CCC/Account/Login.
+// ────────────────────────────────────────────────────────────────
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.SameSite     = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.HttpOnly     = true;
 });
 
 builder.Services.AddAuthorization();
@@ -175,16 +251,22 @@ builder.Services.AddApexCharts();
 var app = builder.Build();
 
 // ────────────────────────────────────────────────────────────────
-// PRIMER middleware: aplicar cabeceras del reverse proxy (X-Forwarded-*).
-// Debe ejecutarse ANTES de UsePathBase / Authentication / Antiforgery
-// para que Request.Scheme, Request.Host y Request.IsHttps reflejen la
-// petición original del cliente (HTTPS 8443) y no el hop interno HTTP.
+// PRIMER middleware: X-Forwarded-* (DESACTIVADO — ver comentario
+// arriba en el bloque de Configure<ForwardedHeadersOptions>).
 // ────────────────────────────────────────────────────────────────
-app.UseForwardedHeaders();
+// app.UseForwardedHeaders();
 
 // ────────────────────────────────────────────────────────────────
 // Path base (para despliegue en subruta de IIS, p. ej. "/CCC").
 // Se configura vía appsettings.json → "PathBase": "/CCC".
+//
+// Nota: aunque IIS registre la app como "Application" con un
+// Application Path, ANCM (AspNetCoreModuleV2) NO establece
+// automáticamente Request.PathBase en el pipeline de Kestrel-in-IIS
+// para todos los escenarios (comprobado con la app hermana
+// FDS.Southbound.Web, que aplica UsePathBase explícitamente y
+// funciona). Por eso lo aplicamos SIEMPRE que "PathBase" esté en
+// config, sin importar el hosting model.
 // ────────────────────────────────────────────────────────────────
 var pathBase = app.Configuration["PathBase"];
 if (!string.IsNullOrWhiteSpace(pathBase))

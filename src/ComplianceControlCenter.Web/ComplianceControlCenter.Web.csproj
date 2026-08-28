@@ -51,6 +51,17 @@
     </None>
   </ItemGroup>
 
+  <!--
+       Asegurar que exista la carpeta 'logs' en el output del publish.
+       ANCM (AspNetCoreModuleV2) la necesita cuando stdoutLogEnabled=true.
+       Si no existe y el AppPool identity no puede crearla, ANCM falla
+       silenciosamente al escribir logs.
+  -->
+  <Target Name="EnsureLogsFolder" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)logs" />
+    <WriteLinesToFile File="$(PublishDir)logs\.gitkeep" Lines="" Overwrite="true" />
+  </Target>
+
   <Target Name="EnsureNodeModules" BeforeTargets="BuildTailwind" Condition="!Exists('node_modules/.bin/tailwindcss') And !Exists('node_modules\.bin\tailwindcss.cmd')">
     <Message Importance="high" Text="→ Instalando dependencias de npm (pnpm install)…" />
     <Exec Command="pnpm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
