@@ -7,6 +7,7 @@
 @inject IJSRuntime JS
 @inject LoginModalState LoginModal
 @inject AuthenticationStateProvider AuthState
+@inject UserSessionState Session
 @inject CtpatPanelState PanelState
 
 <PageTitle>CTPAT — Revisión anual</PageTitle>
@@ -37,6 +38,16 @@
             </fieldset>
         </div>
     </div>
+
+    @if (!_canEdit)
+    {
+        <div class="alert alert-info alert-soft shrink-0">
+            <span>Estás en modo <strong>solo lectura</strong>. Puedes ver los datos y consultar la guía.
+            Para editar respuestas, subir archivos o marcar avances,
+            <button type="button" @onclick="() => LoginModal.Open()" class="link link-primary">inicia sesión</button>.
+            </span>
+        </div>
+    }
 
     @if (_questions is null)
     {
@@ -217,19 +228,22 @@
     private string _filterStatus = "";
     private string _filterText = "";
     private string _currentUser = "anonymous";
+    private bool _canEdit;
+    private bool _isAdmin;
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthState.GetAuthenticationStateAsync();
-        _currentUser = authState.User.FindFirst("DisplayName")?.Value
-                       ?? authState.User.Identity?.Name
-                       ?? "anonymous";
+        var user = await Session.GetCurrentAsync();
+        _currentUser = user.DisplayName;
+        _canEdit     = user.CanEdit;
+        _isAdmin     = user.IsAdmin;
 
         // Registrar callbacks en el estado compartido del panel
         PanelState.OnSaveRequested       = SavePanel;
         PanelState.OnUploadFiles         = UploadFiles;
         PanelState.OnDeleteFileConfirmed = DeleteFileConfirmed;
+        PanelState.OnRequestLogin        = () => LoginModal.Open();
 
         await LoadDataAsync();
     }
@@ -253,15 +267,30 @@
     // ── Panel open/close ─────────────────────────────────────────────────────
     private async Task OpenPanel(CtpatQuestion q)
     {
-        // Asegurar que la revisión existe en DB antes de abrir el panel
-        if (!_reviewMap.ContainsKey(q.Id))
+        // Asegurar que la revisión existe en DB antes de abrir el panel.
+        // En modo solo-lectura NO creamos registros: mostramos un placeholder.
+        CtpatReview review;
+        if (_reviewMap.TryGetValue(q.Id, out var existing))
         {
-            var r = await Reviews.GetOrCreateAsync(q.Id, _year);
-            var newMap = new Dictionary<int, CtpatReview>(_reviewMap) { [q.Id] = r };
+            review = existing;
+        }
+        else if (_canEdit)
+        {
+            review = await Reviews.GetOrCreateAsync(q.Id, _year);
+            var newMap = new Dictionary<int, CtpatReview>(_reviewMap) { [q.Id] = review };
             _reviewMap = newMap;
         }
+        else
+        {
+            // Placeholder in-memory para poder abrir el panel en modo lectura.
+            review = new CtpatReview
+            {
+                QuestionId = q.Id,
+                Year       = _year,
+                Status     = CtpatReviewStatus.Pendiente,
+            };
+        }
 
-        var review = _reviewMap[q.Id];
         var draft = new CtpatPanelDraft
         {
             Status            = review.Status,
@@ -274,6 +303,8 @@
         };
 
         PanelState.CurrentUser = _currentUser;
+        PanelState.CanEdit     = _canEdit;
+        PanelState.IsAdmin     = _isAdmin;
         PanelState.Open(q, review, draft);
         try { await JS.InvokeVoidAsync("cccPanel.lock"); } catch { }
 
@@ -295,6 +326,7 @@
     // ── Save (invocado por CtpatSlidePanel a través del callback) ─────────────
     private async Task SavePanel()
     {
+        if (!_canEdit) { LoginModal.Open(); return; }
         if (PanelState.Review is null) return;
         PanelState.Saving      = true;
         PanelState.SaveSuccess = false;
@@ -338,6 +370,7 @@
     // ── File upload ──────────────────────────────────────────────────────────
     private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
+        if (!_canEdit) { LoginModal.Open(); return; }
         if (PanelState.Review is null) return;
         PanelState.UploadError = null;
 
@@ -378,6 +411,7 @@
     // ── File delete ──────────────────────────────────────────────────────────
     private async Task DeleteFileConfirmed()
     {
+        if (!_canEdit) { LoginModal.Open(); return; }
         if (PanelState.FileToDelete is null) return;
         PanelState.DeletingFile = true;
         PanelState.NotifyChanged();

@@ -14,6 +14,7 @@ using ComplianceControlCenter.Web.Modules.Oea.Export;
 using ComplianceControlCenter.Web.Modules.Oea.Hubs;
 using ComplianceControlCenter.Web.Core.Services;
 using ComplianceControlCenter.Web.Modules.Oea.Services;
+using ComplianceControlCenter.Web.Modules.Ctpat.Export;
 using ComplianceControlCenter.Web.Modules.Ctpat.Hubs;
 using ComplianceControlCenter.Web.Modules.Ctpat.Services;
 using ComplianceControlCenter.Web.Core.State;
@@ -401,6 +402,35 @@ exports.MapGet("/matrix.xlsx", async (
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         $"matriz-{fromYear:0000}{fromMonth:00}-{toYear:0000}{toMonth:00}.xlsx");
 });
+
+// ────────────────────────────────────────────────────────────────
+// CTPAT export endpoints
+// ────────────────────────────────────────────────────────────────
+var ctpatExports = app.MapGroup("/api/ctpat/export");
+
+ctpatExports.MapGet("/matrix.csv", async (
+    int year,
+    string? criterio,
+    ICtpatCatalogService catalog,
+    ICtpatReviewService reviews,
+    CancellationToken ct) =>
+{
+    var questions = await catalog.GetQuestionsAsync(ct);
+    var reviewMap = await reviews.GetReviewsForYearAsync(year, ct);
+    var bytes = CtpatExportGenerator.MatrixToCsv(questions, reviewMap, year, criterio);
+
+    var suffix = string.IsNullOrWhiteSpace(criterio)
+        ? ""
+        : "-" + SanitizeForFileName(criterio!);
+    return Results.File(bytes, "text/csv", $"ctpat-matriz-{year:0000}{suffix}.csv");
+});
+
+static string SanitizeForFileName(string s)
+{
+    var invalid = Path.GetInvalidFileNameChars();
+    var clean = new string(s.Where(c => !invalid.Contains(c) && c != ' ').ToArray());
+    return string.IsNullOrEmpty(clean) ? "filtro" : clean;
+}
 
 await DbInitializer.InitializeAsync(app.Services);
 

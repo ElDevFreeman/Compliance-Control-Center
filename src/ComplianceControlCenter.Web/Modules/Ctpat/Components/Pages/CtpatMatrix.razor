@@ -382,7 +382,7 @@ else
         _questions?.Count(q => (GetReview(q.Id)?.Status ?? CtpatReviewStatus.Pendiente) == status) ?? 0;
 
     private string CsvExportHref =>
-        $"/api/ctpat/export/matrix.csv?year={_year}" +
+        $"api/ctpat/export/matrix.csv?year={_year}" +
         (string.IsNullOrEmpty(_filterCriterio) ? "" : $"&criterio={Uri.EscapeDataString(_filterCriterio)}");
 
     private List<AuditLog> FilteredLogs

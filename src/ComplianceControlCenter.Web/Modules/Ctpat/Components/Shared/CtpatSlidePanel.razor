@@ -73,6 +73,17 @@
                     <!-- ========== TAB: REVISION ========== -->
                     <div class="px-6 py-5 space-y-5">
 
+                        @if (!PanelState.CanEdit)
+                        {
+                            <div class="alert alert-info alert-soft">
+                                <span class="material-symbols-outlined">lock</span>
+                                <span>Modo <strong>solo lectura</strong>.
+                                    <button type="button" class="link link-primary" @onclick="RequestLogin">Inicia sesión</button>
+                                    para editar esta revisión.
+                                </span>
+                            </div>
+                        }
+
                         <!-- Respuesta actual -->
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wide text-base-content/50 mb-1.5">
@@ -91,7 +102,8 @@
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend text-xs">Estado</legend>
                                 <select class="select select-bordered select-sm w-full"
-                                        @bind="PanelState.Draft.Status">
+                                        @bind="PanelState.Draft.Status"
+                                        disabled="@(!PanelState.CanEdit)">
                                     <option value="@CtpatReviewStatus.Pendiente">Pendiente</option>
                                     <option value="@CtpatReviewStatus.SinCambios">Sin cambios</option>
                                     <option value="@CtpatReviewStatus.ConCambios">Con cambios</option>
@@ -103,14 +115,16 @@
                                 <legend class="fieldset-legend text-xs">Fecha de revisión</legend>
                                 <input type="date" class="input input-bordered input-sm w-full"
                                        value="@(PanelState.Draft.FechaRevision?.ToString("yyyy-MM-dd") ?? "")"
-                                       @onchange="e => PanelState.Draft.FechaRevision = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null" />
+                                       @onchange="e => PanelState.Draft.FechaRevision = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null"
+                                       disabled="@(!PanelState.CanEdit)" />
                             </fieldset>
 
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend text-xs">Revisor</legend>
                                 <input type="text" class="input input-bordered input-sm w-full"
                                        placeholder="Nombre del revisor"
-                                       @bind="PanelState.Draft.Revisor" />
+                                       @bind="PanelState.Draft.Revisor"
+                                       disabled="@(!PanelState.CanEdit)" />
                             </fieldset>
                         </div>
 
@@ -122,7 +136,8 @@
                             </legend>
                             <textarea class="textarea textarea-bordered textarea-sm w-full min-h-20"
                                       placeholder="Lista o descripción de documentos revisados…"
-                                      @bind="PanelState.Draft.EvidenciaRevisada"></textarea>
+                                      @bind="PanelState.Draft.EvidenciaRevisada"
+                                      disabled="@(!PanelState.CanEdit)"></textarea>
                         </fieldset>
 
                         <!-- Cambios detectados -->
@@ -133,7 +148,8 @@
                             </legend>
                             <textarea class="textarea textarea-bordered textarea-sm w-full min-h-20"
                                       placeholder="Describe qué cambió respecto a la respuesta 2025…"
-                                      @bind="PanelState.Draft.CambiosDetectados"></textarea>
+                                      @bind="PanelState.Draft.CambiosDetectados"
+                                      disabled="@(!PanelState.CanEdit)"></textarea>
                         </fieldset>
 
                         <!-- Respuesta nueva -->
@@ -144,7 +160,8 @@
                             </legend>
                             <textarea class="textarea textarea-bordered textarea-sm w-full min-h-32"
                                       placeholder="Redacta aquí la respuesta actualizada…"
-                                      @bind="PanelState.Draft.RespuestaNueva"></textarea>
+                                      @bind="PanelState.Draft.RespuestaNueva"
+                                      disabled="@(!PanelState.CanEdit)"></textarea>
                         </fieldset>
 
                         <!-- Comentarios internos -->
@@ -155,7 +172,8 @@
                             </legend>
                             <textarea class="textarea textarea-bordered textarea-sm w-full min-h-16"
                                       placeholder="Notas para el equipo…"
-                                      @bind="PanelState.Draft.Comentarios"></textarea>
+                                      @bind="PanelState.Draft.Comentarios"
+                                      disabled="@(!PanelState.CanEdit)"></textarea>
                         </fieldset>
 
                     </div>
@@ -228,23 +246,36 @@
                     <!-- ========== TAB: ARCHIVOS ========== -->
                     <div class="px-6 py-5 space-y-4">
 
-                        <!-- Upload zone -->
-                        <div class="border-2 border-dashed border-base-300 rounded-box p-5 text-center space-y-2 hover:border-primary/50 transition-colors @(PanelState.IsDragging ? "border-primary bg-primary/5" : "")"
-                             @ondragover:preventDefault
-                             @ondragenter="() => { PanelState.IsDragging = true; }"
-                             @ondragleave="() => { PanelState.IsDragging = false; }"
-                             @ondrop="HandleFileDrop"
-                             @ondrop:preventDefault>
-                            <span class="material-symbols-outlined text-[36px] text-base-content/30">cloud_upload</span>
-                            <p class="text-sm text-base-content/60">
-                                Arrastra archivos aquí o
-                                <label class="text-primary font-medium cursor-pointer hover:underline">
-                                    selecciona desde tu equipo
-                                    <InputFile class="hidden" OnChange="HandleFileSelected" multiple />
-                                </label>
-                            </p>
-                            <p class="text-xs text-base-content/40">Máximo 25 MB por archivo</p>
-                        </div>
+                        @if (PanelState.CanEdit)
+                        {
+                            <!-- Upload zone -->
+                            <div class="border-2 border-dashed border-base-300 rounded-box p-5 text-center space-y-2 hover:border-primary/50 transition-colors @(PanelState.IsDragging ? "border-primary bg-primary/5" : "")"
+                                 @ondragover:preventDefault
+                                 @ondragenter="() => { PanelState.IsDragging = true; }"
+                                 @ondragleave="() => { PanelState.IsDragging = false; }"
+                                 @ondrop="HandleFileDrop"
+                                 @ondrop:preventDefault>
+                                <span class="material-symbols-outlined text-[36px] text-base-content/30">cloud_upload</span>
+                                <p class="text-sm text-base-content/60">
+                                    Arrastra archivos aquí o
+                                    <label class="text-primary font-medium cursor-pointer hover:underline">
+                                        selecciona desde tu equipo
+                                        <InputFile class="hidden" OnChange="HandleFileSelected" multiple />
+                                    </label>
+                                </p>
+                                <p class="text-xs text-base-content/40">Máximo 25 MB por archivo</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info alert-soft">
+                                <span class="material-symbols-outlined">lock</span>
+                                <span>
+                                    <button type="button" class="link link-primary" @onclick="RequestLogin">Inicia sesión</button>
+                                    para subir o eliminar archivos.
+                                </span>
+                            </div>
+                        }
 
                         <!-- Upload progress -->
                         @if (PanelState.UploadingFiles.Count > 0)
@@ -282,16 +313,19 @@
                                         <span class="material-symbols-outlined text-[18px] text-base-content/50">@FileIcon(f.ContentType)</span>
                                         <span class="font-medium truncate flex-1">@f.FileName</span>
                                         <span class="text-xs text-base-content/40 shrink-0">@FormatSize(f.Size)</span>
-                                        <a class="btn btn-ghost btn-xs" href="/api/ctpat/files/@f.ExternalId" target="_blank" title="Ver">
+                                        <a class="btn btn-ghost btn-xs" href="api/ctpat/files/@f.ExternalId" target="_blank" title="Ver">
                                             <span class="material-symbols-outlined text-[16px] leading-none">visibility</span>
                                         </a>
-                                        <a class="btn btn-ghost btn-xs" href="/api/ctpat/files/@f.ExternalId" download="@f.FileName" title="Descargar">
+                                        <a class="btn btn-ghost btn-xs" href="api/ctpat/files/@f.ExternalId" download="@f.FileName" title="Descargar">
                                             <span class="material-symbols-outlined text-[16px] leading-none">download</span>
                                         </a>
-                                        <button class="btn btn-ghost btn-xs text-error" title="Eliminar"
-                                                @onclick="() => ConfirmDeleteFile(f.Id, f.FileName)">
-                                            <span class="material-symbols-outlined text-[16px] leading-none">delete</span>
-                                        </button>
+                                        @if (PanelState.CanEdit)
+                                        {
+                                            <button class="btn btn-ghost btn-xs text-error" title="Eliminar"
+                                                    @onclick="() => ConfirmDeleteFile(f.Id, f.FileName)">
+                                                <span class="material-symbols-outlined text-[16px] leading-none">delete</span>
+                                            </button>
+                                        }
                                     </div>
                                 }
                             </div>
@@ -330,17 +364,28 @@
                     <button class="btn btn-ghost btn-sm" @onclick="ClosePanel" disabled="@PanelState.Saving">
                         Cancelar
                     </button>
-                    <button class="btn btn-primary btn-sm" @onclick="SavePanel" disabled="@PanelState.Saving">
-                        @if (PanelState.Saving)
-                        {
-                            <span class="loading loading-spinner loading-xs"></span>
-                        }
-                        else
-                        {
-                            <span class="material-symbols-outlined text-[16px] leading-none">save</span>
-                        }
-                        Guardar cambios
-                    </button>
+                    @if (PanelState.CanEdit)
+                    {
+                        <button class="btn btn-primary btn-sm" @onclick="SavePanel" disabled="@PanelState.Saving">
+                            @if (PanelState.Saving)
+                            {
+                                <span class="loading loading-spinner loading-xs"></span>
+                            }
+                            else
+                            {
+                                <span class="material-symbols-outlined text-[16px] leading-none">save</span>
+                            }
+                            Guardar cambios
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary btn-sm" @onclick="RequestLogin"
+                                title="Inicia sesión para editar">
+                            <span class="material-symbols-outlined text-[16px] leading-none">login</span>
+                            Iniciar sesión para editar
+                        </button>
+                    }
                 </div>
             }
         </div>
@@ -398,6 +443,11 @@
     {
         if (PanelState.OnSaveRequested is not null)
             await PanelState.OnSaveRequested.Invoke();
+    }
+
+    private void RequestLogin()
+    {
+        PanelState.OnRequestLogin?.Invoke();
     }
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)

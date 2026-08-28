@@ -11,14 +11,17 @@
         {
             // Usuario autenticado pero sin permisos para esta ruta: llévalo al home.
             // El modal no ayuda aquí porque el problema es de rol, no de credenciales.
-            NavigationManager.NavigateTo("/", forceLoad: false);
+            // BaseUri respeta el PathBase (p. ej. https://host/CCC/) — usarlo como
+            // URI absoluto garantiza que NO se ignore el PathBase (a diferencia de
+            // NavigateTo("/") que va al root del origen).
+            NavigationManager.NavigateTo(NavigationManager.BaseUri, forceLoad: false);
             return;
         }
 
         // Anónimo: navega al home y luego abre el modal para iniciar sesión.
         // Tras login exitoso, el endpoint redirige a returnUrl (la URL original).
         var target = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.NavigateTo("/", forceLoad: false);
+        NavigationManager.NavigateTo(NavigationManager.BaseUri, forceLoad: false);
         LoginModal.Open(target);
     }
 }

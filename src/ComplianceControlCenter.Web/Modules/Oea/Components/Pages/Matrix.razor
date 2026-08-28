@@ -373,7 +373,7 @@ else
             };
             if (!string.IsNullOrEmpty(_owner)) qs.Add($"owner={Uri.EscapeDataString(_owner)}");
             if (!string.IsNullOrEmpty(_search)) qs.Add($"search={Uri.EscapeDataString(_search)}");
-            return "/api/export/matrix.xlsx?" + string.Join("&", qs);
+            return "api/export/matrix.xlsx?" + string.Join("&", qs);
         }
     }
 

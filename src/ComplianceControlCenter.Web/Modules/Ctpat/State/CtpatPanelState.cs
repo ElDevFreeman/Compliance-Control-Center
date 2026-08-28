@@ -31,6 +31,15 @@ public sealed class CtpatPanelState
     /// <summary>Nombre del usuario activo, inyectado por <c>Ctpat.razor</c> al abrir el panel.</summary>
     public string                      CurrentUser    { get; set; } = "anonymous";
 
+    /// <summary>¿El usuario puede editar? (autenticado). Inyectado por <c>Ctpat.razor</c>.</summary>
+    public bool                        CanEdit        { get; set; }
+
+    /// <summary>¿El usuario es administrador? Inyectado por <c>Ctpat.razor</c>.</summary>
+    public bool                        IsAdmin        { get; set; }
+
+    /// <summary>Callback para que el panel solicite abrir el modal de login.</summary>
+    public Action?                     OnRequestLogin { get; set; }
+
     // ── Callbacks para que el panel pueda pedir acciones a la página ────────
 
     /// <summary>
