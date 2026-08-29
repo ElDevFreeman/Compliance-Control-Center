@@ -1,6 +1,9 @@
 @inherits LayoutComponentBase
-@layout ComplianceControlCenter.Web.Shared.Layout.MainLayout
 @inject NavigationManager NavigationManager
+@inject ThemeState Theme
+
+@* Layout independiente para páginas de Account (Login, Register, etc.)
+   Sin sidebar — solo el contenido ocupa toda la ventana. *@
 
 @if (HttpContext is null)
 {
@@ -8,7 +11,18 @@
 }
 else
 {
-    @Body
+    <div class="flex flex-col h-screen bg-base-100">
+        <main class="flex-1 min-h-0 flex flex-col">
+            @Body
+        </main>
+    </div>
+
+    <div id="blazor-error-ui" class="hidden">
+        <span class="alert alert-error">
+            Ha ocurrido un error no controlado.
+            <a href="" class="link">Recargar</a>
+        </span>
+    </div>
 }
 
 @code {

@@ -1,6 +1,8 @@
 @page "/ctpat"
 @rendermode InteractiveServer
+@implements IDisposable
 
+@using System.Text.Json
 @inject ICtpatCatalogService Catalog
 @inject ICtpatReviewService Reviews
 @inject ICtpatFileService FileService
@@ -9,6 +11,7 @@
 @inject AuthenticationStateProvider AuthState
 @inject UserSessionState Session
 @inject CtpatPanelState PanelState
+@inject ThemeState Theme
 
 <PageTitle>CTPAT — Revisión anual</PageTitle>
 
@@ -55,97 +58,77 @@
     }
     else
     {
-        <!-- KPI + Filtros: se apila en pantallas estrechas, en fila cuando hay espacio -->
+        <!-- Filtros + Gauge en una sola card -->
         <div class="card bg-base-100 border border-base-300">
-            <div class="card-body px-5 py-3 gap-4">
+            <div class="card-body px-5 py-3 gap-0">
+                <div class="flex flex-col lg:flex-row lg:items-stretch gap-4">
 
-                <!-- Fila 1: KPI de progreso + contadores de estado -->
-                <div class="flex flex-wrap items-center gap-4 lg:gap-6">
-
-                    <!-- Número central de avance -->
-                    <div class="flex flex-col items-center shrink-0">
-                        <span class="kpi-number @ProgressTextColor(Progress) tabular-nums">@Progress<span class="text-fluid-lg font-bold">%</span></span>
-                        <span class="text-[11px] text-base-content/40 mt-0.5 whitespace-nowrap">@Atendidas / @_questions.Count</span>
-                        <div class="w-16 bg-base-300 rounded-full h-1 mt-1.5">
-                            <div class="@ProgressBarColor(Progress) h-1 rounded-full transition-all duration-500" style="width:@Progress%"></div>
+                    <!-- Lado izquierdo: filtros (~70%) -->
+                    <div class="flex-[7] min-w-0 flex flex-col gap-3 justify-center">
+                        <div class="flex flex-wrap items-end gap-2">
+                            <fieldset class="fieldset py-0 flex-1 min-w-36 max-w-xs">
+                                <legend class="fieldset-legend text-xs">Criterio</legend>
+                                <select class="select select-bordered select-sm w-full"
+                                        @bind="_filterCriterio" @bind:after="StateHasChanged">
+                                    <option value="">Todos</option>
+                                    @foreach (var c in _criterios)
+                                    {
+                                        <option value="@c">@c</option>
+                                    }
+                                </select>
+                            </fieldset>
+                            <fieldset class="fieldset py-0 min-w-32">
+                                <legend class="fieldset-legend text-xs">Estado</legend>
+                                <select class="select select-bordered select-sm w-full"
+                                        @bind="_filterStatus" @bind:after="StateHasChanged">
+                                    <option value="">Todos</option>
+                                    <option value="0">Pendiente</option>
+                                    <option value="1">Sin cambios</option>
+                                    <option value="2">Con cambios</option>
+                                    <option value="3">Revisado</option>
+                                </select>
+                            </fieldset>
+                            <fieldset class="fieldset py-0 flex-1 min-w-40">
+                                <legend class="fieldset-legend text-xs">Buscar</legend>
+                                <input type="search" class="input input-bordered input-sm w-full"
+                                       placeholder="Pregunta, ID…"
+                                       @bind="_filterText" @bind:event="oninput" />
+                            </fieldset>
+                            <div class="text-xs text-base-content/40 self-end pb-1 whitespace-nowrap">
+                                @Filtered.Count de @_questions.Count
+                            </div>
+                        </div>
+                        <!-- Leyenda de estados debajo de los filtros -->
+                        <div class="flex flex-wrap gap-x-4 gap-y-1">
+                            <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                                <span class="w-2 h-2 rounded-full bg-base-300 inline-block"></span>
+                                <span class="font-semibold tabular-nums">@CountBy(CtpatReviewStatus.Pendiente)</span> Pendiente
+                            </span>
+                            <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                                <span class="w-2 h-2 rounded-full bg-info inline-block"></span>
+                                <span class="font-semibold tabular-nums text-info">@CountBy(CtpatReviewStatus.SinCambios)</span> Sin cambios
+                            </span>
+                            <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                                <span class="w-2 h-2 rounded-full bg-error inline-block"></span>
+                                <span class="font-semibold tabular-nums text-error">@CountBy(CtpatReviewStatus.ConCambios)</span> Con cambios
+                            </span>
+                            <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                                <span class="w-2 h-2 rounded-full bg-success inline-block"></span>
+                                <span class="font-semibold tabular-nums text-success">@CountBy(CtpatReviewStatus.Revisado)</span> Revisado
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Separador -->
-                    <div class="w-px self-stretch bg-base-300 hidden sm:block"></div>
+                    <!-- Separador vertical -->
+                    <div class="hidden lg:block w-px bg-base-300"></div>
 
-                    <!-- Contadores de estado (fluyen libremente) -->
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 flex-1 min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <div class="w-2 h-2 rounded-full bg-base-300 shrink-0"></div>
-                            <div>
-                                <div class="text-base font-bold text-base-content/60 leading-none tabular-nums">@CountBy(CtpatReviewStatus.Pendiente)</div>
-                                <div class="text-[11px] text-base-content/40 leading-none">Pendiente</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <div class="w-2 h-2 rounded-full bg-info shrink-0"></div>
-                            <div>
-                                <div class="text-base font-bold text-info leading-none tabular-nums">@CountBy(CtpatReviewStatus.SinCambios)</div>
-                                <div class="text-[11px] text-base-content/40 leading-none">Sin cambios</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <div class="w-2 h-2 rounded-full bg-error shrink-0"></div>
-                            <div>
-                                <div class="text-base font-bold text-error leading-none tabular-nums">@CountBy(CtpatReviewStatus.ConCambios)</div>
-                                <div class="text-[11px] text-base-content/40 leading-none">Con cambios</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <div class="w-2 h-2 rounded-full bg-success shrink-0"></div>
-                            <div>
-                                <div class="text-base font-bold text-success leading-none tabular-nums">@CountBy(CtpatReviewStatus.Revisado)</div>
-                                <div class="text-[11px] text-base-content/40 leading-none">Revisado</div>
-                            </div>
-                        </div>
+                    <!-- Lado derecho: gauge (~30%) -->
+                    <div class="flex-[3] min-w-[160px] flex flex-col items-center justify-center">
+                        <EChart Options="@_gaugeJson" Style="height: 120px; width: 100%;" ThemeKey="@Theme.Current" />
+                        <span class="text-[11px] text-base-content/40 -mt-1">@Atendidas / @_questions.Count</span>
                     </div>
 
                 </div>
-
-                <!-- Divisor horizontal -->
-                <div class="h-px bg-base-300"></div>
-
-                <!-- Fila 2: Filtros -->
-                <div class="flex flex-wrap items-end gap-2">
-                    <fieldset class="fieldset py-0 flex-1 min-w-36 max-w-xs">
-                        <legend class="fieldset-legend text-xs">Criterio</legend>
-                        <select class="select select-bordered select-sm w-full"
-                                @bind="_filterCriterio" @bind:after="StateHasChanged">
-                            <option value="">Todos</option>
-                            @foreach (var c in _criterios)
-                            {
-                                <option value="@c">@c</option>
-                            }
-                        </select>
-                    </fieldset>
-                    <fieldset class="fieldset py-0 min-w-32">
-                        <legend class="fieldset-legend text-xs">Estado</legend>
-                        <select class="select select-bordered select-sm w-full"
-                                @bind="_filterStatus" @bind:after="StateHasChanged">
-                            <option value="">Todos</option>
-                            <option value="0">Pendiente</option>
-                            <option value="1">Sin cambios</option>
-                            <option value="2">Con cambios</option>
-                            <option value="3">Revisado</option>
-                        </select>
-                    </fieldset>
-                    <fieldset class="fieldset py-0 flex-1 min-w-40">
-                        <legend class="fieldset-legend text-xs">Buscar</legend>
-                        <input type="search" class="input input-bordered input-sm w-full"
-                               placeholder="Pregunta, ID…"
-                               @bind="_filterText" @bind:event="oninput" />
-                    </fieldset>
-                    <div class="text-xs text-base-content/40 self-end pb-1 whitespace-nowrap">
-                        @Filtered.Count de @_questions.Count
-                    </div>
-                </div>
-
             </div>
         </div>
 
@@ -231,9 +214,14 @@
     private bool _canEdit;
     private bool _isAdmin;
 
+    // ── Chart JSON ─────────────────────────────────────────────────────────
+    private string _gaugeJson = "{}";
+
     // ── Lifecycle ────────────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
     {
+        Theme.OnChange += OnThemeChanged;
+
         var user = await Session.GetCurrentAsync();
         _currentUser = user.DisplayName;
         _canEdit     = user.CanEdit;
@@ -253,6 +241,20 @@
         _questions  = (await Catalog.GetQuestionsAsync()).ToList();
         _criterios  = (await Catalog.GetCriteriosAsync()).ToList();
         _reviewMap  = await Reviews.GetReviewsForYearAsync(_year);
+        RebuildChartJson();
+    }
+
+    private void RebuildChartJson()
+    {
+        if (_questions is null) return;
+        int total = _questions.Count;
+        int pct   = Progress;
+        _gaugeJson = BuildGaugeJson(pct, Atendidas, total);
+    }
+
+    private async void OnThemeChanged()
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task OnYearChanged(ChangeEventArgs e)
@@ -348,6 +350,7 @@
 
             // Actualizar mapa y panel
             _reviewMap = await Reviews.GetReviewsForYearAsync(_year);
+            RebuildChartJson();
             PanelState.UpdateReview(_reviewMap[PanelState.Question!.Id]);
 
             PanelState.SaveSuccess = true;
@@ -518,4 +521,51 @@
         >= 30  => "text-warning",
         _      => "text-error"
     };
+
+    // ── ECharts JSON builders ────────────────────────────────────────────────
+
+    /// A) Gauge — velocímetro semicircular
+    private static string BuildGaugeJson(int pct, int atendidas, int total)
+    {
+        var color = pct >= 100 ? "#22c55e" : pct >= 60 ? "#6366f1" : pct >= 30 ? "#f59e0b" : "#ef4444";
+        var options = new
+        {
+            series = new object[]
+            {
+                new
+                {
+                    type = "gauge",
+                    startAngle = 200,
+                    endAngle = -20,
+                    min = 0,
+                    max = 100,
+                    radius = "100%",
+                    center = new[] { "50%", "60%" },
+                    progress = new { show = true, width = 14, roundCap = true, itemStyle = new { color } },
+                    axisLine = new { lineStyle = new { width = 14, color = new object[] { new object[] { 1, "#e5e7eb" } } } },
+                    axisTick = new { show = false },
+                    splitLine = new { show = false },
+                    axisLabel = new { show = false },
+                    pointer = new { show = false },
+                    anchor = new { show = false },
+                    title = new { show = false },
+                    detail = new
+                    {
+                        valueAnimation = true,
+                        fontSize = 28,
+                        fontWeight = "bold",
+                        color,
+                        offsetCenter = new[] { "0%", "0%" },
+                        formatter = $"{{value}}%"
+                    },
+                    data = new object[] { new { value = pct } }
+                }
+            },
+            animation = true
+        };
+        return JsonSerializer.Serialize(options);
+    }
+
+    // ── Dispose ──────────────────────────────────────────────────────────────
+    public void Dispose() => Theme.OnChange -= OnThemeChanged;
 }

@@ -7,6 +7,7 @@
 @using ComplianceControlCenter.Web.Modules.Ctpat.Services
 @using ComplianceControlCenter.Web.Core.Data
 @using Microsoft.EntityFrameworkCore
+@using System.Text.Json
 @inject UserSessionState UserSession
 @inject AppDbContext Db
 @inject ICtpatReviewService CtpatReviewService
@@ -107,17 +108,8 @@
                         <span class="badge @(_oeaPct >= 80 ? "badge-success" : _oeaPct >= 50 ? "badge-warning" : "badge-error") badge-soft shrink-0">@_oeaPct%</span>
                     </div>
                     @* @key fuerza a Blazor a destruir/recrear el chart al cambiar el tema,
-                       garantizando repintado limpio de ejes, tooltips y labels en modo claro/oscuro. *@
-                    <ApexChart TItem="StatusPoint"
-                               Options="_oeaDonutOptions"
-                               @ref="_oeaChart"
-                               @key="@($"oea-donut-{Theme.Current}")">
-                        <ApexPointSeries TItem="StatusPoint"
-                                         Items="_oeaStatusData"
-                                         SeriesType="SeriesType.Donut"
-                                         XValue="p => p.Label"
-                                         YValue="p => p.Count" />
-                    </ApexChart>
+                       garantizando repintado limpio en modo claro/oscuro. *@
+                    <EChart Options="@_oeaChartJson" Style="height: 260px; width: 100%;" ThemeKey="@Theme.Current" />
                 </div>
             </div>
 
@@ -131,17 +123,7 @@
                         </div>
                         <span class="badge badge-secondary badge-soft shrink-0">@_ctpatAnswered/139</span>
                     </div>
-                    <ApexChart TItem="CtpatCriterioStats"
-                               Options="_ctpatBarOptions"
-                               @ref="_ctpatChart"
-                               @key="@($"ctpat-bar-{Theme.Current}")">
-                        <ApexPointSeries TItem="CtpatCriterioStats"
-                                         Items="_ctpatStats"
-                                         Name="% Revisado"
-                                         SeriesType="SeriesType.Bar"
-                                         XValue="s => ShortCriterio(s.Criterio)"
-                                         YValue="s => (decimal)s.PctAvance" />
-                    </ApexChart>
+                    <EChart Options="@_ctpatChartJson" Style="height: 280px; width: 100%;" ThemeKey="@Theme.Current" />
                 </div>
             </div>
 
@@ -215,31 +197,23 @@
     private int _ctpatAnswered;
     private int _ctpatFiles;
 
-    // ── Chart: OEA donut ───────────────────────────────────────
-    private record StatusPoint(string Label, int Count, string Color);
-    private List<StatusPoint> _oeaStatusData = new();
-    private ApexChart<StatusPoint>? _oeaChart;
-    private ApexChartOptions<StatusPoint> _oeaDonutOptions = new();
+    // ── Chart JSON para ECharts ────────────────────────────────
+    private string _oeaChartJson = "{}";
+    private string _ctpatChartJson = "{}";
 
-    // Colores fijos por estado — orden debe coincidir con _oeaStatusData
+    // Colores fijos por estado
     private static readonly Dictionary<string, string> StatusColors = new()
     {
-        ["Pendiente"]   = "#94a3b8",  // gris  — neutral, sin acción aún
-        ["En Progreso"] = "#3b82f6",  // azul  — en movimiento
-        ["Completado"]  = "#22c55e",  // verde — éxito
-        ["Vencido"]     = "#ef4444",  // rojo  — alerta crítica
-        ["N/A"]         = "#d1d5db",  // gris claro — excluido
+        ["Pendiente"]   = "#94a3b8",
+        ["En Progreso"] = "#3b82f6",
+        ["Completado"]  = "#22c55e",
+        ["Vencido"]     = "#ef4444",
+        ["N/A"]         = "#d1d5db",
     };
-
-    // ── Chart: CTPAT barras ────────────────────────────────────
-    private List<CtpatCriterioStats> _ctpatStats = new();
-    private ApexChart<CtpatCriterioStats>? _ctpatChart;
-    private ApexChartOptions<CtpatCriterioStats> _ctpatBarOptions = new();
 
     // ── Lifecycle ─────────────────────────────────────────────
     protected override void OnInitialized()
     {
-        BuildChartOptions();
         Theme.OnChange += OnThemeChanged;
     }
 
@@ -272,14 +246,17 @@
         _oeaCompleted = completado;
         _oeaPct = _oeaTotal > 0 ? (int)Math.Round(completado * 100.0 / _oeaTotal) : 0;
 
-        _oeaStatusData = new List<StatusPoint>
+        // Build OEA donut JSON
+        var oeaItems = new (string Label, int Count, string Color)[]
         {
-            new("Pendiente",   pendiente,  StatusColors["Pendiente"]),
-            new("En Progreso", enProgreso, StatusColors["En Progreso"]),
-            new("Completado",  completado, StatusColors["Completado"]),
-            new("Vencido",     vencido,    StatusColors["Vencido"]),
-            new("N/A",         na,         StatusColors["N/A"]),
-        }.Where(p => p.Count > 0).ToList();
+            ("Pendiente",   pendiente,  StatusColors["Pendiente"]),
+            ("En Progreso", enProgreso, StatusColors["En Progreso"]),
+            ("Completado",  completado, StatusColors["Completado"]),
+            ("Vencido",     vencido,    StatusColors["Vencido"]),
+            ("N/A",         na,         StatusColors["N/A"]),
+        }.Where(p => p.Count > 0).ToArray();
+
+        _oeaChartJson = BuildDonutJson(oeaItems, "actividades");
 
         // CTPAT stats
         _ctpatAnswered = await Db.CtpatReviews
@@ -289,65 +266,20 @@
             .CountAsync(f => f.Review.Year == now.Year);
 
         var allStats = await CtpatReviewService.GetStatsByCriterioAsync(now.Year);
-        _ctpatStats = allStats.OrderBy(s => s.PctAvance).ToList();
+        var ctpatItems = allStats.OrderBy(s => s.PctAvance)
+            .Select(s => new { Label = ShortCriterio(s.Criterio), Value = s.PctAvance })
+            .ToArray();
+
+        _ctpatChartJson = BuildBarJson(
+            ctpatItems.Select(x => x.Label).ToArray(),
+            ctpatItems.Select(x => (double)x.Value).ToArray());
 
         _loading = false;
     }
 
-    // ── Opciones de gráficas ───────────────────────────────────
-    private void BuildChartOptions()
-    {
-        var mode = Theme.IsDark ? Mode.Dark : Mode.Light;
-
-        _oeaDonutOptions = new ApexChartOptions<StatusPoint>
-        {
-            Chart = new Chart
-            {
-                Type       = ChartType.Donut,
-                Background = "transparent",
-                Toolbar    = new Toolbar { Show = false },
-            },
-            Theme      = new ApexCharts.Theme { Mode = mode },
-            Colors     = _oeaStatusData.Count > 0
-                             ? _oeaStatusData.Select(p => p.Color).ToList()
-                             : StatusColors.Values.ToList(),
-            Legend     = new Legend { Position = LegendPosition.Bottom },
-            DataLabels = new DataLabels { Enabled = true },
-            Tooltip    = new Tooltip { Enabled = true },
-        };
-
-        _ctpatBarOptions = new ApexChartOptions<CtpatCriterioStats>
-        {
-            Chart = new Chart
-            {
-                Type       = ChartType.Bar,
-                Background = "transparent",
-                Toolbar    = new Toolbar { Show = false },
-                Height     = 280,
-            },
-            Theme       = new ApexCharts.Theme { Mode = mode },
-            PlotOptions = new PlotOptions
-            {
-                Bar = new PlotOptionsBar { Horizontal = true, BorderRadius = 3 }
-            },
-            Colors     = new List<string> { "#7c3aed" },
-            Xaxis      = new XAxis { Max = 100 },
-            DataLabels = new DataLabels
-            {
-                Enabled   = true,
-                Formatter = "function(val) { return val + '%' }"
-            },
-            Tooltip = new Tooltip { Enabled = true },
-        };
-    }
-
+    // ── Tema ───────────────────────────────────────────────────
     private async void OnThemeChanged()
     {
-        // Reconstruye las opciones con el nuevo Mode (Dark/Light).
-        // El @key="Theme.Current" en cada <ApexChart> hará que Blazor destruya
-        // la instancia anterior y cree una nueva con estas opciones, garantizando
-        // que ejes, tooltips, leyenda y data labels se repinten con los colores correctos.
-        BuildChartOptions();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -362,7 +294,98 @@
 
     private static string ShortCriterio(string criterio)
     {
-        // Acortar nombres largos para que quepan en el eje Y
-        return criterio.Length > 22 ? criterio[..22] + "…" : criterio;
+        return criterio.Length > 22 ? criterio[..22] + "..." : criterio;
+    }
+
+    // ── ECharts JSON builders ─────────────────────────────────
+    private static string BuildDonutJson(
+        (string Label, int Count, string Color)[] items,
+        string unitLabel)
+    {
+        var dataArr = items.Select(i => new
+        {
+            value = i.Count,
+            name = i.Label,
+            itemStyle = new { color = i.Color }
+        });
+
+        var options = new
+        {
+            tooltip = new
+            {
+                trigger = "item",
+                formatter = $"{{b}}: {{c}} {unitLabel} ({{d}}%)"
+            },
+            legend = new
+            {
+                bottom = "0%",
+                left = "center",
+                textStyle = new { fontSize = 11 }
+            },
+            series = new object[]
+            {
+                new
+                {
+                    type = "pie",
+                    radius = new[] { "45%", "70%" },
+                    center = new[] { "50%", "45%" },
+                    avoidLabelOverlap = true,
+                    padAngle = 2,
+                    itemStyle = new { borderRadius = 4 },
+                    label = new { show = false },
+                    emphasis = new
+                    {
+                        label = new { show = true, fontSize = 14, fontWeight = "bold" }
+                    },
+                    data = dataArr
+                }
+            },
+            animationType = "scale",
+            animationEasing = "elasticOut"
+        };
+
+        return JsonSerializer.Serialize(options);
+    }
+
+    private static string BuildBarJson(string[] labels, double[] values)
+    {
+        var options = new
+        {
+            tooltip = new
+            {
+                trigger = "axis",
+                axisPointer = new { type = "shadow" },
+                formatter = "{b}: {c}%"
+            },
+            grid = new { left = "3%", right = "6%", bottom = "3%", top = "3%", containLabel = true },
+            xAxis = new
+            {
+                type = "value",
+                min = 0,
+                max = 100,
+                splitLine = new { show = true, lineStyle = new { type = "dashed" } },
+                axisLabel = new { formatter = "{value}%" }
+            },
+            yAxis = new
+            {
+                type = "category",
+                data = labels,
+                axisLabel = new { fontSize = 11 }
+            },
+            series = new object[]
+            {
+                new
+                {
+                    type = "bar",
+                    data = values,
+                    itemStyle = new { borderRadius = new[] { 0, 5, 5, 0 } },
+                    barMaxWidth = 24,
+                    colorBy = "data"
+                }
+            },
+            animationEasing = "cubicOut"
+        };
+
+        return JsonSerializer.Serialize(options);
     }
 }

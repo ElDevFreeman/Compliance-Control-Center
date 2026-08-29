@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @implements IDisposable
 
+@using System.Text.Json
 @inject ICtpatCatalogService Catalog
 @inject ICtpatReviewService Reviews
 @inject ThemeState Theme
@@ -47,69 +48,62 @@
     }
     else
     {
-        <!-- ── Barra de progreso global ──────────────────────────── -->
+        <!-- ── Gauge + KPIs ──────────────────────────────────────── -->
         <div class="card card-border bg-base-100 border-base-300 shrink-0">
             <div class="card-body p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[20px] leading-none text-primary">
-                            @(_progress >= 100 ? "verified" : "pending")
-                        </span>
-                        <span class="font-semibold text-base-content">Avance global del ciclo @_year</span>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <!-- Gauge compacto -->
+                    <div class="shrink-0 w-36 sm:w-40">
+                        <EChart Options="@_gaugeJson" Style="height: 120px; width: 100%;" ThemeKey="@Theme.Current" />
+                        <p class="text-center text-[11px] text-base-content/40 -mt-1">@_atendidas / @_totalQuestions preguntas</p>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-3xl font-bold tabular-nums @PctClass(_progress)">@_progress%</span>
-                        <span class="text-sm text-base-content/50">(@_atendidas / @_totalQuestions preguntas)</span>
+                    <!-- Separador -->
+                    <div class="hidden sm:block w-px self-stretch bg-base-300"></div>
+                    <!-- KPIs en fila -->
+                    <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <KpiCard Label="Total"       Value="@_totalQuestions.ToString()"   Variant="neutral"
+                                 SubText="Preguntas CTPAT"
+                                 Icon="quiz" />
+                        <KpiCard Label="Revisado OK" Value="@_countRevisado.ToString()"    Variant="success"
+                                 SubText="Cerrado por revisor"
+                                 Icon="verified" />
+                        <KpiCard Label="Sin cambios" Value="@_countSinCambios.ToString()"  Variant="info"
+                                 SubText="Respuesta vigente"
+                                 Icon="check_circle" />
+                        <KpiCard Label="Con cambios" Value="@_countConCambios.ToString()"  Variant="warning"
+                                 SubText="Requiere actualización"
+                                 Icon="warning" />
                     </div>
-                </div>
-                <div class="w-full bg-base-300 rounded-full h-3">
-                    <div class="h-3 rounded-full transition-all duration-700 @ProgressBarBg(_progress)"
-                         style="width: @_progress%"></div>
-                </div>
-                <!-- Mini leyenda de segmentos -->
-                <div class="flex flex-wrap gap-3 mt-2">
-                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
-                        <span class="w-2.5 h-2.5 rounded-full bg-success inline-block"></span>Revisado (@_countRevisado)
-                    </span>
-                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
-                        <span class="w-2.5 h-2.5 rounded-full bg-info inline-block"></span>Sin cambios (@_countSinCambios)
-                    </span>
-                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
-                        <span class="w-2.5 h-2.5 rounded-full bg-error inline-block"></span>Con cambios (@_countConCambios)
-                    </span>
-                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
-                        <span class="w-2.5 h-2.5 rounded-full bg-base-content/20 inline-block"></span>Pendiente (@_countPendiente)
-                    </span>
                 </div>
             </div>
         </div>
 
-        <!-- ── KPIs ─────────────────────────────────────────────── -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
-            <KpiCard Label="Total"       Value="@_totalQuestions.ToString()"   Variant="neutral"
-                     SubText="Preguntas CTPAT"
-                     Icon="quiz" />
-            <KpiCard Label="Revisado OK" Value="@_countRevisado.ToString()"    Variant="success"
-                     SubText="Cerrado por revisor"
-                     Icon="verified" />
-            <KpiCard Label="Sin cambios" Value="@_countSinCambios.ToString()"  Variant="info"
-                     SubText="Respuesta vigente"
-                     Icon="check_circle" />
-            <KpiCard Label="Con cambios" Value="@_countConCambios.ToString()"  Variant="warning"
-                     SubText="Requiere actualización"
-                     Icon="warning" />
-        </div>
-
-        <!-- ── Gráficas ──────────────────────────────────────────── -->
+        <!-- ── Gráficas: Radar + Stacked bar ─────────────────────── -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-            <!-- Donut de estados -->
+            <!-- Radar: % avance por criterio -->
             <div class="card card-border bg-base-100 border-base-300">
                 <div class="card-body p-4 gap-2">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-semibold flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">donut_large</span>
-                            Distribución de estados
+                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">radar</span>
+                            Avance por criterio
+                        </span>
+                        <span class="text-xs font-bold @PctClass(_progress)">@_progress% global</span>
+                    </div>
+                    <div class="h-80">
+                        <EChart Options="@_radarJson" Style="height: 320px; width: 100%;" ThemeKey="@Theme.Current" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stacked bar: desglose de estados por criterio -->
+            <div class="card card-border bg-base-100 border-base-300">
+                <div class="card-body p-4 gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">stacked_bar_chart</span>
+                            Desglose por criterio
                         </span>
                         @if (_countPendiente == 0)
                         {
@@ -123,44 +117,8 @@
                             <span class="badge badge-warning badge-sm">@_countPendiente pendientes</span>
                         }
                     </div>
-                    <div class="h-80 overflow-hidden">
-                        @* @key fuerza recrear el chart al cambiar de tema para repintar ejes/tooltips/labels. *@
-                        <ApexChart TItem="StatusPoint"
-                                   Options="_donutOptions"
-                                   @ref="_donutChart"
-                                   @key="@($"ctpat-donut-{Theme.Current}")">
-                            <ApexPointSeries TItem="StatusPoint"
-                                             Items="_donutData"
-                                             SeriesType="SeriesType.Donut"
-                                             XValue="p => p.Label"
-                                             YValue="p => p.Count" />
-                        </ApexChart>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Barra horizontal de avance por criterio -->
-            <div class="card card-border bg-base-100 border-base-300">
-                <div class="card-body p-4 gap-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[18px] leading-none text-base-content/50">bar_chart</span>
-                            Avance por criterio
-                        </span>
-                        <span class="text-xs font-bold @PctClass(_progress)">@_progress% global</span>
-                    </div>
-                    <div class="h-80 overflow-hidden">
-                        <ApexChart TItem="CtpatCriterioStats"
-                                   Options="_barOptions"
-                                   @ref="_barChart"
-                                   @key="@($"ctpat-bar-{Theme.Current}")">
-                            <ApexPointSeries TItem="CtpatCriterioStats"
-                                             Items="_statsSorted"
-                                             Name="% Revisado"
-                                             SeriesType="SeriesType.Bar"
-                                             XValue="s => ShortName(s.Criterio)"
-                                             YValue="s => (decimal)s.PctAvance" />
-                        </ApexChart>
+                    <div class="h-80">
+                        <EChart Options="@_stackedBarJson" Style="height: 320px; width: 100%;" ThemeKey="@Theme.Current" />
                     </div>
                 </div>
             </div>
@@ -309,22 +267,17 @@
 
     private IReadOnlyList<CtpatCriterioStats> _stats       = Array.Empty<CtpatCriterioStats>();
     private List<CtpatCriterioStats>          _statsSorted = new();
-    private List<StatusPoint>                 _donutData   = new();
     private List<CtpatReview>                 _recentReviews = new();
 
-    private ApexChart<StatusPoint>?        _donutChart;
-    private ApexChart<CtpatCriterioStats>? _barChart;
-
-    private ApexChartOptions<StatusPoint>        _donutOptions = new();
-    private ApexChartOptions<CtpatCriterioStats> _barOptions   = new();
-
-    private record StatusPoint(string Label, int Count);
+    // ── ECharts JSON ─────────────────────────────────────────────
+    private string _gaugeJson      = "{}";
+    private string _radarJson      = "{}";
+    private string _stackedBarJson = "{}";
 
     // ── Ciclo de vida ────────────────────────────────────────────
     protected override void OnInitialized()
     {
         Theme.OnChange += OnThemeChanged;
-        BuildChartOptions();
     }
 
     public void Dispose() => Theme.OnChange -= OnThemeChanged;
@@ -333,57 +286,7 @@
 
     private async void OnThemeChanged()
     {
-        // Reconstruye opciones con el nuevo Mode. El @key="Theme.Current" en cada <ApexChart>
-        // recrea las instancias para que ejes/tooltips/labels se repinten con colores correctos.
-        BuildChartOptions();
         await InvokeAsync(StateHasChanged);
-    }
-
-    // ── Opciones de gráficas ────────────────────────────────────
-    private void BuildChartOptions()
-    {
-        var mode = Theme.IsDark ? Mode.Dark : Mode.Light;
-
-        // Pendiente=gris, SinCambios=info/cyan, ConCambios=error/rojo, Revisado=success/verde
-        _donutOptions = new ApexChartOptions<StatusPoint>
-        {
-            Chart = new Chart
-            {
-                Type       = ChartType.Donut,
-                Background = "transparent",
-                Toolbar    = new Toolbar { Show = false },
-                Height     = "320"
-            },
-            Theme      = new ApexCharts.Theme { Mode = mode },
-            Colors     = new List<string> { "#94a3b8", "#06b6d4", "#ef4444", "#22c55e" },
-            Legend     = new Legend { Position = LegendPosition.Bottom },
-            DataLabels = new DataLabels { Enabled = true },
-            Tooltip    = new Tooltip { Enabled = true },
-        };
-
-        _barOptions = new ApexChartOptions<CtpatCriterioStats>
-        {
-            Chart = new Chart
-            {
-                Type       = ChartType.Bar,
-                Background = "transparent",
-                Toolbar    = new Toolbar { Show = false },
-                Height     = "320"
-            },
-            Theme       = new ApexCharts.Theme { Mode = mode },
-            PlotOptions = new PlotOptions
-            {
-                Bar = new PlotOptionsBar { Horizontal = true, BorderRadius = 4 }
-            },
-            Colors     = new List<string> { "#2563eb" },
-            Xaxis      = new XAxis { Max = 100 },
-            DataLabels = new DataLabels
-            {
-                Enabled   = true,
-                Formatter = "function(val) { return val + '%' }"
-            },
-            Tooltip    = new Tooltip { Enabled = true },
-        };
     }
 
     // ── Carga de datos ───────────────────────────────────────────
@@ -423,26 +326,190 @@
             ? 0
             : (int)Math.Round(_atendidas * 100.0 / _totalQuestions);
 
-        _donutData = new List<StatusPoint>
-        {
-            new("Pendiente",   _countPendiente),
-            new("Sin cambios", _countSinCambios),
-            new("Con cambios", _countConCambios),
-            new("Revisado",    _countRevisado),
-        };
+        // Build chart JSON
+        _gaugeJson = BuildGaugeJson(_progress, _atendidas, _totalQuestions);
+        _radarJson = BuildRadarJson(_statsSorted);
+        _stackedBarJson = BuildStackedBarJson(_statsSorted);
 
         _loading = false;
+    }
 
-        if (_donutChart is not null)
-            try { await _donutChart.UpdateSeriesAsync(); } catch { }
-        if (_barChart is not null)
-            try { await _barChart.UpdateSeriesAsync(); } catch { }
+    // ── ECharts JSON builders ────────────────────────────────────
+
+    /// Gauge semicircular — avance global
+    private static string BuildGaugeJson(int pct, int atendidas, int total)
+    {
+        var color = pct >= 80 ? "#22c55e" : pct >= 50 ? "#6366f1" : pct >= 30 ? "#f59e0b" : "#ef4444";
+        var options = new
+        {
+            series = new object[]
+            {
+                new
+                {
+                    type = "gauge",
+                    startAngle = 200,
+                    endAngle = -20,
+                    min = 0,
+                    max = 100,
+                    radius = "100%",
+                    center = new[] { "50%", "60%" },
+                    progress = new { show = true, width = 14, roundCap = true, itemStyle = new { color } },
+                    axisLine = new { lineStyle = new { width = 14, color = new object[] { new object[] { 1, "#e5e7eb" } } } },
+                    axisTick = new { show = false },
+                    splitLine = new { show = false },
+                    axisLabel = new { show = false },
+                    pointer = new { show = false },
+                    anchor = new { show = false },
+                    title = new { show = false },
+                    detail = new
+                    {
+                        valueAnimation = true,
+                        fontSize = 26,
+                        fontWeight = "bold",
+                        color,
+                        offsetCenter = new[] { "0%", "0%" },
+                        formatter = $"{{value}}%"
+                    },
+                    data = new object[] { new { value = pct } }
+                }
+            },
+            animation = true
+        };
+        return JsonSerializer.Serialize(options);
+    }
+
+    /// Radar — % de avance por criterio
+    private static string BuildRadarJson(List<CtpatCriterioStats> stats)
+    {
+        var indicators = stats.Select(s => new
+        {
+            name = s.Criterio.Length > 18 ? s.Criterio[..16] + "\u2026" : s.Criterio,
+            max = 100
+        }).ToArray();
+
+        var values = stats.Select(s => (double)s.PctAvance).ToArray();
+
+        var options = new
+        {
+            tooltip = new
+            {
+                trigger = "item"
+            },
+            radar = new
+            {
+                indicator = indicators,
+                shape = "circle",
+                splitNumber = 4,
+                axisName = new { fontSize = 10, color = "#888" },
+                splitArea = new { areaStyle = new { color = new[] { "rgba(99,102,241,0.04)", "rgba(99,102,241,0.08)" } } },
+                splitLine = new { lineStyle = new { color = "#e5e7eb" } }
+            },
+            series = new object[]
+            {
+                new
+                {
+                    type = "radar",
+                    data = new object[]
+                    {
+                        new
+                        {
+                            value = values,
+                            name = "% Avance",
+                            areaStyle = new { color = "rgba(99,102,241,0.2)" },
+                            lineStyle = new { color = "#6366f1", width = 2 },
+                            itemStyle = new { color = "#6366f1" },
+                            symbol = "circle",
+                            symbolSize = 6
+                        }
+                    }
+                }
+            },
+            animation = true,
+            animationEasing = "cubicOut"
+        };
+        return JsonSerializer.Serialize(options);
+    }
+
+    /// Stacked bar horizontal — desglose de estados por criterio
+    private static string BuildStackedBarJson(List<CtpatCriterioStats> stats)
+    {
+        var labels = stats.Select(s =>
+            s.Criterio.Length > 20 ? s.Criterio[..18] + "\u2026" : s.Criterio
+        ).ToArray();
+
+        var options = new
+        {
+            tooltip = new
+            {
+                trigger = "axis",
+                axisPointer = new { type = "shadow" }
+            },
+            legend = new
+            {
+                bottom = 0,
+                left = "center",
+                itemWidth = 10,
+                itemHeight = 10,
+                textStyle = new { fontSize = 11 }
+            },
+            grid = new { left = "3%", right = "4%", bottom = "14%", top = "3%", containLabel = true },
+            xAxis = new
+            {
+                type = "value",
+                axisLabel = new { show = false },
+                splitLine = new { show = false }
+            },
+            yAxis = new
+            {
+                type = "category",
+                data = labels,
+                axisLabel = new { fontSize = 11 }
+            },
+            series = new object[]
+            {
+                new
+                {
+                    name = "Revisado",
+                    type = "bar",
+                    stack = "total",
+                    data = stats.Select(s => s.Revisado).ToArray(),
+                    itemStyle = new { color = "#22c55e" },
+                    barMaxWidth = 20
+                },
+                new
+                {
+                    name = "Sin cambios",
+                    type = "bar",
+                    stack = "total",
+                    data = stats.Select(s => s.SinCambios).ToArray(),
+                    itemStyle = new { color = "#06b6d4" },
+                    barMaxWidth = 20
+                },
+                new
+                {
+                    name = "Con cambios",
+                    type = "bar",
+                    stack = "total",
+                    data = stats.Select(s => s.ConCambios).ToArray(),
+                    itemStyle = new { color = "#ef4444" },
+                    barMaxWidth = 20
+                },
+                new
+                {
+                    name = "Pendiente",
+                    type = "bar",
+                    stack = "total",
+                    data = stats.Select(s => s.Pendiente).ToArray(),
+                    itemStyle = new { color = "#94a3b8" },
+                    barMaxWidth = 20
+                },
+            },
+            animationEasing = "cubicOut"
+        };
+        return JsonSerializer.Serialize(options);
     }
 
     // ── Helpers ──────────────────────────────────────────────────
-    private static string ShortName(string criterio) =>
-        criterio.Length > 22 ? criterio[..20] + "…" : criterio;
-
     private static string PctClass(double pct) => pct switch
     {
         >= 80 => "text-success",

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using ApexCharts;
 using ComplianceControlCenter.Web.Components;
 using ComplianceControlCenter.Web.Core.Identity;
 using ComplianceControlCenter.Web.Core.Data;
@@ -244,9 +243,6 @@ builder.Services.AddScoped<UserSessionState>();
 builder.Services.AddScoped<LoginModalState>();
 builder.Services.AddScoped<CtpatPanelState>();
 builder.Services.AddScoped<OeaChecklistPanelState>();
-
-// Blazor-ApexCharts
-builder.Services.AddApexCharts();
 
 // ────────────────────────────────────────────────────────────────
 var app = builder.Build();

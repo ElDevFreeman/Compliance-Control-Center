@@ -13,10 +13,9 @@
 
 <PageTitle>Iniciar sesión · Compliance Control Center</PageTitle>
 
-@*  Login split-screen que ocupa el área principal del MainLayout (el sidebar
-    permanece visible como en cualquier otro módulo). El truco `-m-4 lg:-m-6`
-    contrarresta el padding del <main> para que el split llegue a los bordes. *@
-<div class="grid grid-cols-1 md:grid-cols-2 flex-1 min-h-0 -m-4 lg:-m-6 overflow-hidden rounded-none">
+@*  Login split-screen que ocupa toda la ventana (sin sidebar).
+    AccountLayout provee un <main> sin padding, así que no necesitamos márgenes negativos. *@
+<div class="grid grid-cols-1 md:grid-cols-2 flex-1 min-h-0 overflow-hidden rounded-none">
 
     @* ──────────────── Panel izquierdo (branding) ──────────────── *@
     <aside class="relative flex flex-col overflow-hidden

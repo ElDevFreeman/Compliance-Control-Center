@@ -2,6 +2,7 @@
 @page "/oea/history"
 @rendermode InteractiveServer
 @implements IDisposable
+@using System.Text.Json
 @inject IMatrixService MatrixSvc
 @inject IChecklistService ChecklistSvc
 @inject IAuditService AuditSvc
@@ -47,116 +48,90 @@
 
 @if (_activeTab == "matrix")
 {
-    <!-- ── Toolbar Matriz ─────────────────────────────────────── -->
-    <div class="card card-border bg-base-100 border-base-300 fade-in-fast">
-        <div class="card-body p-3">
-            <div class="flex flex-wrap gap-3 items-end">
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Rango</legend>
-                    <select class="select select-bordered select-sm"
-                            @bind="_range" @bind:after="OnRangeChangedAsync">
-                        <option value="6">Últimos 6 meses</option>
-                        <option value="12">Últimos 12 meses</option>
-                        <option value="year">Este año</option>
-                        <option value="custom">Personalizado</option>
-                    </select>
-                </fieldset>
+    <!-- ── Filtros + Tendencia ────────────────────────────────── -->
+    <div class="card card-border bg-base-100 border-base-300">
+        <div class="card-body px-5 py-3 gap-0">
+            <div class="flex flex-col lg:flex-row lg:items-stretch gap-4">
 
-                @if (_range == "custom")
-                {
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Desde</legend>
-                        <MonthPicker Value="@FromValue" ValueChanged="OnFromChanged" />
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Hasta</legend>
-                        <MonthPicker Value="@ToValue" ValueChanged="OnToChanged" Align="end" />
-                    </fieldset>
-                }
+                <!-- Lado izquierdo: filtros (~70%) -->
+                <div class="flex-[7] min-w-0 flex flex-col gap-3 justify-center">
+                    <div class="flex flex-wrap gap-3 items-end">
+                        <fieldset class="fieldset py-0">
+                            <legend class="fieldset-legend text-xs">Rango</legend>
+                            <select class="select select-bordered select-sm"
+                                    @bind="_range" @bind:after="OnRangeChangedAsync">
+                                <option value="6">Últimos 6 meses</option>
+                                <option value="12">Últimos 12 meses</option>
+                                <option value="year">Este año</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </fieldset>
 
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Responsable</legend>
-                    <select class="select select-bordered select-sm"
-                            @bind="_owner" @bind:after="LoadAsync">
-                        <option value="">Todos</option>
-                        @foreach (var o in _availableOwners)
+                        @if (_range == "custom")
                         {
-                            <option value="@o">@o</option>
+                            <fieldset class="fieldset py-0">
+                                <legend class="fieldset-legend text-xs">Desde</legend>
+                                <MonthPicker Value="@FromValue" ValueChanged="OnFromChanged" />
+                            </fieldset>
+                            <fieldset class="fieldset py-0">
+                                <legend class="fieldset-legend text-xs">Hasta</legend>
+                                <MonthPicker Value="@ToValue" ValueChanged="OnToChanged" Align="end" />
+                            </fieldset>
                         }
-                    </select>
-                </fieldset>
 
-                <fieldset class="fieldset flex-1 min-w-[220px]">
-                    <legend class="fieldset-legend">Buscar</legend>
-                    <label class="input input-bordered input-sm w-full flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <input type="text" class="grow" placeholder="Filtrar actividad..."
-                               @bind="_search" @bind:event="oninput" @bind:after="LoadAsync" />
-                    </label>
-                </fieldset>
+                        <fieldset class="fieldset py-0">
+                            <legend class="fieldset-legend text-xs">Responsable</legend>
+                            <select class="select select-bordered select-sm"
+                                    @bind="_owner" @bind:after="LoadAsync">
+                                <option value="">Todos</option>
+                                @foreach (var o in _availableOwners)
+                                {
+                                    <option value="@o">@o</option>
+                                }
+                            </select>
+                        </fieldset>
 
-                <a href="@ExportUrl" class="btn btn-sm btn-outline" target="_blank" title="Exportar Excel">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-                    </svg>
-                    XLSX
-                </a>
-            </div>
-        </div>
-    </div>
+                        <fieldset class="fieldset py-0 flex-1 min-w-[180px]">
+                            <legend class="fieldset-legend text-xs">Buscar</legend>
+                            <label class="input input-bordered input-sm w-full flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px] leading-none opacity-60">search</span>
+                                <input type="text" class="grow" placeholder="Filtrar actividad..."
+                                       @bind="_search" @bind:event="oninput" @bind:after="LoadAsync" />
+                            </label>
+                        </fieldset>
 
-    <!-- ── KPIs + Sparkline compacta ─────────────────────────── -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KpiCard Label="Actividades" Value="@_rows.Count.ToString()" Variant="neutral"
-                 IconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        <KpiCard Label="Meses en rango" Value="@_months.Count.ToString()" Variant="info"
-                 IconPath="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        <KpiCard Label="% Global cumplimiento" Value="@($"{GlobalPct}%")" Variant="success"
-                 IconPath="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <a href="@ExportUrl" class="btn btn-sm btn-outline" target="_blank" title="Exportar Excel">
+                            <span class="material-symbols-outlined text-[16px] leading-none">download</span>
+                            XLSX
+                        </a>
+                    </div>
 
-        <!-- Sparkline compacta como 4ta tarjeta -->
-        <div class="card card-border bg-base-100 border-base-300">
-            <div class="card-body p-4 gap-1">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-base-content/60 uppercase tracking-wider">
-                        Tendencia
-                    </span>
-                    @if (_chartData.Count > 0)
+                    <!-- Info compacta -->
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-base-content/50">
+                        <span>@_rows.Count actividades</span>
+                        <span>@_months.Count meses</span>
+                        <span class="font-semibold @PctClass(GlobalPct)">@GlobalPct% cumplimiento global</span>
+                    </div>
+                </div>
+
+                <!-- Separador vertical -->
+                <div class="hidden lg:block w-px bg-base-300"></div>
+
+                <!-- Lado derecho: tendencia (~30%) -->
+                <div class="flex-[3] min-w-[180px] flex flex-col items-center justify-center gap-1">
+                    <span class="text-[11px] font-medium text-base-content/50 uppercase tracking-wider">Tendencia</span>
+                    @if (_months.Count > 0 && _rows.Count > 0)
                     {
-                        <span class="text-xs font-semibold @PctClass(_chartData[^1].Pct)">
-                            @($"{_chartData[^1].Pct:0.#}%")
-                        </span>
+                        <EChart Options="@_trendLineJson" Style="height: 100px; width: 100%;" ThemeKey="@Theme.Current" />
+                    }
+                    else
+                    {
+                        <div class="h-24 flex items-center justify-center text-xs text-base-content/40">
+                            Sin datos
+                        </div>
                     }
                 </div>
-                @if (_months.Count > 0 && _rows.Count > 0)
-                {
-                    <div class="h-14 -mx-1">
-                        @* @key fuerza recrear el chart al cambiar el tema para que los colores repinten correctamente. *@
-                        <ApexChart TItem="MonthlyPct"
-                                   Options="_chartOptions"
-                                   @ref="_chart"
-                                   @key="@($"oea-matrix-sparkline-{Theme.Current}")">
-                            <ApexPointSeries TItem="MonthlyPct"
-                                             Items="_chartData"
-                                             Name="% Cumplimiento"
-                                             SeriesType="SeriesType.Area"
-                                             XValue="e => e.Label"
-                                             YValue="e => (decimal)e.Pct" />
-                        </ApexChart>
-                    </div>
-                }
-                else
-                {
-                    <div class="h-14 flex items-center justify-center text-xs text-base-content/40">
-                        Sin datos
-                    </div>
-                }
+
             </div>
         </div>
     </div>
@@ -353,9 +328,8 @@ else
         }
     }
 
-    private ApexChart<MonthlyPct>? _chart;
     private List<MonthlyPct> _chartData = new();
-    private ApexChartOptions<MonthlyPct> _chartOptions = new();
+    private string _trendLineJson = "{}";
 
     private string FromValue => _from.ToString("yyyy-MM");
     private string ToValue => _to.ToString("yyyy-MM");
@@ -440,7 +414,6 @@ else
             _activeTab = "audit";
         }
 
-        BuildChartOptions();
         Theme.OnChange += OnThemeChanged;
         ApplyRange();
         await LoadAvailableOwnersAsync();
@@ -453,36 +426,10 @@ else
         _activeTab = tab;
     }
 
-    private void BuildChartOptions()
-    {
-        _chartOptions = new ApexChartOptions<MonthlyPct>
-        {
-            Chart = new Chart
-            {
-                Toolbar = new Toolbar { Show = false },
-                Zoom = new Zoom { Enabled = false },
-                Sparkline = new ChartSparkline { Enabled = true },
-                Background = "transparent",
-                Height = 56
-            },
-            Theme = new ApexCharts.Theme
-            {
-                Mode = Theme.IsDark ? Mode.Dark : Mode.Light
-            },
-            Stroke = new Stroke { Curve = Curve.Smooth, Width = 2 },
-            Tooltip = new Tooltip { Enabled = true },
-            Yaxis = new List<YAxis>
-            {
-                new YAxis { Min = 0, Max = 100, Show = false }
-            }
-        };
-    }
-
     private async void OnThemeChanged()
     {
-        // Reconstruye opciones con el nuevo Mode. El @key="Theme.Current" en el <ApexChart>
-        // hace que Blazor destruya y recree la instancia para repintar limpio.
-        BuildChartOptions();
+        // ThemeKey en el <EChart> hace que Blazor
+        // destruya y recree la instancia para repintar limpio.
         await InvokeAsync(StateHasChanged);
     }
 
@@ -551,12 +498,9 @@ else
         _rows = result.Rows.ToList();
         _months = result.Months.ToList();
         _chartData = BuildChartData();
+        _trendLineJson = BuildTrendLineJson(_chartData);
         _loading = false;
 
-        if (_chart is not null)
-        {
-            try { await _chart.UpdateSeriesAsync(); } catch { }
-        }
         StateHasChanged();
     }
 
@@ -613,6 +557,54 @@ else
         if (a.Contains("create") || a.Contains("add") || a.Contains("crear")) return "badge-success";
         if (a.Contains("update") || a.Contains("edit") || a.Contains("actualiz")) return "badge-info";
         return "badge-ghost";
+    }
+
+    private static string BuildTrendLineJson(List<MonthlyPct> data)
+    {
+        var labels = data.Select(d => d.Label).ToArray();
+        var values = data.Select(d => d.Pct).ToArray();
+
+        var options = new
+        {
+            tooltip = new
+            {
+                trigger = "axis",
+                formatter = "{b}: {c}%",
+                textStyle = new { fontSize = 11 }
+            },
+            grid = new { left = 4, right = 4, top = 6, bottom = 4 },
+            xAxis = new
+            {
+                type = "category",
+                data = labels,
+                show = false,
+                boundaryGap = false
+            },
+            yAxis = new
+            {
+                type = "value",
+                show = false,
+                min = 0,
+                max = 100
+            },
+            series = new object[]
+            {
+                new
+                {
+                    type = "line",
+                    data = values,
+                    smooth = true,
+                    symbol = "circle",
+                    symbolSize = 4,
+                    lineStyle = new { color = "rgb(34, 197, 94)", width = 2 },
+                    areaStyle = new { color = "rgba(34, 197, 94, 0.12)" },
+                    itemStyle = new { color = "rgb(34, 197, 94)" }
+                }
+            },
+            animation = true
+        };
+
+        return JsonSerializer.Serialize(options);
     }
 
     public record MonthlyPct(string Label, double Pct, int Completed);

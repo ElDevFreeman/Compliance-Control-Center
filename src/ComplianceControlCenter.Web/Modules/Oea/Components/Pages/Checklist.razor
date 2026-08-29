@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using ComplianceControlCenter.Web.Modules.Oea.Hubs
 @using ComplianceControlCenter.Web.Modules.Oea.State
+@using System.Text.Json
 @inject IChecklistService ChecklistSvc
 @inject ICommentService CommentSvc
 @inject UserSessionState Session
@@ -10,6 +11,7 @@
 @inject LoginModalState LoginModal
 @inject OeaChecklistPanelState PanelState
 @inject IJSRuntime JS
+@inject ThemeState Theme
 @implements IAsyncDisposable
 
 <PageTitle>Checklist OEA</PageTitle>
@@ -42,84 +44,103 @@
     </div>
 }
 
-<!-- ── KPIs estilo Southbound ─────────────────────────────────── -->
-<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 shrink-0">
-    <KpiCard Label="Total" Value="@Total.ToString()" Variant="neutral"
-             IconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    <KpiCard Label="Completadas" Value="@($"{Completed} ({Pct}%)")" Variant="success"
-             IconPath="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    <KpiCard Label="En progreso" Value="@InProgress.ToString()" Variant="info"
-             IconPath="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    <KpiCard Label="Pendientes" Value="@Pending.ToString()" Variant="warning"
-             IconPath="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-2.5L13.73 4c-.77-.83-1.96-.83-2.73 0L4.08 16.5c-.77.83.19 2.5 1.73 2.5z" />
-    <KpiCard Label="Vencidas" Value="@Overdue.ToString()" Variant="error"
-             IconPath="M6 18L18 6M6 6l12 12" />
-</div>
+<!-- ── Pie chart + filtros ──────────────────────────────────── -->
+<div class="card card-border bg-base-100 border-base-300 shrink-0">
+    <div class="card-body px-5 py-3 gap-0">
+        <div class="flex flex-col lg:flex-row lg:items-stretch gap-4">
 
-<!-- ── Toolbar / filtros ──────────────────────────────────────── -->
-<div class="card card-border bg-base-100 border-base-300 shrink-0 fade-in-safe">
-    <div class="card-body p-3">
-        <div class="flex flex-wrap gap-2 items-end">
-            <label class="input input-bordered input-sm flex-1 min-w-40 basis-64 gap-2">
-                <span class="material-symbols-outlined text-[18px] leading-none opacity-60">search</span>
-                <input type="text"
-                       class="grow"
-                       placeholder="Buscar..."
-                       @bind="_search"
-                       @bind:event="oninput"
-                       @bind:after="() => _page = 1" />
-            </label>
+            <!-- Lado izquierdo: filtros + exports (~70%) -->
+            <div class="flex-[7] min-w-0 flex flex-col gap-3 justify-center">
+                <div class="flex flex-wrap gap-2 items-end">
+                    <label class="input input-bordered input-sm flex-1 min-w-40 basis-64 gap-2">
+                        <span class="material-symbols-outlined text-[18px] leading-none opacity-60">search</span>
+                        <input type="text"
+                               class="grow"
+                               placeholder="Buscar..."
+                               @bind="_search"
+                               @bind:event="oninput"
+                               @bind:after="() => _page = 1" />
+                    </label>
 
-            <select class="select select-bordered select-sm" @bind="_filterStatus" @bind:after="() => _page = 1">
-                <option value="">Todos los estados</option>
-                @foreach (var s in Enum.GetValues<ComplianceStatus>())
-                {
-                    <option value="@s">@LabelFor(s)</option>
-                }
-            </select>
+                    <select class="select select-bordered select-sm" @bind="_filterStatus" @bind:after="() => _page = 1">
+                        <option value="">Todos los estados</option>
+                        @foreach (var s in Enum.GetValues<ComplianceStatus>())
+                        {
+                            <option value="@s">@LabelFor(s)</option>
+                        }
+                    </select>
 
-            <select class="select select-bordered select-sm" @bind="_filterOwner" @bind:after="() => _page = 1">
-                <option value="">Todos los responsables</option>
-                @foreach (var o in AvailableOwners)
-                {
-                    <option value="@o">@o</option>
-                }
-            </select>
+                    <select class="select select-bordered select-sm" @bind="_filterOwner" @bind:after="() => _page = 1">
+                        <option value="">Todos los responsables</option>
+                        @foreach (var o in AvailableOwners)
+                        {
+                            <option value="@o">@o</option>
+                        }
+                    </select>
 
-            <select class="select select-bordered select-sm" @bind="_filterFreq" @bind:after="() => _page = 1">
-                <option value="">Todas las frecuencias</option>
-                @foreach (var f in AvailableFrequencies)
-                {
-                    <option value="@f">@f</option>
-                }
-            </select>
+                    <select class="select select-bordered select-sm" @bind="_filterFreq" @bind:after="() => _page = 1">
+                        <option value="">Todas las frecuencias</option>
+                        @foreach (var f in AvailableFrequencies)
+                        {
+                            <option value="@f">@f</option>
+                        }
+                    </select>
 
-            <button class="btn btn-sm btn-ghost" @onclick="ClearFilters">Limpiar</button>
+                    <button class="btn btn-sm btn-ghost" @onclick="ClearFilters">Limpiar</button>
+                </div>
 
-            <div class="flex-1"></div>
+                <!-- Leyenda de estados + exports + add -->
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2 h-2 rounded-full bg-success inline-block"></span>
+                        <span class="font-semibold tabular-nums text-success">@Completed</span> Completadas
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2 h-2 rounded-full bg-info inline-block"></span>
+                        <span class="font-semibold tabular-nums text-info">@InProgress</span> En progreso
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2 h-2 rounded-full bg-warning inline-block"></span>
+                        <span class="font-semibold tabular-nums text-warning">@Pending</span> Pendientes
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-base-content/60">
+                        <span class="w-2 h-2 rounded-full bg-error inline-block"></span>
+                        <span class="font-semibold tabular-nums text-error">@Overdue</span> Vencidas
+                    </span>
 
-            <div class="join">
-                <a href="@($"api/export/checklist.csv?year={_month.Year}&month={_month.Month}")"
-                   class="btn btn-sm btn-outline join-item"
-                   target="_blank"
-                   title="Exportar CSV">
-                    CSV
-                </a>
-                <a href="@($"api/export/checklist.xlsx?year={_month.Year}&month={_month.Month}")"
-                   class="btn btn-sm btn-outline join-item"
-                   target="_blank"
-                   title="Exportar Excel">
-                    XLSX
-                </a>
+                    <div class="flex-1"></div>
+
+                    <div class="flex items-center gap-1">
+                        <div class="join">
+                            <a href="@($"api/export/checklist.csv?year={_month.Year}&month={_month.Month}")"
+                               class="btn btn-xs btn-outline join-item" target="_blank">CSV</a>
+                            <a href="@($"api/export/checklist.xlsx?year={_month.Year}&month={_month.Month}")"
+                               class="btn btn-xs btn-outline join-item" target="_blank">XLSX</a>
+                        </div>
+                        <button class="btn btn-xs btn-primary"
+                                @onclick="() => _addModal!.Show()"
+                                disabled="@(!_canEdit)"
+                                title="@(!_canEdit ? "Inicia sesión para agregar actividades" : "Agregar nueva actividad")">
+                            <span class="material-symbols-outlined text-[14px] leading-none">add</span>
+                            Fila
+                        </button>
+                    </div>
+
+                    <span class="text-xs text-base-content/40 whitespace-nowrap">
+                        @FilteredActivities.Count de @Total
+                    </span>
+                </div>
             </div>
 
-            <button class="btn btn-sm btn-primary"
-                    @onclick="() => _addModal!.Show()"
-                    disabled="@(!_canEdit)"
-                    title="@(!_canEdit ? "Inicia sesión para agregar actividades" : "Agregar nueva actividad")">
-                <span class="material-symbols-outlined text-[18px] leading-none">add</span>
-                Fila
-            </button>
+            <!-- Separador vertical -->
+            <div class="hidden lg:block w-px bg-base-300"></div>
+
+            <!-- Lado derecho: pie chart (~30%) -->
+            <div class="flex-[3] min-w-[160px] flex flex-col items-center justify-center">
+                <EChart Options="@_pieJson" Style="height: 130px; width: 100%;" ThemeKey="@Theme.Current" />
+                <span class="text-[11px] text-base-content/40 -mt-1">@Completed / @Total · @Pct%</span>
+            </div>
+
         </div>
     </div>
 </div>
@@ -270,6 +291,9 @@
     private bool _canEdit;
     private bool _isAdmin;
 
+    // ── Pie chart JSON ───────────────────────────────────────────
+    private string _pieJson = "{}";
+
     // ── KPIs
     private int Total => _activities.Count;
     private int Completed => _activities.Count(a => StatusOf(a) == ComplianceStatus.Completado);
@@ -332,6 +356,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Theme.OnChange += OnThemeChanged;
+
         var user = await Session.GetCurrentAsync();
         CurrentUserName = user.DisplayName;
         _currentUserId = user.UserId ?? "";
@@ -392,6 +418,8 @@
 
     public async ValueTask DisposeAsync()
     {
+        Theme.OnChange -= OnThemeChanged;
+
         // Cerrar el panel lateral y limpiar callbacks al abandonar la página,
         // para evitar que quede visible cuando el usuario navega a otra ruta.
         if (PanelState.IsOpen)
@@ -416,6 +444,7 @@
     {
         _loading = true;
         _activities = (await ChecklistSvc.GetActivitiesForMonthAsync(_month.Year, _month.Month)).ToList();
+        RebuildPieJson();
         _loading = false;
         StateHasChanged();
     }
@@ -643,4 +672,67 @@
         ComplianceStatus.NA => "N/A",
         _ => s.ToString()
     };
+
+    // ── Tema ──────────────────────────────────────────────────────
+    private async void OnThemeChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // ── Pie chart builder ─────────────────────────────────────────
+    private void RebuildPieJson()
+    {
+        var na = _activities.Count(a => StatusOf(a) == ComplianceStatus.NA);
+        var items = new (string Label, int Count, string Color)[]
+        {
+            ("Completadas",  Completed,  "#22c55e"),
+            ("En progreso",  InProgress, "#06b6d4"),
+            ("Pendientes",   Pending,    "#f59e0b"),
+            ("Vencidas",     Overdue,    "#ef4444"),
+        };
+        if (na > 0)
+            items = items.Append(("N/A", na, "#d1d5db")).ToArray();
+
+        var dataArr = items.Where(i => i.Count > 0).Select(i => new
+        {
+            value = i.Count,
+            name = i.Label,
+            itemStyle = new { color = i.Color }
+        });
+
+        var options = new
+        {
+            tooltip = new
+            {
+                trigger = "item",
+                formatter = "{b}: {c} ({d}%)"
+            },
+            legend = new
+            {
+                bottom = 0,
+                left = "center",
+                itemWidth = 8,
+                itemHeight = 8,
+                textStyle = new { fontSize = 10 }
+            },
+            series = new object[]
+            {
+                new
+                {
+                    type = "pie",
+                    radius = new[] { "40%", "68%" },
+                    center = new[] { "50%", "42%" },
+                    avoidLabelOverlap = true,
+                    padAngle = 2,
+                    itemStyle = new { borderRadius = 4 },
+                    label = new { show = false },
+                    emphasis = new { label = new { show = false } },
+                    data = dataArr
+                }
+            },
+            animationType = "scale",
+            animationEasing = "elasticOut"
+        };
+        _pieJson = JsonSerializer.Serialize(options);
+    }
 }

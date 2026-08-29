@@ -1,0 +1,57 @@
+@* Componente reutilizable que envuelve Apache ECharts via JS Interop.
+   Uso: <EChart Options="@jsonString" Style="height: 260px; width: 100%;" />
+   - Options: JSON string con la configuración completa de ECharts.
+   - Style: CSS inline para el contenedor (debe incluir height).
+   - ThemeKey: cambialo para forzar re-creación del chart (ej. Theme.Current). *@
+
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div id="@_elementId" style="@Style"></div>
+
+@code {
+    /// <summary>JSON string con la configuración completa de ECharts (option object).</summary>
+    [Parameter] public string Options { get; set; } = "{}";
+
+    /// <summary>Estilo inline del contenedor. Debe incluir height para que ECharts funcione.</summary>
+    [Parameter] public string Style { get; set; } = "height: 300px; width: 100%;";
+
+    /// <summary>Clave auxiliar para forzar re-creación (ej. al cambiar tema).</summary>
+    [Parameter] public string? ThemeKey { get; set; }
+
+    private string _elementId = $"echart-{Guid.NewGuid():N}";
+    private string? _lastOptions;
+    private string? _lastTheme;
+    private bool _jsReady;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsReady = true;
+        }
+
+        if (_jsReady && (!string.IsNullOrEmpty(Options)))
+        {
+            // Inicializar o actualizar si cambió Options o ThemeKey.
+            if (Options != _lastOptions || ThemeKey != _lastTheme)
+            {
+                _lastOptions = Options;
+                _lastTheme = ThemeKey;
+                await JS.InvokeVoidAsync("echartsInterop.initOrUpdate", _elementId, Options);
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_jsReady)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("echartsInterop.dispose", _elementId);
+            }
+            catch (JSDisconnectedException) { }
+        }
+    }
+}
